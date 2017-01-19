@@ -157,9 +157,11 @@ var G;
 				PS.dbEvent("testdb", "firstGX", nx, "firstGY", ny);
 			} else if (gold_found === 10) {
 				PS.dbEvent("testdb", "lastGX", nx, "lastGY", ny);
+				var distance = PS.pathFind( id_path, nx, ny, exitX, exitY ).length;
+				PS.dbEvent("testdb", "lastGoldToExit", distance)
 				PS.dbEvent("testdb", "lastClickX", destination.x, "lastClickY", destination.y);
-				var distance = PS.pathFind( id_path, destination.x, destination.y, exitX, exitY ).length;
-				PS.dbEvent("testdb", "pathLengthToGoal", distance)
+				distance = PS.pathFind( id_path, destination.x, destination.y, exitX, exitY ).length;
+				PS.dbEvent("testdb", "lastClickToExit", distance)
 			}
 
 			if ( gold_found >= gold_count ) {
