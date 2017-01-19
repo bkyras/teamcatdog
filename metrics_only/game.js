@@ -301,6 +301,7 @@ var G;
 			// Do nothing if game over
 
 			if ( won ) {
+				PS.dbSend("testdb", "nchaput");
 				return;
 			}
 
@@ -331,8 +332,9 @@ var G;
 PS.init = function( system, options ) {
 	"use strict";
 
-	PS.dbInit(G.DB_NAME);
 
+	PS.dbInit("testdb");
+	PS.dbEvent("testdb", "x", 3, "y", 4);
 	G.init(); // game-specific initialization
 };
 
