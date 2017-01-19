@@ -51,7 +51,10 @@ var G;
 	var gold_found = 0; // gold pieces collected
 	var won = false; // true on win
 
-	var destination = null; // active destination
+	var destination = {
+		x : null,
+		y : null
+	} // active destination
 
 	// This imageMap is used for map drawing and pathfinder logic
 	// All properties MUST be present!
@@ -151,9 +154,12 @@ var G;
 			gold_found += 1; // update gold count
 
 			if (gold_found === 1) {
-				PS.dbEvent("testdb", "firstGX", nx, "firstGY", ny)
+				PS.dbEvent("testdb", "firstGX", nx, "firstGY", ny);
 			} else if (gold_found === 10) {
-				PS.dbEvent("testdb", "lastGX", nx, "lastGY", ny)
+				PS.dbEvent("testdb", "lastGX", nx, "lastGY", ny);
+				PS.dbEvent("testdb", "lastClickX", destination.x, "lastClickY", destination.y);
+				var distance = PS.pathFind( id_path, destination.x, destination.y, exitX, exitY ).length;
+				PS.dbEvent("testdb", "pathLengthToGoal", distance)
 			}
 
 			if ( gold_found >= gold_count ) {
@@ -180,7 +186,6 @@ var G;
 			PS.statusText( "You escaped with " + gold_found + " gold!" );
 			PS.audioPlay( SOUND_WIN );
 			won = true;
-			console.log("testdb");
 			PS.dbSend("testdb", "nchaput");
 			return;
 		}
@@ -288,7 +293,7 @@ var G;
 
 			path = null; // start with no path
 			step = 0;
-			id_timer = PS.timerStart( 6, tick );
+			id_timer = PS.timerStart( 1, tick );
 		},
 
 		// move( x, y )
@@ -300,7 +305,6 @@ var G;
 			// Do nothing if game over
 
 			if ( won ) {
-				PS.dbSend("testdb", "nchaput");
 				return;
 			}
 
@@ -317,6 +321,8 @@ var G;
 				path = line;
 				step = 0; // start at beginning
 				PS.audioPlay( SOUND_FLOOR );
+				destination.x = x;
+				destination.y = y;
 			}
 			else {
 				PS.audioPlay( SOUND_WALL );
@@ -332,7 +338,6 @@ PS.init = function( system, options ) {
 	"use strict";
 
 	PS.dbInit("testdb");
-	PS.dbEvent("testdb", "x", 3, "y", 4);
 	G.init(); // game-specific initialization
 };
 
