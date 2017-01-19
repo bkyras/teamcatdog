@@ -151,9 +151,9 @@ var G;
 			gold_found += 1; // update gold count
 
 			if (gold_found === 1) {
-				PS.dbEvent(G.DB_NAME, "firstGX", nx, "firstGY", ny)
+				PS.dbEvent("testdb", "firstGX", nx, "firstGY", ny)
 			} else if (gold_found === 10) {
-				PS.dbEvent(G.DB_NAME, "lastGX", nx, "lastGY", ny)
+				PS.dbEvent("testdb", "lastGX", nx, "lastGY", ny)
 			}
 
 			if ( gold_found >= gold_count ) {
@@ -180,8 +180,8 @@ var G;
 			PS.statusText( "You escaped with " + gold_found + " gold!" );
 			PS.audioPlay( SOUND_WIN );
 			won = true;
-			console.log(G.DB_NAME);
-			PS.dbSend(G.DB_NAME, "nchaput");
+			console.log("testdb");
+			PS.dbSend("testdb", "nchaput");
 			return;
 		}
 
@@ -199,7 +199,6 @@ var G;
 	// So safe. So elegant.
 
 	G = {
-		DB_NAME : "CatDogDB",
 		// Initialize the game
 		// Called once at startup
 
@@ -331,7 +330,6 @@ var G;
 
 PS.init = function( system, options ) {
 	"use strict";
-
 
 	PS.dbInit("testdb");
 	PS.dbEvent("testdb", "x", 3, "y", 4);
