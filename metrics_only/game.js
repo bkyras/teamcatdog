@@ -51,6 +51,8 @@ var G;
 	var gold_found = 0; // gold pieces collected
 	var won = false; // true on win
 
+	var destination = null; // active destination
+
 	// This imageMap is used for map drawing and pathfinder logic
 	// All properties MUST be present!
 	// The map.data array controls the layout of the maze,
@@ -147,6 +149,13 @@ var G;
 			// If last gold has been collected, activate the exit
 
 			gold_found += 1; // update gold count
+
+			if (gold_found === 1) {
+				PS.dbEvent(G.DB_NAME, "firstGX", nx, "firstGY", ny)
+			} else if (gold_found === 10) {
+				PS.dbEvent(G.DB_NAME, "lastGX", nx, "lastGY", ny)
+			}
+
 			if ( gold_found >= gold_count ) {
 				exit_ready = true;
 				PS.color( exitX, exitY, COLOR_EXIT ); // show the exit
@@ -171,6 +180,8 @@ var G;
 			PS.statusText( "You escaped with " + gold_found + " gold!" );
 			PS.audioPlay( SOUND_WIN );
 			won = true;
+			console.log(G.DB_NAME);
+			PS.dbSend(G.DB_NAME, "nchaput");
 			return;
 		}
 
@@ -188,6 +199,7 @@ var G;
 	// So safe. So elegant.
 
 	G = {
+		DB_NAME : "CatDogDB",
 		// Initialize the game
 		// Called once at startup
 
@@ -318,6 +330,8 @@ var G;
 
 PS.init = function( system, options ) {
 	"use strict";
+
+	PS.dbInit(G.DB_NAME);
 
 	G.init(); // game-specific initialization
 };
