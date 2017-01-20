@@ -154,14 +154,14 @@ var G;
 			gold_found += 1; // update gold count
 
 			if (gold_found === 1) {
-				PS.dbEvent("testdb", "firstGX", nx, "firstGY", ny);
+				PS.dbEvent("unmoddeddb", "firstGX", nx, "firstGY", ny);
 			} else if (gold_found === 10) {
-				PS.dbEvent("testdb", "lastGX", nx, "lastGY", ny);
+				PS.dbEvent("unmoddeddb", "lastGX", nx, "lastGY", ny);
 				var distance = PS.pathFind( id_path, nx, ny, exitX, exitY ).length;
-				PS.dbEvent("testdb", "lastGoldToExit", distance)
-				PS.dbEvent("testdb", "lastClickX", destination.x, "lastClickY", destination.y);
+				PS.dbEvent("unmoddeddb", "lastGoldToExit", distance)
+				PS.dbEvent("unmoddeddb", "lastClickX", destination.x, "lastClickY", destination.y);
 				distance = PS.pathFind( id_path, destination.x, destination.y, exitX, exitY ).length;
-				PS.dbEvent("testdb", "lastClickToExit", distance)
+				PS.dbEvent("unmoddeddb", "lastClickToExit", distance)
 			}
 
 			if ( gold_found >= gold_count ) {
@@ -188,7 +188,7 @@ var G;
 			PS.statusText( "You escaped with " + gold_found + " gold!" );
 			PS.audioPlay( SOUND_WIN );
 			won = true;
-			PS.dbSend("testdb", "nchaput");
+			PS.dbSend("unmoddeddb", "nchaput");
 			return;
 		}
 
@@ -339,7 +339,7 @@ var G;
 PS.init = function( system, options ) {
 	"use strict";
 
-	PS.dbInit("testdb");
+	PS.dbInit("unmoddeddb");
 	G.init(); // game-specific initialization
 };
 
