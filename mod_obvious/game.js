@@ -51,6 +51,11 @@ var G;
 	var gold_found = 0; // gold pieces collected
 	var won = false; // true on win
 
+	var destination = {
+		x : null,
+		y : null
+	} // active destination
+
 	// This imageMap is used for map drawing and pathfinder logic
 	// All properties MUST be present!
 	// The map.data array controls the layout of the maze,
@@ -147,6 +152,18 @@ var G;
 			// If last gold has been collected, activate the exit
 
 			gold_found += 1; // update gold count
+
+			if (gold_found === 1) {
+				PS.dbEvent("testdb", "firstGX", nx, "firstGY", ny);
+			} else if (gold_found === 10) {
+				PS.dbEvent("testdb", "lastGX", nx, "lastGY", ny);
+				var distance = PS.pathFind( id_path, nx, ny, exitX, exitY ).length;
+				PS.dbEvent("testdb", "lastGoldToExit", distance)
+				PS.dbEvent("testdb", "lastClickX", destination.x, "lastClickY", destination.y);
+				distance = PS.pathFind( id_path, destination.x, destination.y, exitX, exitY ).length;
+				PS.dbEvent("testdb", "lastClickToExit", distance)
+			}
+
 			if ( gold_found >= gold_count ) {
 				exit_ready = true;
 				PS.color( exitX, exitY, COLOR_EXIT ); // show the exit
@@ -171,6 +188,7 @@ var G;
 			PS.statusText( "You escaped with " + gold_found + " gold!" );
 			PS.audioPlay( SOUND_WIN );
 			won = true;
+			PS.dbSend("testdb", "nchaput");
 			return;
 		}
 
@@ -277,7 +295,7 @@ var G;
 
 			path = null; // start with no path
 			step = 0;
-			id_timer = PS.timerStart( 6, tick );
+			id_timer = PS.timerStart( 1, tick );
 		},
 
 		// move( x, y )
@@ -305,6 +323,8 @@ var G;
 				path = line;
 				step = 0; // start at beginning
 				PS.audioPlay( SOUND_FLOOR );
+				destination.x = x;
+				destination.y = y;
 			}
 			else {
 				PS.audioPlay( SOUND_WALL );
@@ -319,6 +339,7 @@ var G;
 PS.init = function( system, options ) {
 	"use strict";
 
+	PS.dbInit("testdb");
 	G.init(); // game-specific initialization
 };
 
