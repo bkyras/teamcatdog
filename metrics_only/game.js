@@ -295,7 +295,7 @@ var G;
 
 			path = null; // start with no path
 			step = 0;
-			id_timer = PS.timerStart( 1, tick );
+			id_timer = PS.timerStart( 3, tick );
 		},
 
 		// move( x, y )
