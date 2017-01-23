@@ -27,7 +27,119 @@ along with Perlenspiel. If not, see <http://www.gnu.org/licenses/>.
 /*jslint nomen: true, white: true */
 /*global PS */
 
-// This is a template for creating new Perlenspiel games
+// The G object will contain all public constants, variables and functions
+
+var G;
+
+// This self-invoking function encapsulates all game functionality.
+// It is called as this file is loaded, and initializes the G object.
+
+( function () {
+	"use strict";
+
+	G = {
+		//constants (all caps)
+
+		//color constants
+
+		//board colors
+		DEFAULT_COLOR : 0x888888,
+		CORRECT_COLOR : 0x00FFFF,
+		PARTIAL_COLOR : 0xFF4400,
+		WRONG_COLOR : 0x444444,
+
+		//path colors
+		FIRST_COLOR : 0x6E00FF,
+		MIDDLE_COLOR : 0x946DFF,
+		LAST_COLOR : 0xC9AAFF,
+
+		//difficulty values
+		TUTORIAL : 2,
+		EASY : 3,
+		INTERMEDIATE : 4,
+		HARD : 5,
+
+		//variables (lowercase)
+
+		level_height : null,
+		level_width : null,
+
+		solution : [], //solution to the current puzzle
+		path : [], //user's current attempt at the puzzle
+
+		mouse_down : false,
+
+		//methods
+
+		//init
+		//initialize the board on game start
+		init : function () {
+			var difficulty = G.EASY;
+			G.level_height = difficulty;
+			G.level_width = difficulty;
+
+			G.path = [];
+
+			G.resetBoard();
+		},
+
+		//resetBoard()
+		//reset the colors of the board to the default condition
+		resetBoard : function () {
+			PS.gridSize(G.level_width, G.level_height);
+			PS.color(PS.ALL, PS.ALL, G.DEFAULT_COLOR);
+			PS.scale(PS.ALL, PS.ALL, 100);
+			PS.border(PS.ALL, PS.ALL, PS.DEFAULT);
+		},
+
+		//createNewPath(x,y)
+		//creates a new attempt at solving the puzzle
+		createNewPath : function (x, y) {
+			G.path = [];
+			G.path.push((y * G.level_width) + x);
+
+			G.drawPath();
+		},
+
+		//addToPath(x,y)
+		//adds the new bead to the current puzzle solution attempt
+		addToPath : function(x, y) {
+			var location = (y * G.level_width) + x;
+
+			if (G.path.indexOf(location) === -1) {
+				G.path.push(location);
+			}
+
+			G.drawPath();
+		},
+
+		//drawPath()
+		//draws the path that the player has drawn
+		drawPath : function() {
+			G.resetBoard();
+			G.path.forEach(function(bead,index){
+				var x = bead % G.level_width;
+				var y = bead / G.level_width;
+				if (index === 0) {     //first bead in solution attempt
+					PS.color(x,y,G.FIRST_COLOR);
+				} else {               //middle bead
+					PS.color(x,y,G.MIDDLE_COLOR);
+				}
+
+				if (index === G.path.length - 1) { //overwrite color with "cursor" for last bead
+					PS.color(x,y,G.LAST_COLOR);
+				}
+			});
+		},
+
+		//submitSolution()
+		//submit the current solution attempt
+		submitSolution : function () {
+			//TODO: YES
+		}
+
+	};
+} () ); // end of self-invoking function
 
 // All of the functions below MUST exist, or the engine will complain!
 
@@ -39,14 +151,7 @@ along with Perlenspiel. If not, see <http://www.gnu.org/licenses/>.
 // [options] = an object with optional parameters; see documentation for details
 
 PS.init = function( system, options ) {
-	// Use PS.gridSize( x, y ) to set the grid to
-	// the initial dimensions you want (32 x 32 maximum)
-	// Do this FIRST to avoid problems!
-	// Otherwise you will get the default 8x8 grid
-
-	PS.gridSize( 8, 8 );
-
-	// Add any other initialization code you need here
+	G.init();
 };
 
 // PS.touch ( x, y, data, options )
@@ -62,6 +167,9 @@ PS.touch = function( x, y, data, options ) {
 	// PS.debug( "PS.touch() @ " + x + ", " + y + "\n" );
 
 	// Add code here for mouse clicks/touches over a bead
+
+	G.mouse_down = true;
+	G.createNewPath(x,y);
 };
 
 // PS.release ( x, y, data, options )
@@ -77,6 +185,9 @@ PS.release = function( x, y, data, options ) {
 	// PS.debug( "PS.release() @ " + x + ", " + y + "\n" );
 
 	// Add code here for when the mouse button/touch is released over a bead
+
+	G.mouse_down = false;
+	G.submitSolution();
 };
 
 // PS.enter ( x, y, button, data, options )
@@ -92,6 +203,12 @@ PS.enter = function( x, y, data, options ) {
 	// PS.debug( "PS.enter() @ " + x + ", " + y + "\n" );
 
 	// Add code here for when the mouse cursor/touch enters a bead
+
+	if (G.mouse_down) {
+		G.addToPath(x,y);
+	} else {
+		return;
+	}
 };
 
 // PS.exit ( x, y, data, options )
@@ -107,6 +224,12 @@ PS.exit = function( x, y, data, options ) {
 	// PS.debug( "PS.exit() @ " + x + ", " + y + "\n" );
 
 	// Add code here for when the mouse cursor/touch exits a bead
+
+	if (G.mouse_down) {
+
+	} else {
+		return;
+	}
 };
 
 // PS.exitGrid ( options )
