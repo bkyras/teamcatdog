@@ -77,10 +77,28 @@ var G;
 			var difficulty = G.EASY;
 			G.level_height = difficulty;
 			G.level_width = difficulty;
-
+			
 			G.path = [];
-
+			G.solution = [[0, 0], [1, 0], [2, 0],
+										[2, 1], [1, 1], [0, 1],
+							 			[0, 2], [1, 2], [2, 2]];
+			
 			G.resetBoard();
+			//Sets up data
+			var x1, x2, y1, y2;
+			for(var i = 0; i<G.solution.length; i++) {
+				PS.debug(i);
+				x1 = G.solution[i][0];
+				y1 = G.solution[i][1];
+				if(i==G.solution.length-1) {
+					PS.data(x1, y2, [0, 0]);
+				} else {
+					x2 = G.solution[i+1][0];
+					y2 = G.solution[i+1][1];
+					PS.data(x1, y1, [x2-x1, y2-y1]);
+					PS.debug(PS.data(x1, y1));
+				}
+			}
 		},
 
 		//resetBoard()
@@ -96,7 +114,8 @@ var G;
 		//creates a new attempt at solving the puzzle
 		createNewPath : function (x, y) {
 			G.path = [];
-			G.path.push((y * G.level_width) + x);
+			//G.path.push((y * G.level_width) + x);
+			G.path.push([x, y]);
 
 			G.drawPath();
 		},
@@ -104,7 +123,8 @@ var G;
 		//addToPath(x,y)
 		//adds the new bead to the current puzzle solution attempt
 		addToPath : function(x, y) {
-			var location = (y * G.level_width) + x;
+			var location = [x, y];
+			//var location = (y * G.level_width) + x;
 
 			if (G.path.indexOf(location) === -1) {
 				G.path.push(location);
@@ -118,8 +138,10 @@ var G;
 		drawPath : function() {
 			G.resetBoard();
 			G.path.forEach(function(bead,index){
-				var x = bead % G.level_width;
-				var y = bead / G.level_width;
+				var x = bead[0];
+				var y = bead[1];
+				//var x = bead % G.level_width;
+				//var y = bead / G.level_width;
 				if (index === 0) {     //first bead in solution attempt
 					PS.color(x,y,G.FIRST_COLOR);
 				} else {               //middle bead
@@ -135,7 +157,28 @@ var G;
 		//submitSolution()
 		//submit the current solution attempt
 		submitSolution : function () {
-			//TODO: YES
+			var x, y, d, x2, y2;
+			for(var i = 0; i<G.path.length; i++) {
+				x = G.path[i][0];
+				y = G.path[i][1];
+				d = PS.data(x, y);
+				PS.debug("(" + x + ", " + y + "), d: " + d);
+				if(i==G.path.length-1) {
+					if(d==[0, 0]) {
+						PS.color(x, y, G.CORRECT_COLOR);
+					} else {
+						PS.color(x, y, G.WRONG_COLOR);
+					}
+				} else {
+					x2 = G.path[i+1][0];
+					y2 = G.path[i+1][1];
+					if(x+d[0]==x2 && y+d[1]==y2) {
+						PS.color(x, y, G.CORRECT_COLOR);
+					} else {
+						PS.color(x, y, G.WRONG_COLOR);
+					}
+				}
+			}
 		}
 
 	};
@@ -186,6 +229,7 @@ PS.release = function( x, y, data, options ) {
 
 	// Add code here for when the mouse button/touch is released over a bead
 
+	PS.debug(G.path);
 	G.mouse_down = false;
 	G.submitSolution();
 };
@@ -243,56 +287,3 @@ PS.exitGrid = function( options ) {
 
 	// Add code here for when the mouse cursor/touch moves off the grid
 };
-
-// PS.keyDown ( key, shift, ctrl, options )
-// Called when a key on the keyboard is pressed
-// It doesn't have to do anything
-// [key] = ASCII code of the pressed key, or one of the PS.KEY constants documented at:
-// http://users.wpi.edu/~bmoriarty/ps/constants.html
-// [shift] = true if shift key is held down, else false
-// [ctrl] = true if control key is held down, else false
-// [options] = an object with optional parameters; see documentation for details
-
-PS.keyDown = function( key, shift, ctrl, options ) {
-	// Uncomment the following line to inspect parameters
-	//	PS.debug( "DOWN: key = " + key + ", shift = " + shift + "\n" );
-
-	// Add code here for when a key is pressed
-};
-
-// PS.keyUp ( key, shift, ctrl, options )
-// Called when a key on the keyboard is released
-// It doesn't have to do anything
-// [key] = ASCII code of the pressed key, or one of the PS.KEY constants documented at:
-// http://users.wpi.edu/~bmoriarty/ps/constants.html
-// [shift] = true if shift key is held down, false otherwise
-// [ctrl] = true if control key is held down, false otherwise
-// [options] = an object with optional parameters; see documentation for details
-
-PS.keyUp = function( key, shift, ctrl, options ) {
-	// Uncomment the following line to inspect parameters
-	// PS.debug( "PS.keyUp(): key = " + key + ", shift = " + shift + ", ctrl = " + ctrl + "\n" );
-
-	// Add code here for when a key is released
-};
-
-// PS.input ( sensors, options )
-// Called when an input device event (other than mouse/touch/keyboard) is detected
-// It doesn't have to do anything
-// [sensors] = an object with sensor information; see documentation for details
-// [options] = an object with optional parameters; see documentation for details
-
-PS.input = function( sensors, options ) {
-	// Uncomment the following block to inspect parameters
-	/*
-	PS.debug( "PS.input() called\n" );
-	var device = sensors.wheel; // check for scroll wheel
-	if ( device )
-	{
-		PS.debug( "sensors.wheel = " + device + "\n" );
-	}
-	*/
-	
-	// Add code here for when an input event is detected
-};
-
