@@ -121,7 +121,13 @@ var G;
 		addToPath : function(x, y) {
 			var location = (y * G.level_width) + x;
 
-			if (G.path.indexOf(location) === -1) {
+			if(G.path.length > 1 && G.checkDirection(G.path[G.path.length-1], location)==-1) {
+				//this kills the path
+				G.path = [];
+				G.resetBoard();
+				G.mouse_down = false;
+			}
+			else if (G.path.indexOf(location) === -1) {
 				G.path.push(location);
 			}
 
@@ -223,7 +229,6 @@ var G;
 				
 				//if bead exists in solution and isn't the final bead in either array
 				if(s!=-1 && i!=G.path.length-1 && s!=G.solution.length-1) {
-					
 					//if the following bead in each array doesn't match, color it wrong
 					if(G.path[i+1] != G.solution[s+1]) {
 						x = G.path[i]%G.level_width;
@@ -231,9 +236,14 @@ var G;
 						PS.color(x, y, G.WRONG_COLOR);
 						correct = false;
 					}
+				} else if((i==G.path.length-1 || s==G.path.length-1) && i != s) {
+						x = G.path[i]%G.level_width;
+						y = Math.floor(G.path[i]/G.level_width);
+						PS.color(x, y, G.WRONG_COLOR);
+						correct = false;
 				}
 			}
-			if(correct) {
+			if(G.path.length > 0 && correct) {
 				PS.statusText("You did it!");
 			}
 		}
@@ -262,8 +272,10 @@ PS.touch = function( x, y, data, options ) {
 // PS.release ( x, y, data, options )
 // Called when the mouse button is released over a bead, or when a touch is lifted off a bead
 PS.release = function( x, y, data, options ) {
-	G.mouse_down = false;
-	G.submitSolution();
+	if(G.mouse_down) {
+		G.mouse_down = false;
+		G.submitSolution();
+	}
 };
 
 // PS.enter ( x, y, button, data, options )
