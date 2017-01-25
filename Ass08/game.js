@@ -58,6 +58,12 @@ var G;
 		EASY : 3,
 		INTERMEDIATE : 4,
 		HARD : 5,
+		
+		//direction constants
+		LEFT: 1,
+		RIGHT: 2,
+		BOTTOM: 3,
+		TOP: 4,
 
 		//variables (lowercase)
 
@@ -79,26 +85,15 @@ var G;
 			G.level_width = difficulty;
 			
 			G.path = [];
-			G.solution = [[0, 0], [1, 0], [2, 0],
-										[2, 1], [1, 1], [0, 1],
-							 			[0, 2], [1, 2], [2, 2]];
+//			G.solution = [[0, 0], [1, 0], [2, 0],
+//										[2, 1], [1, 1], [0, 1],
+//							 			[0, 2], [1, 2], [2, 2]];
+			
+			G.solution = [0, 1, 2,
+										5, 4, 3,
+							 			6, 7, 8];
 			
 			G.resetBoard();
-			//Sets up data
-			var x1, x2, y1, y2;
-			for(var i = 0; i<G.solution.length; i++) {
-				PS.debug(i);
-				x1 = G.solution[i][0];
-				y1 = G.solution[i][1];
-				if(i==G.solution.length-1) {
-					PS.data(x1, y2, [0, 0]);
-				} else {
-					x2 = G.solution[i+1][0];
-					y2 = G.solution[i+1][1];
-					PS.data(x1, y1, [x2-x1, y2-y1]);
-					PS.debug(PS.data(x1, y1));
-				}
-			}
 		},
 
 		//resetBoard()
@@ -114,8 +109,8 @@ var G;
 		//creates a new attempt at solving the puzzle
 		createNewPath : function (x, y) {
 			G.path = [];
-			//G.path.push((y * G.level_width) + x);
-			G.path.push([x, y]);
+			G.path.push((y * G.level_width) + x);
+			//G.path.push([x, y]);
 
 			G.drawPath();
 		},
@@ -123,8 +118,8 @@ var G;
 		//addToPath(x,y)
 		//adds the new bead to the current puzzle solution attempt
 		addToPath : function(x, y) {
-			var location = [x, y];
-			//var location = (y * G.level_width) + x;
+			//var location = [x, y];
+			var location = (y * G.level_width) + x;
 
 			if (G.path.indexOf(location) === -1) {
 				G.path.push(location);
@@ -133,15 +128,27 @@ var G;
 			G.drawPath();
 		},
 
+		checkDirection: function(beadA, beadB) {
+			if(beadB - beadA == 1) {
+				return G.RIGHT;
+			} else if(beadB - beadA == -1) {
+				return G.LEFT;
+			} else if(beadB- beadA == G.level_width) {
+				return G.BOTTOM;
+			} else if(beadB - beadA == -G.level_width) {
+				return G.TOP;
+			} else {
+				return -1;
+			}
+		},
+		
 		//drawPath()
 		//draws the path that the player has drawn
 		drawPath : function() {
 			G.resetBoard();
-			G.path.forEach(function(bead,index){
-				var x = bead[0];
-				var y = bead[1];
-				//var x = bead % G.level_width;
-				//var y = bead / G.level_width;
+			for(var index = 0; index<G.path.length; index++) {
+				var x = G.path[index] % G.level_width;
+				var y = G.path[index] / G.level_width;
 				if (index === 0) {     //first bead in solution attempt
 					PS.color(x,y,G.FIRST_COLOR);
 				} else {               //middle bead
@@ -151,30 +158,73 @@ var G;
 				if (index === G.path.length - 1) { //overwrite color with "cursor" for last bead
 					PS.color(x,y,G.LAST_COLOR);
 				}
-			});
+				var prev, next;
+				if(index != 0) {
+					prev = G.path[index-1];
+				}
+				if(index != G.path.length-1) {
+					next = G.path[index+1];
+				}
+				var border = {};
+				//switch case
+				//if previous bead is left, set left=0
+				//if previous bead is right, set right=0
+				//if previous bead is below, set bottom=0
+				//if previous bead is top, set top=0
+				switch(G.checkDirection(G.path[index], prev)) {
+					case G.LEFT:
+						border = { top : 2, left : 0, bottom : 2, right : 2, equal : true, width : 1 };
+						break;
+					case G.RIGHT:
+						border = { top : 2, left : 2, bottom : 2, right : 0, equal : true, width : 1 }
+						break;
+					case G.TOP:
+						border = { top : 0, left : 2, bottom : 2, right : 2, equal : true, width : 1 }
+						break;
+					case G.BOTTOM:
+						border = { top : 2, left : 2, bottom : 0, right : 2, equal : true, width : 1 }
+						break;
+				}
+				//same for next bead.
+				switch(G.checkDirection(G.path[index], next)) {
+					case G.LEFT:
+						border.left = 0;
+						break;
+					case G.RIGHT:
+						border.right = 0;
+						break;
+					case G.TOP:
+						border.top = 0;
+						break;
+					case G.BOTTOM:
+						border.bottom = 0;
+						break;
+				}
+				PS.border(x, y, border);
+				PS.borderColor(x, y, PS.COLOR_BLACK);
+			}
 		},
 
 		//submitSolution()
 		//submit the current solution attempt
 		submitSolution : function () {
-			var x, y, d, x2, y2;
+			var x, y;
+			PS.debug(G.path);
+			PS.debug(G.solution);
+			
+			//currently really low performance!! would best be done (I think) using PS.data to store
+			//the following bead, but couldn't get it to work.
 			for(var i = 0; i<G.path.length; i++) {
-				x = G.path[i][0];
-				y = G.path[i][1];
-				d = PS.data(x, y);
-				PS.debug("(" + x + ", " + y + "), d: " + d);
-				if(i==G.path.length-1) {
-					if(d==[0, 0]) {
-						PS.color(x, y, G.CORRECT_COLOR);
-					} else {
-						PS.color(x, y, G.WRONG_COLOR);
-					}
-				} else {
-					x2 = G.path[i+1][0];
-					y2 = G.path[i+1][1];
-					if(x+d[0]==x2 && y+d[1]==y2) {
-						PS.color(x, y, G.CORRECT_COLOR);
-					} else {
+				//index of current bead in solution array
+				var s = G.solution.indexOf(G.path[i]);
+				
+				//if bead exists in solution and isn't the final bead in either array
+				if(s!=-1 && i!=G.path.length-1 && s!=G.solution.length-1) {
+					
+					//if the following bead in each array doesn't match, color it wrong
+					if(G.path[i+1] != G.solution[s+1]) {
+						x = G.path[i]%G.level_width;
+						y = Math.floor(G.path[i]/G.level_width);
 						PS.color(x, y, G.WRONG_COLOR);
 					}
 				}
@@ -229,7 +279,6 @@ PS.release = function( x, y, data, options ) {
 
 	// Add code here for when the mouse button/touch is released over a bead
 
-	PS.debug(G.path);
 	G.mouse_down = false;
 	G.submitSolution();
 };
