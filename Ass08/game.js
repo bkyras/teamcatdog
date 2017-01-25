@@ -158,13 +158,12 @@ var G;
 				var x = G.path[index] % G.level_width;
 				var y = G.path[index] / G.level_width;
 				if (index === 0) {     //first bead in solution attempt
-					PS.color(x,y,G.FIRST_COLOR);
+					PS.color(x, y, G.FIRST_COLOR);
 				} else {               //middle bead
-					PS.color(x,y,G.MIDDLE_COLOR);
+					PS.color(x, y, G.MIDDLE_COLOR);
 				}
-
 				if (index === G.path.length - 1) { //overwrite color with "cursor" for last bead
-					PS.color(x,y,G.LAST_COLOR);
+					PS.color(x, y, G.LAST_COLOR);
 				}
 				var prev, next;
 				if(index != 0) {
@@ -223,12 +222,12 @@ var G;
 			
 			//currently low performance? would best be done (I think) using PS.data to store
 			//the following bead, but couldn't get it to work.
-			for(var i = 0; i<G.path.length; i++) {
+			for(var i = 0; i < G.path.length; i++) {
 				//index of current bead in solution array
 				var s = G.solution.indexOf(G.path[i]);
 				
 				//if bead exists in solution and isn't the final bead in either array
-				if(s!=-1 && i!=G.path.length-1 && s!=G.solution.length-1) {
+				if(s != -1 && i != G.path.length-1 && s != G.solution.length-1) {
 					//if the following bead in each array doesn't match, color it wrong
 					if(G.path[i+1] != G.solution[s+1]) {
 						x = G.path[i]%G.level_width;
@@ -237,7 +236,7 @@ var G;
 						correct = false;
 					}
 				//if one of beads being checked is the final bead and the other is not, it's wrong
-				} else if((i==G.path.length-1 || s==G.path.length-1) && i != s) {
+				} else if((i == G.path.length-1 || s == G.solution.length-1) && i != s) {
 						x = G.path[i]%G.level_width;
 						y = Math.floor(G.path[i]/G.level_width);
 						PS.color(x, y, G.WRONG_COLOR);
