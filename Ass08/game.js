@@ -85,9 +85,6 @@ var G;
 			G.level_width = difficulty;
 			
 			G.path = [];
-//			G.solution = [[0, 0], [1, 0], [2, 0],
-//										[2, 1], [1, 1], [0, 1],
-//							 			[0, 2], [1, 2], [2, 2]];
 			
 			G.solution = [0, 1, 2,
 										5, 4, 3,
@@ -99,10 +96,16 @@ var G;
 		//resetBoard()
 		//reset the colors of the board to the default condition
 		resetBoard : function () {
+			PS.statusText("");
 			PS.gridSize(G.level_width, G.level_height);
 			PS.color(PS.ALL, PS.ALL, G.DEFAULT_COLOR);
 			PS.scale(PS.ALL, PS.ALL, 100);
 			PS.border(PS.ALL, PS.ALL, PS.DEFAULT);
+		},
+		
+		//TODO: randomly generate a valid solution path
+		generatePath : function() {
+			
 		},
 
 		//createNewPath(x,y)
@@ -110,15 +113,12 @@ var G;
 		createNewPath : function (x, y) {
 			G.path = [];
 			G.path.push((y * G.level_width) + x);
-			//G.path.push([x, y]);
-
 			G.drawPath();
 		},
 
 		//addToPath(x,y)
 		//adds the new bead to the current puzzle solution attempt
 		addToPath : function(x, y) {
-			//var location = [x, y];
 			var location = (y * G.level_width) + x;
 
 			if (G.path.indexOf(location) === -1) {
@@ -128,6 +128,8 @@ var G;
 			G.drawPath();
 		},
 
+		//checkDirection(beadA, beadB)
+		//returns the direction that beadB is in relative to beadA, or -1 if nonadjacent
 		checkDirection: function(beadA, beadB) {
 			if(beadB - beadA == 1) {
 				return G.RIGHT;
@@ -209,10 +211,11 @@ var G;
 		//submit the current solution attempt
 		submitSolution : function () {
 			var x, y;
+			var correct = true;
 			PS.debug(G.path);
 			PS.debug(G.solution);
 			
-			//currently really low performance!! would best be done (I think) using PS.data to store
+			//currently low performance? would best be done (I think) using PS.data to store
 			//the following bead, but couldn't get it to work.
 			for(var i = 0; i<G.path.length; i++) {
 				//index of current bead in solution array
@@ -226,77 +229,46 @@ var G;
 						x = G.path[i]%G.level_width;
 						y = Math.floor(G.path[i]/G.level_width);
 						PS.color(x, y, G.WRONG_COLOR);
+						correct = false;
 					}
 				}
+			}
+			if(correct) {
+				PS.statusText("You did it!");
 			}
 		}
 
 	};
 } () ); // end of self-invoking function
 
-// All of the functions below MUST exist, or the engine will complain!
+
+//************ PS FUNCTIONS ************//
 
 // PS.init( system, options )
 // Initializes the game
 // This function should normally begin with a call to PS.gridSize( x, y )
 // where x and y are the desired initial dimensions of the grid
-// [system] = an object containing engine and platform information; see documentation for details
-// [options] = an object with optional parameters; see documentation for details
-
 PS.init = function( system, options ) {
 	G.init();
 };
 
 // PS.touch ( x, y, data, options )
 // Called when the mouse button is clicked on a bead, or when a bead is touched
-// It doesn't have to do anything
-// [x] = zero-based x-position of the bead on the grid
-// [y] = zero-based y-position of the bead on the grid
-// [data] = the data value associated with this bead, 0 if none has been set
-// [options] = an object with optional parameters; see documentation for details
-
 PS.touch = function( x, y, data, options ) {
-	// Uncomment the following line to inspect parameters
-	// PS.debug( "PS.touch() @ " + x + ", " + y + "\n" );
-
-	// Add code here for mouse clicks/touches over a bead
-
 	G.mouse_down = true;
 	G.createNewPath(x,y);
 };
 
 // PS.release ( x, y, data, options )
 // Called when the mouse button is released over a bead, or when a touch is lifted off a bead
-// It doesn't have to do anything
-// [x] = zero-based x-position of the bead on the grid
-// [y] = zero-based y-position of the bead on the grid
-// [data] = the data value associated with this bead, 0 if none has been set
-// [options] = an object with optional parameters; see documentation for details
-
 PS.release = function( x, y, data, options ) {
-	// Uncomment the following line to inspect parameters
-	// PS.debug( "PS.release() @ " + x + ", " + y + "\n" );
-
-	// Add code here for when the mouse button/touch is released over a bead
-
 	G.mouse_down = false;
 	G.submitSolution();
 };
 
 // PS.enter ( x, y, button, data, options )
 // Called when the mouse/touch enters a bead
-// It doesn't have to do anything
-// [x] = zero-based x-position of the bead on the grid
-// [y] = zero-based y-position of the bead on the grid
-// [data] = the data value associated with this bead, 0 if none has been set
-// [options] = an object with optional parameters; see documentation for details
-
 PS.enter = function( x, y, data, options ) {
-	// Uncomment the following line to inspect parameters
-	// PS.debug( "PS.enter() @ " + x + ", " + y + "\n" );
-
-	// Add code here for when the mouse cursor/touch enters a bead
-
 	if (G.mouse_down) {
 		G.addToPath(x,y);
 	} else {
@@ -306,18 +278,7 @@ PS.enter = function( x, y, data, options ) {
 
 // PS.exit ( x, y, data, options )
 // Called when the mouse cursor/touch exits a bead
-// It doesn't have to do anything
-// [x] = zero-based x-position of the bead on the grid
-// [y] = zero-based y-position of the bead on the grid
-// [data] = the data value associated with this bead, 0 if none has been set
-// [options] = an object with optional parameters; see documentation for details
-
 PS.exit = function( x, y, data, options ) {
-	// Uncomment the following line to inspect parameters
-	// PS.debug( "PS.exit() @ " + x + ", " + y + "\n" );
-
-	// Add code here for when the mouse cursor/touch exits a bead
-
 	if (G.mouse_down) {
 
 	} else {
@@ -327,12 +288,6 @@ PS.exit = function( x, y, data, options ) {
 
 // PS.exitGrid ( options )
 // Called when the mouse cursor/touch exits the grid perimeter
-// It doesn't have to do anything
-// [options] = an object with optional parameters; see documentation for details
-
 PS.exitGrid = function( options ) {
-	// Uncomment the following line to verify operation
-	// PS.debug( "PS.exitGrid() called\n" );
-
-	// Add code here for when the mouse cursor/touch moves off the grid
+	
 };
