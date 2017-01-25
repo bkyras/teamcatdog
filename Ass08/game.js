@@ -236,6 +236,7 @@ var G;
 						PS.color(x, y, G.WRONG_COLOR);
 						correct = false;
 					}
+				//if one of beads being checked is the final bead and the other is not, it's wrong
 				} else if((i==G.path.length-1 || s==G.path.length-1) && i != s) {
 						x = G.path[i]%G.level_width;
 						y = Math.floor(G.path[i]/G.level_width);
@@ -243,7 +244,9 @@ var G;
 						correct = false;
 				}
 			}
-			if(G.path.length > 0 && correct) {
+			
+			//if path length is the same and an incorrect square was never found, you win
+			if(G.path.length == G.solution.length && correct) {
 				PS.statusText("You did it!");
 			}
 		}
