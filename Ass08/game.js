@@ -105,7 +105,12 @@ var G;
 		
 		//TODO: randomly generate a valid solution path
 		generatePath : function() {
-			
+			var size = G.level_height * G.level_width;
+			var chosen = [];
+			var start = Math.floor(Math.random() * (size-1));
+			chosen.push[start];
+			//get the last thing in chosen, randomly pick N/S/E/W from there, push if not in chosen, repick if it is
+			//stop when there's no direction to go from last thing in chosen
 		},
 
 		//createNewPath(x,y)
