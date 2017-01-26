@@ -85,6 +85,9 @@ var G;
 			G.level_width = difficulty;
 			
 			G.path = [];
+
+			G.generateSolution();
+			console.log(G.solution);
 			
 			G.solution = [0, 1, 2,
 										5, 4, 3,
@@ -108,23 +111,75 @@ var G;
 			var size = G.level_height * G.level_width;
 			var chosen = [];
 			var start = PS.random(size) - 1;
-			var tolerance = 0;
-			chosen.push[start];
-			G.buildSolution(chosen, size, tolerance);
+			var tolerance = 1;
+			chosen.push(start);
+			G.solution = G.buildSolution(chosen, size, tolerance);
 			//get the last thing in chosen, randomly pick N/S/E/W from there, push if not in chosen, repick if it is
 			//stop when there's no direction to go from last thing in chosen
 		},
 
 		buildSolution : function (chosen, size, tolerance) {
+			var chosencpy = chosen.slice();
+			var prev = chosen[chosen.length-1];
+			var prevx = prev % G.level_width;
+			var prevy = Math.floor(prev / G.level_width);
+			// (prevy * G.level_width) + prevx
+			var directions = [];
+			if (prevx > 0 && chosen.indexOf((prevy * G.level_width) + prevx - 1) === -1) {
+				directions.push(G.LEFT);
+			}
+			if (prevx < G.level_width - 1 && chosen.indexOf((prevy * G.level_width) + prevx + 1) === -1) {
+				directions.push(G.RIGHT);
+			}
+			if (prevy > 0 && chosen.indexOf(((prevy - 1) * G.level_width) + prevx) === -1) {
+				directions.push(G.TOP);
+			}
+			if (prevy < G.level_height - 1 && chosen.indexOf(((prevy + 1) * G.level_width) + prevx) === -1) {
+				directions.push(G.BOTTOM);
+			}
+
+			if (directions.length === 0) {
+				return chosen;
+			}
 
 			var directionOrder = [];
-			var directions = [0, 1, 2, 3];
+			//var directions = [0, 1, 2, 3];
 			var x;
 			for (x = 0; x < directions.length; x++) {
 				var index = PS.random(directions.length) - 1;
 				directionOrder.push(directions[index]);
 				directions.splice(index, 1);
 			}
+
+			for (x = 0; x < directionOrder.length; x++) {
+				chosen = chosencpy.slice();
+				switch (directionOrder[x]) {
+					case G.LEFT:
+						chosen.push(prev - 1);
+						chosen = G.buildSolution(chosen, size, tolerance);
+						break;
+					case G.RIGHT:
+						chosen.push(prev + 1);
+						chosen = G.buildSolution(chosen, size, tolerance);
+						break;
+
+					case G.BOTTOM:
+						chosen.push(prev + G.level_width);
+						chosen = G.buildSolution(chosen, size, tolerance);
+						break;
+
+					case G.TOP:
+						chosen.push(prev - G.level_width);
+						chosen = G.buildSolution(chosen, size, tolerance);
+						break;
+				}
+				console.log(chosen.length);
+				if (chosen.length >= size - tolerance) {
+					x += directionOrder.length;
+				}
+			}
+
+			return chosen;
 
 		},
 
