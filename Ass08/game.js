@@ -104,13 +104,28 @@ var G;
 		},
 		
 		//TODO: randomly generate a valid solution path
-		generatePath : function() {
+		generateSolution : function() {
 			var size = G.level_height * G.level_width;
 			var chosen = [];
-			var start = Math.floor(Math.random() * (size-1));
+			var start = PS.random(size) - 1;
+			var tolerance = 0;
 			chosen.push[start];
+			G.buildSolution(chosen, size, tolerance);
 			//get the last thing in chosen, randomly pick N/S/E/W from there, push if not in chosen, repick if it is
 			//stop when there's no direction to go from last thing in chosen
+		},
+
+		buildSolution : function (chosen, size, tolerance) {
+
+			var directionOrder = [];
+			var directions = [0, 1, 2, 3];
+			var x;
+			for (x = 0; x < directions.length; x++) {
+				var index = PS.random(directions.length) - 1;
+				directionOrder.push(directions[index]);
+				directions.splice(index, 1);
+			}
+
 		},
 
 		//createNewPath(x,y)
@@ -142,13 +157,18 @@ var G;
 		//checkDirection(beadA, beadB)
 		//returns the direction that beadB is in relative to beadA, or -1 if nonadjacent
 		checkDirection: function(beadA, beadB) {
-			if(beadB - beadA == 1) {
+			var ax = beadA % G.level_width;
+			var ay = Math.floor(beadA / G.level_width);
+			var bx = beadB % G.level_width;
+			var by = Math.floor(beadB / G.level_width);
+			console.log("beadx is (" + ax + "," + ay + "), beady is (" + bx + "," + by + ")");
+			if(bx - ax === 1 && by === ay) {
 				return G.RIGHT;
-			} else if(beadB - beadA == -1) {
+			} else if(bx - ax === -1 && by === ay) {
 				return G.LEFT;
-			} else if(beadB- beadA == G.level_width) {
+			} else if(by - ay === 1 && bx === ax) {
 				return G.BOTTOM;
-			} else if(beadB - beadA == -G.level_width) {
+			} else if(by - ay === -1 && bx === ax) {
 				return G.TOP;
 			} else {
 				return -1;
@@ -161,7 +181,7 @@ var G;
 			G.resetBoard();
 			for(var index = 0; index<G.path.length; index++) {
 				var x = G.path[index] % G.level_width;
-				var y = G.path[index] / G.level_width;
+				var y = Math.floor(G.path[index] / G.level_width);
 				if (index === 0) {     //first bead in solution attempt
 					PS.color(x, y, G.FIRST_COLOR);
 				} else {               //middle bead
