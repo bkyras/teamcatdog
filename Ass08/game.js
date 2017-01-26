@@ -46,7 +46,7 @@ var G;
 		DEFAULT_COLOR : 0x888888,
 		CORRECT_COLOR : 0x00FFFF,
 		PARTIAL_COLOR : 0xFF4400,
-		WRONG_COLOR : 0x444444,
+		WRONG_COLOR : PS.COLOR_RED,
 
 		//path colors
 		FIRST_COLOR : 0x6E00FF,
@@ -121,14 +121,14 @@ var G;
 		addToPath : function(x, y) {
 			var location = (y * G.level_width) + x;
 
-			if(G.path.length > 1 && G.checkDirection(G.path[G.path.length-1], location)==-1) {
+			if (G.path.indexOf(location) === -1) {
+				G.path.push(location);
+			}
+			if(G.path.length > 1 && G.checkDirection(G.path[G.path.length-2], location)==-1) {
 				//this kills the path
 				G.path = [];
 				G.resetBoard();
 				G.mouse_down = false;
-			}
-			else if (G.path.indexOf(location) === -1) {
-				G.path.push(location);
 			}
 
 			G.drawPath();
@@ -217,8 +217,6 @@ var G;
 		submitSolution : function () {
 			var x, y;
 			var correct = true;
-			PS.debug(G.path);
-			PS.debug(G.solution);
 			
 			//currently low performance? would best be done (I think) using PS.data to store
 			//the following bead, but couldn't get it to work.
@@ -232,6 +230,7 @@ var G;
 					if(G.path[i+1] != G.solution[s+1]) {
 						x = G.path[i]%G.level_width;
 						y = Math.floor(G.path[i]/G.level_width);
+						PS.debug("coloring red");
 						PS.color(x, y, G.WRONG_COLOR);
 						correct = false;
 					}
@@ -239,6 +238,7 @@ var G;
 				} else if((i == G.path.length-1 || s == G.solution.length-1) && i != s) {
 						x = G.path[i]%G.level_width;
 						y = Math.floor(G.path[i]/G.level_width);
+					PS.debug("coloring red");
 						PS.color(x, y, G.WRONG_COLOR);
 						correct = false;
 				}
@@ -292,16 +292,26 @@ PS.enter = function( x, y, data, options ) {
 
 // PS.exit ( x, y, data, options )
 // Called when the mouse cursor/touch exits a bead
-PS.exit = function( x, y, data, options ) {
-	if (G.mouse_down) {
+//PS.exit = function( x, y, data, options ) {
+//	if (G.mouse_down) {
+//
+//	} else {
+//		return;
+//	}
+//};
 
-	} else {
-		return;
-	}
+PS.keyDown = function(key, shift, ctrl, options) {
 };
+
+//PS.keyUp = function(key, shift, ctrl, options) {
+//};
+//
+//PS.input = function(device, options) {
+//	
+//};
 
 // PS.exitGrid ( options )
 // Called when the mouse cursor/touch exits the grid perimeter
-PS.exitGrid = function( options ) {
-	
-};
+//PS.exitGrid = function( options ) {
+//	
+//};
