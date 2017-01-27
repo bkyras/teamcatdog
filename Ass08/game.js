@@ -43,10 +43,10 @@ var G;
 		//color constants
 
 		//board colors
-		DEFAULT_COLOR : 0x999999,
+		DEFAULT_COLOR : 0x555555,
 		CORRECT_COLOR : 0x00FFFF,
 		PARTIAL_COLOR : 0xFF4400,
-		WRONG_COLOR : 0xCA3513,
+		WRONG_COLOR : 0xE04C4C,
 
 		//path colors
 		FIRST_COLOR : 0x6E00A0,
@@ -108,7 +108,8 @@ var G;
 			PS.color(PS.ALL, PS.ALL, G.DEFAULT_COLOR);
 			PS.scale(PS.ALL, PS.ALL, 100);
 			PS.border(PS.ALL, PS.ALL, PS.DEFAULT);
-			PS.gridColor(0x555555);
+			PS.borderColor(PS.ALL, PS.ALL, 0x222222);
+			PS.gridColor(0x999999);
 		},
 		
 		//TODO: randomly generate a valid solution path
@@ -271,16 +272,19 @@ var G;
 				//if previous bead is top, set top=0
 				switch(G.checkDirection(G.path[index], prev)) {
 					case G.LEFT:
-						border = { top : 2, left : 0, bottom : 2, right : 2, equal : true, width : 4 };
+						border = { top : 2, left : 0, bottom : 2, right : 2};
 						break;
 					case G.RIGHT:
-						border = { top : 2, left : 2, bottom : 2, right : 0, equal : true, width : 4 }
+						border = { top : 2, left : 2, bottom : 2, right : 0}
 						break;
 					case G.TOP:
-						border = { top : 0, left : 2, bottom : 2, right : 2, equal : true, width : 4 }
+						border = { top : 0, left : 2, bottom : 2, right : 2}
 						break;
 					case G.BOTTOM:
-						border = { top : 2, left : 2, bottom : 0, right : 2, equal : true, width : 4 }
+						border = { top : 2, left : 2, bottom : 0, right : 2}
+						break;
+					default:
+						border = { top : 2, left : 2, bottom : 2, right : 2}
 						break;
 				}
 				//same for next bead.
@@ -299,7 +303,7 @@ var G;
 						break;
 				}
 				PS.border(x, y, border);
-				PS.borderColor(x, y, PS.COLOR_BLACK);
+				PS.borderColor(x, y, 0x222222);
 			}
 		},
 
