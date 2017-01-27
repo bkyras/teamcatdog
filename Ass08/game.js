@@ -85,6 +85,9 @@ var G;
 		path : [], //user's current attempt at the puzzle
 
 		mouse_down : false,
+		
+		numClicks: 0,
+		timeSpent: 0,
 
 		//methods
 
@@ -127,6 +130,7 @@ var G;
 //							 			6, 7, 8];
 
 			G.resetBoard();
+			G.timeSpent = PS.date().time;
 
 			PS.audioPlay(G.LEVEL_LOAD);
 		},
@@ -345,6 +349,7 @@ var G;
 		submitSolution : function () {
 			var x, y;
 			var correct = true;
+			G.numClicks += 1;
 			
 			if(G.ORDER) {
 				for(var i = 0; i < G.path.length; i++) {
@@ -386,6 +391,9 @@ var G;
 				G.level_complete = true;
 				PS.statusText("Level Complete! Click to continue");
 				PS.audioPlay(G.LEVEL_COMPLETE);
+				PS.dbEvent("thataway", "level", G.current_level, "time", PS.date().time - G.timeSpent, "moves", G.numClicks);
+				G.timeSpent = 0;
+				G.numClicks = 0;
 			} else {
 				PS.audioPlay(G.INCORRECT_ANSWER);
 			}
@@ -402,6 +410,7 @@ var G;
 // This function should normally begin with a call to PS.gridSize( x, y )
 // where x and y are the desired initial dimensions of the grid
 PS.init = function( system, options ) {
+	PS.dbInit("thataway");
 	G.init();
 };
 
@@ -435,28 +444,7 @@ PS.enter = function( x, y, data, options ) {
 	}
 };
 
-// PS.exit ( x, y, data, options )
-// Called when the mouse cursor/touch exits a bead
-//PS.exit = function( x, y, data, options ) {
-//	if (G.mouse_down) {
-//
-//	} else {
-//		return;
-//	}
-//};
-
-PS.keyDown = function(key, shift, ctrl, options) {
-};
-
-//PS.keyUp = function(key, shift, ctrl, options) {
-//};
-//
-//PS.input = function(device, options) {
-//	
-//};
-
-// PS.exitGrid ( options )
-// Called when the mouse cursor/touch exits the grid perimeter
-//PS.exitGrid = function( options ) {
-//	
-//};
+PS.shutdown = function() {
+	PS.dbEvent("thataway", "levelsCompleted", G.currentLevel-1);
+	PS.dbSend("thataway", "nchaput", {discard: true});
+}
