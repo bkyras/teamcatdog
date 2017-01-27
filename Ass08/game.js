@@ -445,6 +445,7 @@ PS.enter = function( x, y, data, options ) {
 };
 
 PS.shutdown = function() {
-	PS.dbEvent("thataway", "levelsCompleted", G.currentLevel-1);
-	PS.dbSend("thataway", "nchaput", {discard: true});
+	if(PS.dbData("thataway").events.length!=0) {
+		PS.dbSend("thataway", "nchaput", {discard: true});
+	}
 }
