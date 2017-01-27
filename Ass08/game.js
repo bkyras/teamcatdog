@@ -68,10 +68,18 @@ var G;
 		//AB testing
 		ORDER : false,
 
+		//Sounds
+		LEVEL_LOAD : "fx_bloop",
+		CREATE_PATH : "fx_pop",
+		INCORRECT_ANSWER : "fx_rip",
+		LEVEL_COMPLETE : "fx_beep",
+
 		//variables (lowercase)
 
 		level_height : null,
 		level_width : null,
+		current_level : 0,
+		level_complete : false,
 
 		solution : [], //solution to the current puzzle
 		path : [], //user's current attempt at the puzzle
@@ -83,21 +91,44 @@ var G;
 		//init
 		//initialize the board on game start
 		init : function () {
-			//G.ORDER = true;
-			var difficulty = G.HARD;
+			PS.audioLoad(G.LEVEL_LOAD);
+			PS.audioLoad(G.CREATE_PATH);
+			PS.audioLoad(G.INCORRECT_ANSWER);
+			PS.audioLoad(G.LEVEL_COMPLETE);
+
+
+			//G.ORDER = true;   //uncomment for order-based, comment for direction-based
+			G.loadNewLevel();
+		},
+
+		loadNewLevel : function() {
+			G.current_level += 1;
+			G.level_complete = false;
+
+			var difficulty;
+			if (G.current_level < 4) {
+				difficulty = G.EASY;
+			} else if (G.current_level < 10) {
+				difficulty = G.INTERMEDIATE;
+			} else {
+				difficulty = G.HARD;
+			}
+
 			G.level_height = difficulty;
 			G.level_width = difficulty;
-			
+
 			G.path = [];
+			G.solution = [];
 
 			G.generateSolution();
-			console.log(G.solution);
-			
+
 //			G.solution = [0, 1, 2,
 //										5, 4, 3,
 //							 			6, 7, 8];
-			
+
 			G.resetBoard();
+
+			PS.audioPlay(G.LEVEL_LOAD);
 		},
 
 		//resetBoard()
@@ -110,6 +141,7 @@ var G;
 			PS.border(PS.ALL, PS.ALL, PS.DEFAULT);
 			PS.borderColor(PS.ALL, PS.ALL, 0x222222);
 			PS.gridColor(0x999999);
+			PS.statusText("Level " + G.current_level);
 		},
 		
 		//TODO: randomly generate a valid solution path
@@ -186,7 +218,6 @@ var G;
 						chosen = G.buildSolution(chosen, size, tolerance);
 						break;
 				}
-				console.log(chosen.length);
 				if (chosen.length >= size - tolerance) {
 					x += directionOrder.length;
 				}
@@ -202,6 +233,7 @@ var G;
 			G.path = [];
 			G.path.push((y * G.level_width) + x);
 			G.drawPath();
+			PS.audioPlay(G.CREATE_PATH);
 		},
 
 		//addToPath(x,y)
@@ -351,7 +383,11 @@ var G;
 			
 			//if path length is the same and an incorrect square was never found, you win
 			if(G.path.length == G.solution.length && correct) {
-				PS.statusText("You did it!");
+				G.level_complete = true;
+				PS.statusText("Level Complete! Click to continue");
+				PS.audioPlay(G.LEVEL_COMPLETE);
+			} else {
+				PS.audioPlay(G.INCORRECT_ANSWER);
 			}
 		}
 
@@ -372,8 +408,12 @@ PS.init = function( system, options ) {
 // PS.touch ( x, y, data, options )
 // Called when the mouse button is clicked on a bead, or when a bead is touched
 PS.touch = function( x, y, data, options ) {
-	G.mouse_down = true;
-	G.createNewPath(x,y);
+	if (G.level_complete) {
+		G.loadNewLevel();
+	} else {
+		G.mouse_down = true;
+		G.createNewPath(x,y);
+	}
 };
 
 // PS.release ( x, y, data, options )
