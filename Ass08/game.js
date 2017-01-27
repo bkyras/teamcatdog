@@ -43,13 +43,13 @@ var G;
 		//color constants
 
 		//board colors
-		DEFAULT_COLOR : 0x888888,
+		DEFAULT_COLOR : 0xBBBBBB,
 		CORRECT_COLOR : 0x00FFFF,
 		PARTIAL_COLOR : 0xFF4400,
-		WRONG_COLOR : PS.COLOR_RED,
+		WRONG_COLOR : 0xCA3513,
 
 		//path colors
-		FIRST_COLOR : 0x6E00FF,
+		FIRST_COLOR : 0x6E00A0,
 		MIDDLE_COLOR : 0x946DFF,
 		LAST_COLOR : 0xC9AAFF,
 
@@ -84,7 +84,7 @@ var G;
 		//initialize the board on game start
 		init : function () {
 			//G.ORDER = true;
-			var difficulty = G.INTERMEDIATE;
+			var difficulty = G.HARD;
 			G.level_height = difficulty;
 			G.level_width = difficulty;
 			
@@ -108,6 +108,7 @@ var G;
 			PS.color(PS.ALL, PS.ALL, G.DEFAULT_COLOR);
 			PS.scale(PS.ALL, PS.ALL, 100);
 			PS.border(PS.ALL, PS.ALL, PS.DEFAULT);
+			PS.gridColor(0x555555);
 		},
 		
 		//TODO: randomly generate a valid solution path
