@@ -114,10 +114,17 @@ var G;
 		generateSolution : function() {
 			var size = G.level_height * G.level_width;
 			var chosen = [];
-			var start = PS.random(size) - 1;
-			var tolerance = 1;
-			chosen.push(start);
-			G.solution = G.buildSolution(chosen, size, tolerance);
+			var tiles = [];
+			var x;
+			for (x = 0; x < size; x++) {
+				tiles.push(x);
+			}
+			var tolerance = 0;
+			while (G.solution.length < size - tolerance) {
+				var start = tiles.splice(PS.random(tiles.length) - 1, 1)[0];
+				chosen.splice(0,size,start);
+				G.solution = G.buildSolution(chosen, size, tolerance);
+			}
 			//get the last thing in chosen, randomly pick N/S/E/W from there, push if not in chosen, repick if it is
 			//stop when there's no direction to go from last thing in chosen
 		},
