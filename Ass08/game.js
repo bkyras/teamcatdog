@@ -64,6 +64,9 @@ var G;
 		RIGHT: 2,
 		BOTTOM: 3,
 		TOP: 4,
+		
+		//AB testing
+		ORDER : false,
 
 		//variables (lowercase)
 
@@ -80,7 +83,8 @@ var G;
 		//init
 		//initialize the board on game start
 		init : function () {
-			var difficulty = G.EASY;
+			//G.ORDER = true;
+			var difficulty = G.INTERMEDIATE;
 			G.level_height = difficulty;
 			G.level_width = difficulty;
 			
@@ -89,9 +93,9 @@ var G;
 			G.generateSolution();
 			console.log(G.solution);
 			
-			G.solution = [0, 1, 2,
-										5, 4, 3,
-							 			6, 7, 8];
+//			G.solution = [0, 1, 2,
+//										5, 4, 3,
+//							 			6, 7, 8];
 			
 			G.resetBoard();
 		},
@@ -216,7 +220,6 @@ var G;
 			var ay = Math.floor(beadA / G.level_width);
 			var bx = beadB % G.level_width;
 			var by = Math.floor(beadB / G.level_width);
-			console.log("beadx is (" + ax + "," + ay + "), beady is (" + bx + "," + by + ")");
 			if(bx - ax === 1 && by === ay) {
 				return G.RIGHT;
 			} else if(bx - ax === -1 && by === ay) {
@@ -260,16 +263,16 @@ var G;
 				//if previous bead is top, set top=0
 				switch(G.checkDirection(G.path[index], prev)) {
 					case G.LEFT:
-						border = { top : 2, left : 0, bottom : 2, right : 2, equal : true, width : 1 };
+						border = { top : 2, left : 0, bottom : 2, right : 2, equal : true, width : 4 };
 						break;
 					case G.RIGHT:
-						border = { top : 2, left : 2, bottom : 2, right : 0, equal : true, width : 1 }
+						border = { top : 2, left : 2, bottom : 2, right : 0, equal : true, width : 4 }
 						break;
 					case G.TOP:
-						border = { top : 0, left : 2, bottom : 2, right : 2, equal : true, width : 1 }
+						border = { top : 0, left : 2, bottom : 2, right : 2, equal : true, width : 4 }
 						break;
 					case G.BOTTOM:
-						border = { top : 2, left : 2, bottom : 0, right : 2, equal : true, width : 1 }
+						border = { top : 2, left : 2, bottom : 0, right : 2, equal : true, width : 4 }
 						break;
 				}
 				//same for next bead.
@@ -298,29 +301,38 @@ var G;
 			var x, y;
 			var correct = true;
 			
-			//currently low performance? would best be done (I think) using PS.data to store
-			//the following bead, but couldn't get it to work.
-			for(var i = 0; i < G.path.length; i++) {
-				//index of current bead in solution array
-				var s = G.solution.indexOf(G.path[i]);
-				
-				//if bead exists in solution and isn't the final bead in either array
-				if(s != -1 && i != G.path.length-1 && s != G.solution.length-1) {
-					//if the following bead in each array doesn't match, color it wrong
-					if(G.path[i+1] != G.solution[s+1]) {
+			if(G.ORDER) {
+				for(var i = 0; i < G.path.length; i++) {
+					var s = G.solution.indexOf(G.path[i]);
+					if(s!=i) {
 						x = G.path[i]%G.level_width;
 						y = Math.floor(G.path[i]/G.level_width);
-						PS.debug("coloring red");
 						PS.color(x, y, G.WRONG_COLOR);
 						correct = false;
+					} 
+				}
+			}
+			else {
+				for(var i = 0; i < G.path.length; i++) {
+					//index of current bead in solution array
+					var s = G.solution.indexOf(G.path[i]);
+
+					//if bead exists in solution and isn't the final bead in either array
+					if(s != -1 && i != G.path.length-1 && s != G.solution.length-1) {
+						//if the following bead in each array doesn't match, color it wrong
+						if(G.path[i+1] != G.solution[s+1]) {
+							x = G.path[i]%G.level_width;
+							y = Math.floor(G.path[i]/G.level_width);
+							PS.color(x, y, G.WRONG_COLOR);
+							correct = false;
+						}
+					//if one of beads being checked is the final bead and the other is not, it's wrong
+					} else if((i == G.path.length-1 || s == G.solution.length-1) && i != s) {
+							x = G.path[i]%G.level_width;
+							y = Math.floor(G.path[i]/G.level_width);
+							PS.color(x, y, G.WRONG_COLOR);
+							correct = false;
 					}
-				//if one of beads being checked is the final bead and the other is not, it's wrong
-				} else if((i == G.path.length-1 || s == G.solution.length-1) && i != s) {
-						x = G.path[i]%G.level_width;
-						y = Math.floor(G.path[i]/G.level_width);
-					PS.debug("coloring red");
-						PS.color(x, y, G.WRONG_COLOR);
-						correct = false;
 				}
 			}
 			
