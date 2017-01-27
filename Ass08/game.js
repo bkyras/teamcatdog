@@ -43,7 +43,7 @@ var G;
 		//color constants
 
 		//board colors
-		DEFAULT_COLOR : 0xBBBBBB,
+		DEFAULT_COLOR : 0x999999,
 		CORRECT_COLOR : 0x00FFFF,
 		PARTIAL_COLOR : 0xFF4400,
 		WRONG_COLOR : 0xCA3513,
