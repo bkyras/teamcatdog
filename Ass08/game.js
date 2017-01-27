@@ -214,11 +214,12 @@ var G;
 			}
 			if(G.path.length > 1 && G.checkDirection(G.path[G.path.length-2], location)==-1) {
 				//this kills the path
-				G.path = [];
-				G.resetBoard();
-				G.mouse_down = false;
+				//if new bead is NOT adjacent to last bead added, get rid of it
+				//if new bead is in path already, ignore
+				if(!(G.path.includes(location) && G.path.indexOf(location) < G.path.length-2))
+					G.path.pop();
 			}
-
+			
 			G.drawPath();
 		},
 
