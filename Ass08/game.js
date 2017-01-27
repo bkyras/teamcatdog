@@ -391,7 +391,7 @@ var G;
 				G.level_complete = true;
 				PS.statusText("Level Complete! Click to continue");
 				PS.audioPlay(G.LEVEL_COMPLETE);
-				PS.dbEvent("thataway", "level", G.current_level, "time", PS.date().time - G.timeSpent, "moves", G.numClicks);
+				PS.dbEvent("thataway", "level", G.current_level, "levelTime", PS.date().time - G.timeSpent, "moves", G.numClicks);
 				G.timeSpent = 0;
 				G.numClicks = 0;
 			} else {
