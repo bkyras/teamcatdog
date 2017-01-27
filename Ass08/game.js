@@ -84,7 +84,7 @@ var G;
 		//initialize the board on game start
 		init : function () {
 			//G.ORDER = true;
-			var difficulty = G.INTERMEDIATE;
+			var difficulty = G.EASY;
 			G.level_height = difficulty;
 			G.level_width = difficulty;
 			
@@ -334,7 +334,7 @@ var G;
 							correct = false;
 						}
 					//if one of beads being checked is the final bead and the other is not, it's wrong
-					} else if((i == G.path.length-1 || s == G.solution.length-1) && i != s) {
+					} else if((i == G.path.length-1 || s == G.solution.length-1) && (G.path.length-i) != (G.solution.length-s)) {
 							x = G.path[i]%G.level_width;
 							y = Math.floor(G.path[i]/G.level_width);
 							PS.color(x, y, G.WRONG_COLOR);
