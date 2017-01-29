@@ -416,7 +416,7 @@ var G;
 		markTile : function (x,y) {
 			switch(PS.glyph(x,y)) {
 				case G.LEFT_ARROW:
-					PS.glyph(x,y,G.UP_ARROW);
+					PS.glyph(x,y,G.EXIT_MARK);
 					break;
 				case G.UP_ARROW:
 					PS.glyph(x,y,G.RIGHT_ARROW);
@@ -425,13 +425,13 @@ var G;
 					PS.glyph(x,y,G.DOWN_ARROW);
 					break;
 				case G.DOWN_ARROW:
-					PS.glyph(x,y,G.EXIT_MARK);
+					PS.glyph(x,y,G.LEFT_ARROW);
 					break;
 				case G.EXIT_MARK:
 					PS.glyph(x,y,G.NO_MARK);
 					break;
 				default:
-					PS.glyph(x,y,G.LEFT_ARROW);
+					PS.glyph(x,y,G.UP_ARROW);
 					break;
 			}
 		}
