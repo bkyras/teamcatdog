@@ -54,7 +54,6 @@ var G;
 		LAST_COLOR : 0xC9AAFF,
 
 		//difficulty values
-		TUTORIAL : 2,
 		EASY : 3,
 		INTERMEDIATE : 4,
 		HARD : 5,
@@ -73,6 +72,18 @@ var G;
 		CREATE_PATH : "fx_pop",
 		INCORRECT_ANSWER : "fx_rip",
 		LEVEL_COMPLETE : "fx_beep",
+		
+		TUT1 : [0, 1, 2,
+						5, 4, 3,
+						6, 7, 8],
+			
+		TUT2 : [4, 1, 0,
+						3, 6, 7,
+						8, 5, 2],
+		
+		TUT3 : [8, 5, 2,
+					 	1, 0, 3,
+					 	4, 7, 6],
 
 		//variables (lowercase)
 
@@ -124,10 +135,6 @@ var G;
 			G.solution = [];
 
 			G.generateSolution();
-
-//			G.solution = [0, 1, 2,
-//										5, 4, 3,
-//							 			6, 7, 8];
 
 			G.resetBoard();
 			G.timeSpent = PS.date().time;
