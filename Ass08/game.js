@@ -104,6 +104,8 @@ var G;
 		path : [], //user's current attempt at the puzzle
 
 		mouse_down : false,
+		can_flag : false,
+		tut_msg : 1,
 		
 		numClicks: 0,
 		timeSpent: 0,
@@ -136,13 +138,29 @@ var G;
 				difficulty = G.HARD;
 			}
 
+			if(G.current_level == 3) {
+				G.can_flag = true;
+				G.tut_msg = 3;
+			}
+			if(G.current_level > 3) {
+				G.tut_msg = 4;
+			}
+			
 			G.level_height = difficulty;
 			G.level_width = difficulty;
 
 			G.path = [];
 			G.solution = [];
 
-			G.generateSolution();
+			if(G.current_level == 1) {
+				G.solution = G.TUT1;
+			} else if(G.current_level == 2) {
+				G.solution = G.TUT2;
+			} else if(G.current_level == 3) {
+				G.solution = G.TUT3;
+			} else {
+				G.generateSolution();
+			}
 
 			PS.gridSize(G.level_width, G.level_height);
 			PS.glyph(PS.ALL, PS.ALL, G.NO_MARK);
@@ -163,7 +181,19 @@ var G;
 			PS.border(PS.ALL, PS.ALL, PS.DEFAULT);
 			PS.borderColor(PS.ALL, PS.ALL, 0x222222);
 			PS.gridColor(0x999999);
-			PS.statusText("Level " + G.current_level);
+			if(G.tut_msg == 1) {
+				PS.statusText("Click and drag. Fill the board.");
+			} else if(G.tut_msg == 2) {
+				PS.statusText("Try a different direction.");
+			} else if(G.tut_msg == 3) {
+				PS.statusText("Kid gloves are off. Click to mark tiles.");
+			} else {
+				PS.statusText("Level " + (G.current_level-3));
+			}
+			if(G.current_level < 3) {
+				PS.glyph(PS.ALL, PS.ALL, G.NO_MARK);
+				PS.glyphColor(PS.ALL, PS.ALL, PS.DEFAULT);
+			}
 		},
 		
 		//TODO: randomly generate a valid solution path
@@ -315,7 +345,7 @@ var G;
 				if(index != G.path.length-1) {
 					next = G.path[index+1];
 				} else {
-					//PS.glyph(x, y, 10022);
+					if(!G.can_flag) { PS.glyph(x, y, 10022); }
 				}
 				var border = {};
 				//switch case
@@ -344,19 +374,19 @@ var G;
 				switch(G.checkDirection(G.path[index], next)) {
 					case G.LEFT:
 						border.left = 0;
-						//PS.glyph(x, y, 8592);
+						if(!G.can_flag) { PS.glyph(x, y, 8592); }
 						break;
 					case G.RIGHT:
 						border.right = 0;
-						//PS.glyph(x, y, 8594);
+						if(!G.can_flag) { PS.glyph(x, y, 8594); }
 						break;
 					case G.TOP:
 						border.top = 0;
-						//PS.glyph(x, y, 8593);
+						if(!G.can_flag) { PS.glyph(x, y, 8593); }
 						break;
 					case G.BOTTOM:
 						border.bottom = 0;
-						//PS.glyph(x, y, 8595);
+						if(!G.can_flag) { PS.glyph(x, y, 8595); }
 						break;
 				}
 				PS.border(x, y, border);
@@ -377,7 +407,11 @@ var G;
 					if(s!=i) {
 						x = G.path[i]%G.level_width;
 						y = Math.floor(G.path[i]/G.level_width);
-						PS.color(x, y, G.WRONG_COLOR);
+							if(G.can_flag) {
+								PS.color(x, y, G.WRONG_COLOR);
+							} else {
+								PS.glyphColor(x, y, G.WRONG_COLOR);
+							}
 						correct = false;
 					} 
 				}
@@ -393,17 +427,34 @@ var G;
 						if(G.path[i+1] != G.solution[s+1]) {
 							x = G.path[i]%G.level_width;
 							y = Math.floor(G.path[i]/G.level_width);
-							PS.color(x, y, G.WRONG_COLOR);
+							if(G.can_flag) {
+								PS.color(x, y, G.WRONG_COLOR);
+							} else {
+								PS.glyphColor(x, y, G.WRONG_COLOR);
+							}
 							correct = false;
 						}
 					//if one of beads being checked is the final bead and the other is not, it's wrong
 					} else if((i == G.path.length-1 || s == G.solution.length-1) && (G.path.length-i) != (G.solution.length-s)) {
 							x = G.path[i]%G.level_width;
 							y = Math.floor(G.path[i]/G.level_width);
-							PS.color(x, y, G.WRONG_COLOR);
+							if(G.can_flag) {
+								PS.color(x, y, G.WRONG_COLOR);
+							} else {
+								PS.glyphColor(x, y, G.WRONG_COLOR);
+							}
 							correct = false;
 					}
 				}
+			}
+			
+			if(G.tut_msg == 1) {
+				PS.statusText("Try a different direction.");
+				G.tut_msg = 2;
+			}
+			
+			if(G.current_level == 3) {
+				PS.statusText("Kid gloves are off. Click to mark tiles.");
 			}
 			
 			//if path length is the same and an incorrect square was never found, you win
@@ -478,7 +529,7 @@ PS.release = function( x, y, data, options ) {
 		G.mouse_down = false;
 		if (G.path.length > 1) {
 			G.submitSolution();
-		} else {
+		} else if(G.can_flag){
 			G.markTile(x,y);
 		}
 	}
@@ -494,11 +545,6 @@ PS.enter = function( x, y, data, options ) {
 	}
 };
 
-PS.keyDown = function(key, shift, ctrl, options) {
-	if(key == PS.KEY_ARROW_DOWN) {
-		PS.glyph(0, 0, 8592);
-	}
-};
 //PS.shutdown = function() {
 //	if(PS.dbData("thataway").events.length!=0) {
 //		PS.dbSend("thataway", "nchaput", {discard: true});
