@@ -138,12 +138,15 @@ var G;
 				difficulty = G.HARD;
 			}
 
-			if(G.current_level == 3) {
-				G.can_flag = true;
+			if(G.current_level == 2) {
 				G.tut_msg = 3;
 			}
-			if(G.current_level > 3) {
+			if(G.current_level == 3) {
+				G.can_flag = true;
 				G.tut_msg = 4;
+			}
+			if(G.current_level > 3) {
+				G.tut_msg = 5;
 			}
 			
 			G.level_height = difficulty;
@@ -186,6 +189,8 @@ var G;
 			} else if(G.tut_msg == 2) {
 				PS.statusText("Try a different direction.");
 			} else if(G.tut_msg == 3) {
+				PS.statusText("The right path is... thataway!");
+			} else if(G.tut_msg == 4) {
 				PS.statusText("Kid gloves are off. Click to mark tiles.");
 			} else {
 				PS.statusText("Level " + (G.current_level-3));
@@ -284,7 +289,6 @@ var G;
 		createNewPath : function (x, y) {
 			G.path = [];
 			G.path.push((y * G.level_width) + x);
-			//G.drawPath();
 			PS.audioPlay(G.CREATE_PATH);
 		},
 
@@ -451,9 +455,9 @@ var G;
 			if(G.tut_msg == 1) {
 				PS.statusText("Try a different direction.");
 				G.tut_msg = 2;
-			}
-			
-			if(G.current_level == 3) {
+			} else if(G.tut_msg == 3) {
+				PS.statusText("The right path is... thataway!");
+			} else if(G.tut_msg == 4) {
 				PS.statusText("Kid gloves are off. Click to mark tiles.");
 			}
 			
@@ -544,6 +548,14 @@ PS.enter = function( x, y, data, options ) {
 		return;
 	}
 };
+
+PS.exitGrid = function(options) {
+	if(G.mouse_down) {
+		G.mouse_down = false;
+		G.drawPath();
+		G.submitSolution();
+	}
+}
 
 //PS.shutdown = function() {
 //	if(PS.dbData("thataway").events.length!=0) {
