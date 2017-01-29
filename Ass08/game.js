@@ -286,11 +286,7 @@ var G;
 			for(var index = 0; index<G.path.length; index++) {
 				var x = G.path[index] % G.level_width;
 				var y = Math.floor(G.path[index] / G.level_width);
-				if (index === 0) {     //first bead in solution attempt
-					PS.color(x, y, G.FIRST_COLOR);
-				} else {               //middle bead
-					PS.color(x, y, G.MIDDLE_COLOR);
-				}
+				PS.color(x, y, G.MIDDLE_COLOR);
 				if (index === G.path.length - 1) { //overwrite color with "cursor" for last bead
 					PS.color(x, y, G.LAST_COLOR);
 				}
@@ -300,6 +296,8 @@ var G;
 				}
 				if(index != G.path.length-1) {
 					next = G.path[index+1];
+				} else {
+					PS.glyph(x, y, 10022);
 				}
 				var border = {};
 				//switch case
@@ -328,15 +326,19 @@ var G;
 				switch(G.checkDirection(G.path[index], next)) {
 					case G.LEFT:
 						border.left = 0;
+						PS.glyph(x, y, 8592);
 						break;
 					case G.RIGHT:
 						border.right = 0;
+						PS.glyph(x, y, 8594);
 						break;
 					case G.TOP:
 						border.top = 0;
+						PS.glyph(x, y, 8593);
 						break;
 					case G.BOTTOM:
 						border.bottom = 0;
+						PS.glyph(x, y, 8595);
 						break;
 				}
 				PS.border(x, y, border);
@@ -373,14 +375,14 @@ var G;
 						if(G.path[i+1] != G.solution[s+1]) {
 							x = G.path[i]%G.level_width;
 							y = Math.floor(G.path[i]/G.level_width);
-							PS.color(x, y, G.WRONG_COLOR);
+							PS.glyphColor(x, y, G.WRONG_COLOR);
 							correct = false;
 						}
 					//if one of beads being checked is the final bead and the other is not, it's wrong
 					} else if((i == G.path.length-1 || s == G.solution.length-1) && (G.path.length-i) != (G.solution.length-s)) {
 							x = G.path[i]%G.level_width;
 							y = Math.floor(G.path[i]/G.level_width);
-							PS.color(x, y, G.WRONG_COLOR);
+							PS.glyphColor(x, y, G.WRONG_COLOR);
 							correct = false;
 					}
 				}
@@ -444,8 +446,13 @@ PS.enter = function( x, y, data, options ) {
 	}
 };
 
-PS.shutdown = function() {
-	if(PS.dbData("thataway").events.length!=0) {
-		PS.dbSend("thataway", "nchaput", {discard: true});
+PS.keyDown = function(key, shift, ctrl, options) {
+	if(key == PS.KEY_ARROW_DOWN) {
+		PS.glyph(0, 0, 8592);
 	}
-}
+};
+//PS.shutdown = function() {
+//	if(PS.dbData("thataway").events.length!=0) {
+//		PS.dbSend("thataway", "nchaput", {discard: true});
+//	}
+//};
