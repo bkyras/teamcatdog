@@ -85,6 +85,14 @@ var G;
 					 	1, 0, 3,
 					 	4, 7, 6],
 
+		//Glyphs
+		LEFT_ARROW : 8592,
+		UP_ARROW : 8593,
+		RIGHT_ARROW : 8594,
+		DOWN_ARROW : 8595,
+		EXIT_MARK : 10022,
+		NO_MARK : 0,
+
 		//variables (lowercase)
 
 		level_height : null,
@@ -136,6 +144,10 @@ var G;
 
 			G.generateSolution();
 
+			PS.gridSize(G.level_width, G.level_height);
+			PS.glyph(PS.ALL, PS.ALL, G.NO_MARK);
+			PS.glyphColor(PS.ALL, PS.ALL, PS.DEFAULT);
+			
 			G.resetBoard();
 			G.timeSpent = PS.date().time;
 
@@ -146,7 +158,6 @@ var G;
 		//reset the colors of the board to the default condition
 		resetBoard : function () {
 			PS.statusText("");
-			PS.gridSize(G.level_width, G.level_height);
 			PS.color(PS.ALL, PS.ALL, G.DEFAULT_COLOR);
 			PS.scale(PS.ALL, PS.ALL, 100);
 			PS.border(PS.ALL, PS.ALL, PS.DEFAULT);
@@ -243,7 +254,7 @@ var G;
 		createNewPath : function (x, y) {
 			G.path = [];
 			G.path.push((y * G.level_width) + x);
-			G.drawPath();
+			//G.drawPath();
 			PS.audioPlay(G.CREATE_PATH);
 		},
 
@@ -304,7 +315,7 @@ var G;
 				if(index != G.path.length-1) {
 					next = G.path[index+1];
 				} else {
-					PS.glyph(x, y, 10022);
+					//PS.glyph(x, y, 10022);
 				}
 				var border = {};
 				//switch case
@@ -333,19 +344,19 @@ var G;
 				switch(G.checkDirection(G.path[index], next)) {
 					case G.LEFT:
 						border.left = 0;
-						PS.glyph(x, y, 8592);
+						//PS.glyph(x, y, 8592);
 						break;
 					case G.RIGHT:
 						border.right = 0;
-						PS.glyph(x, y, 8594);
+						//PS.glyph(x, y, 8594);
 						break;
 					case G.TOP:
 						border.top = 0;
-						PS.glyph(x, y, 8593);
+						//PS.glyph(x, y, 8593);
 						break;
 					case G.BOTTOM:
 						border.bottom = 0;
-						PS.glyph(x, y, 8595);
+						//PS.glyph(x, y, 8595);
 						break;
 				}
 				PS.border(x, y, border);
@@ -382,14 +393,14 @@ var G;
 						if(G.path[i+1] != G.solution[s+1]) {
 							x = G.path[i]%G.level_width;
 							y = Math.floor(G.path[i]/G.level_width);
-							PS.glyphColor(x, y, G.WRONG_COLOR);
+							PS.color(x, y, G.WRONG_COLOR);
 							correct = false;
 						}
 					//if one of beads being checked is the final bead and the other is not, it's wrong
 					} else if((i == G.path.length-1 || s == G.solution.length-1) && (G.path.length-i) != (G.solution.length-s)) {
 							x = G.path[i]%G.level_width;
 							y = Math.floor(G.path[i]/G.level_width);
-							PS.glyphColor(x, y, G.WRONG_COLOR);
+							PS.color(x, y, G.WRONG_COLOR);
 							correct = false;
 					}
 				}
@@ -406,7 +417,33 @@ var G;
 			} else {
 				PS.audioPlay(G.INCORRECT_ANSWER);
 			}
+		},
+
+		//markTile (x,y)
+		//mark the tile with the direction you think it goes in
+		markTile : function (x,y) {
+			switch(PS.glyph(x,y)) {
+				case G.LEFT_ARROW:
+					PS.glyph(x,y,G.UP_ARROW);
+					break;
+				case G.UP_ARROW:
+					PS.glyph(x,y,G.RIGHT_ARROW);
+					break;
+				case G.RIGHT_ARROW:
+					PS.glyph(x,y,G.DOWN_ARROW);
+					break;
+				case G.DOWN_ARROW:
+					PS.glyph(x,y,G.EXIT_MARK);
+					break;
+				case G.EXIT_MARK:
+					PS.glyph(x,y,G.NO_MARK);
+					break;
+				default:
+					PS.glyph(x,y,G.LEFT_ARROW);
+					break;
+			}
 		}
+
 
 	};
 } () ); // end of self-invoking function
@@ -439,7 +476,11 @@ PS.touch = function( x, y, data, options ) {
 PS.release = function( x, y, data, options ) {
 	if(G.mouse_down) {
 		G.mouse_down = false;
-		G.submitSolution();
+		if (G.path.length > 1) {
+			G.submitSolution();
+		} else {
+			G.markTile(x,y);
+		}
 	}
 };
 
