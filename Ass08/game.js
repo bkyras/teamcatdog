@@ -557,8 +557,8 @@ PS.exitGrid = function(options) {
 	}
 }
 
-//PS.shutdown = function() {
-//	if(PS.dbData("thataway").events.length!=0) {
-//		PS.dbSend("thataway", "nchaput", {discard: true});
-//	}
-//};
+PS.shutdown = function() {
+	if(PS.dbData("thataway").events.length!=0) {
+		PS.dbSend("thataway", "nchaput", {discard: true});
+	}
+};
