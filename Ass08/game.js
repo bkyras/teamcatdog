@@ -200,8 +200,7 @@ var G;
 				PS.glyphColor(PS.ALL, PS.ALL, PS.DEFAULT);
 			}
 		},
-		
-		//TODO: randomly generate a valid solution path
+
 		generateSolution : function() {
 			var size = G.level_height * G.level_width;
 			var chosen = [];
@@ -289,6 +288,7 @@ var G;
 		createNewPath : function (x, y) {
 			G.path = [];
 			G.path.push((y * G.level_width) + x);
+			G.drawPath();
 			PS.audioPlay(G.CREATE_PATH);
 		},
 
@@ -534,6 +534,8 @@ PS.release = function( x, y, data, options ) {
 		if (G.path.length > 1) {
 			G.submitSolution();
 		} else if(G.can_flag){
+			G.path = [];
+			G.drawPath();
 			G.markTile(x,y);
 		}
 	}
@@ -559,6 +561,7 @@ PS.exitGrid = function(options) {
 
 PS.shutdown = function() {
 	if(PS.dbData("thataway").events.length!=0) {
-		PS.dbSend("thataway", "nchaput", {discard: true});
+		//PS.dbSend("thataway", "nchaput", {discard: true}); //uncomment for proper release
+		PS.dbErase("thataway"); //uncomment for testing
 	}
 };
