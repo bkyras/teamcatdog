@@ -57,6 +57,8 @@ var G;
 		EASY : 3,
 		INTERMEDIATE : 4,
 		HARD : 5,
+		EX1 : 6,
+		EX2 : 7,
 		
 		//direction constants
 		LEFT: 1,
@@ -110,6 +112,10 @@ var G;
 		numClicks: 0,
 		timeSpent: 0,
 
+		newX : null,
+		newY : null,
+		newOldColor : null,
+
 		//methods
 
 		//init
@@ -132,10 +138,14 @@ var G;
 			var difficulty;
 			if (G.current_level < 4) {
 				difficulty = G.EASY;
-			} else if (G.current_level < 10) {
+			} else if (G.current_level < 7) {
 				difficulty = G.INTERMEDIATE;
-			} else {
+			} else if (G.current_level < 10) {
 				difficulty = G.HARD;
+			} else if (G.current_level < 15) {
+				difficulty = G.EX1;
+			} else {
+				difficulty = G.EX2;
 			}
 
 			if(G.current_level == 2) {
@@ -522,7 +532,14 @@ PS.touch = function( x, y, data, options ) {
 		G.loadNewLevel();
 	} else {
 		G.mouse_down = true;
-		G.createNewPath(x,y);
+		if (!G.can_flag) {
+			G.createNewPath(x,y);
+		} else {
+			G.newX = x;
+			G.newY = y;
+			G.newOldColor = PS.color(x,y);
+			PS.color(x,y,G.LAST_COLOR);
+		}
 	}
 };
 
@@ -531,12 +548,20 @@ PS.touch = function( x, y, data, options ) {
 PS.release = function( x, y, data, options ) {
 	if(G.mouse_down) {
 		G.mouse_down = false;
-		if (G.path.length > 1) {
+
+		if (!G.can_flag) {
 			G.submitSolution();
-		} else if(G.can_flag){
-			G.path = [];
-			G.drawPath();
-			G.markTile(x,y);
+		} else {
+			if (G.newX !== null && G.newY !== null && G.newOldColor !== null) {
+				G.markTile(G.newX, G.newY);
+				PS.color(G.newX, G.newY, G.newOldColor);
+
+				G.newX = null;
+				G.newY = null;
+				G.newOldColor = null;
+			} else {
+				G.submitSolution();
+			}
 		}
 	}
 };
@@ -545,6 +570,13 @@ PS.release = function( x, y, data, options ) {
 // Called when the mouse/touch enters a bead
 PS.enter = function( x, y, data, options ) {
 	if (G.mouse_down) {
+		if (G.newX !== null && G.newY !== null && G.newOldColor !== null) {
+			G.createNewPath(G.newX, G.newY);
+
+			G.newX = null;
+			G.newY = null;
+			G.newOldColor = null;
+		}
 		G.addToPath(x,y);
 	} else {
 		return;
