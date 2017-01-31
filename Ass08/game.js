@@ -140,9 +140,9 @@ var G;
 				difficulty = G.EASY;
 			} else if (G.current_level < 7) {
 				difficulty = G.INTERMEDIATE;
-			} else if (G.current_level < 10) {
+			} else if (G.current_level < 11) {
 				difficulty = G.HARD;
-			} else if (G.current_level < 15) {
+			} else if (G.current_level < 17) {
 				difficulty = G.EX1;
 			} else {
 				difficulty = G.EX2;
