@@ -441,6 +441,8 @@ var G;
 						if(G.path[i+1] != G.solution[s+1]) {
 							x = G.path[i]%G.level_width;
 							y = Math.floor(G.path[i]/G.level_width);
+							//var direction = G.checkDirection(G.path[i], G.path[i+1]);
+							//G.markWrong(x,y,direction);
 							if(G.can_flag) {
 								PS.color(x, y, G.WRONG_COLOR);
 							} else {
@@ -450,14 +452,16 @@ var G;
 						}
 					//if one of beads being checked is the final bead and the other is not, it's wrong
 					} else if((i == G.path.length-1 || s == G.solution.length-1) && (G.path.length-i) != (G.solution.length-s)) {
-							x = G.path[i]%G.level_width;
-							y = Math.floor(G.path[i]/G.level_width);
-							if(G.can_flag) {
-								PS.color(x, y, G.WRONG_COLOR);
-							} else {
-								PS.glyphColor(x, y, G.WRONG_COLOR);
-							}
-							correct = false;
+						x = G.path[i]%G.level_width;
+						y = Math.floor(G.path[i]/G.level_width);
+						//var direction = 0;
+						//G.markWrong(x,y,direction);
+						if(G.can_flag) {
+						 PS.color(x, y, G.WRONG_COLOR);
+						 } else {
+						 PS.glyphColor(x, y, G.WRONG_COLOR);
+						 }
+						correct = false;
 					}
 				}
 			}
@@ -481,6 +485,40 @@ var G;
 				G.numClicks = 0;
 			} else {
 				PS.audioPlay(G.INCORRECT_ANSWER);
+			}
+		},
+
+		//markWrong(x,y,direction)
+		//mark a tile as incorrect
+		markWrong : function (x, y, direction) {
+			PS.bgColor(PS.ALL,PS.ALL,0x222222);
+			PS.bgAlpha(PS.ALL,PS.ALL,255);
+			PS.scale(x,y,97);
+			switch(direction) {
+				case G.LEFT:
+					//PS.border(x,y,{top:PS.CURRENT,left:30,right:PS.CURRENT,bottom:PS.CURRENT});
+					PS.border(x,y,{top:6,left:30,right:6,bottom:6});
+					PS.borderColor(x,y,G.WRONG_COLOR);
+					break;
+				case G.RIGHT:
+					//PS.border(x,y,{top:PS.CURRENT,left:PS.CURRENT,right:30,bottom:PS.CURRENT});
+					PS.border(x,y,{top:6,left:6,right:30,bottom:6});
+					PS.borderColor(x,y,G.WRONG_COLOR);
+					break;
+				case G.TOP:
+					//PS.border(x,y,{top:30,left:PS.CURRENT,right:PS.CURRENT,bottom:PS.CURRENT});
+					PS.border(x,y,{top:30,left:6,right:6,bottom:6});
+					PS.borderColor(x,y,G.WRONG_COLOR);
+					break;
+				case G.BOTTOM:
+					//PS.border(x,y,{top:PS.CURRENT,left:PS.CURRENT,right:PS.CURRENT,bottom:30});
+					PS.border(x,y,{top:6,left:6,right:6,bottom:30});
+					PS.borderColor(x,y,G.WRONG_COLOR);
+					break;
+				default:
+					PS.border(x,y,{top:6,left:6,right:6,bottom:6});
+					PS.borderColor(x,y,G.WRONG_COLOR);
+					break;
 			}
 		},
 
