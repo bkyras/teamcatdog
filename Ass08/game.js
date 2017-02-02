@@ -1,4 +1,7 @@
 // game.js for Perlenspiel 3.2.x
+// Team Catdog
+// Bailey Sheridan
+// Nicholas Chaput
 
 /*
 Perlenspiel is a scheme by Professor Moriarty (bmoriarty@wpi.edu).
@@ -44,12 +47,9 @@ var G;
 
 		//board colors
 		DEFAULT_COLOR : 0x555555,
-		CORRECT_COLOR : 0x00FFFF,
-		PARTIAL_COLOR : 0xFF4400,
 		WRONG_COLOR : 0xE04C4C,
 
 		//path colors
-		FIRST_COLOR : 0x6E00A0,
 		MIDDLE_COLOR : 0x946DFF,
 		LAST_COLOR : 0xC9AAFF,
 
@@ -61,13 +61,10 @@ var G;
 		EX2 : 7,
 		
 		//direction constants
-		LEFT: 1,
-		RIGHT: 2,
-		BOTTOM: 3,
-		TOP: 4,
-		
-		//AB testing
-		ORDER : false,
+		LEFT : 1,
+		RIGHT : 2,
+		BOTTOM : 3,
+		TOP : 4,
 
 		//Sounds
 		LEVEL_LOAD : "fx_bloop",
@@ -126,8 +123,6 @@ var G;
 			PS.audioLoad(G.INCORRECT_ANSWER);
 			PS.audioLoad(G.LEVEL_COMPLETE);
 
-
-			//G.ORDER = true;   //uncomment for order-based, comment for direction-based
 			G.loadNewLevel();
 		},
 
@@ -142,11 +137,9 @@ var G;
 				difficulty = G.INTERMEDIATE;
 			} else if (G.current_level < 11) {
 				difficulty = G.HARD;
-			} else /*if (G.current_level < 17) {
-				difficulty = G.EX1;
 			} else {
-				difficulty = G.EX2;
-			}*/
+				difficulty = G.EX1;
+			}
 
 			if(G.current_level == 2) {
 				G.tut_msg = 3;
@@ -201,7 +194,7 @@ var G;
 			} else if(G.tut_msg == 3) {
 				PS.statusText("The right path is... thataway!");
 			} else if(G.tut_msg == 4) {
-				PS.statusText("Kid gloves are off. Click to mark tiles.");
+				PS.statusText("Click and release to mark tiles.");
 			} else {
 				PS.statusText("Level " + (G.current_level-3));
 			}
@@ -234,7 +227,7 @@ var G;
 			var prev = chosen[chosen.length-1];
 			var prevx = prev % G.level_width;
 			var prevy = Math.floor(prev / G.level_width);
-			// (prevy * G.level_width) + prevx
+			
 			var directions = [];
 			if (prevx > 0 && chosen.indexOf((prevy * G.level_width) + prevx - 1) === -1) {
 				directions.push(G.LEFT);
@@ -254,7 +247,7 @@ var G;
 			}
 
 			var directionOrder = [];
-			//var directions = [0, 1, 2, 3];
+			
 			var x;
 			for (x = 0; x < directions.length; x++) {
 				var index = PS.random(directions.length) - 1;
@@ -269,6 +262,7 @@ var G;
 						chosen.push(prev - 1);
 						chosen = G.buildSolution(chosen, size, tolerance);
 						break;
+						
 					case G.RIGHT:
 						chosen.push(prev + 1);
 						chosen = G.buildSolution(chosen, size, tolerance);
@@ -415,54 +409,33 @@ var G;
 			var correct = true;
 			G.numClicks += 1;
 			
-			if(G.ORDER) {
-				for(var i = 0; i < G.path.length; i++) {
-					var s = G.solution.indexOf(G.path[i]);
-					if(s!=i) {
-						x = G.path[i]%G.level_width;
-						y = Math.floor(G.path[i]/G.level_width);
-							if(G.can_flag) {
-								PS.color(x, y, G.WRONG_COLOR);
-							} else {
-								PS.glyphColor(x, y, G.WRONG_COLOR);
-							}
-						correct = false;
-					} 
-				}
-			}
-			else {
-				for(var i = 0; i < G.path.length; i++) {
-					//index of current bead in solution array
-					var s = G.solution.indexOf(G.path[i]);
+			for(var i = 0; i < G.path.length; i++) {
+				//index of current bead in solution array
+				var s = G.solution.indexOf(G.path[i]);
 
-					//if bead exists in solution and isn't the final bead in either array
-					if(s != -1 && i != G.path.length-1 && s != G.solution.length-1) {
-						//if the following bead in each array doesn't match, color it wrong
-						if(G.path[i+1] != G.solution[s+1]) {
-							x = G.path[i]%G.level_width;
-							y = Math.floor(G.path[i]/G.level_width);
-							//var direction = G.checkDirection(G.path[i], G.path[i+1]);
-							//G.markWrong(x,y,direction);
-							if(G.can_flag) {
-								PS.color(x, y, G.WRONG_COLOR);
-							} else {
-								PS.glyphColor(x, y, G.WRONG_COLOR);
-							}
-							correct = false;
-						}
-					//if one of beads being checked is the final bead and the other is not, it's wrong
-					} else if((i == G.path.length-1 || s == G.solution.length-1) && (G.path.length-i) != (G.solution.length-s)) {
+				//if bead exists in solution and isn't the final bead in either array
+				if(s != -1 && i != G.path.length-1 && s != G.solution.length-1) {
+					//if the following bead in each array doesn't match, color it wrong
+					if(G.path[i+1] != G.solution[s+1]) {
 						x = G.path[i]%G.level_width;
 						y = Math.floor(G.path[i]/G.level_width);
-						//var direction = 0;
-						//G.markWrong(x,y,direction);
 						if(G.can_flag) {
-						 PS.color(x, y, G.WRONG_COLOR);
-						 } else {
-						 PS.glyphColor(x, y, G.WRONG_COLOR);
-						 }
+							PS.color(x, y, G.WRONG_COLOR);
+						} else {
+							PS.glyphColor(x, y, G.WRONG_COLOR);
+						}
 						correct = false;
 					}
+				//if one of beads being checked is the final bead and the other is not, it's wrong
+				} else if((i == G.path.length-1 || s == G.solution.length-1) && (G.path.length-i) != (G.solution.length-s)) {
+					x = G.path[i]%G.level_width;
+					y = Math.floor(G.path[i]/G.level_width);
+					if(G.can_flag) {
+					 PS.color(x, y, G.WRONG_COLOR);
+					 } else {
+					 PS.glyphColor(x, y, G.WRONG_COLOR);
+					 }
+					correct = false;
 				}
 			}
 			
@@ -472,7 +445,7 @@ var G;
 			} else if(G.tut_msg == 3) {
 				PS.statusText("The right path is... thataway!");
 			} else if(G.tut_msg == 4) {
-				PS.statusText("Kid gloves are off. Click to mark tiles.");
+				PS.statusText("Click and release to mark tiles.");
 			}
 			
 			//if path length is the same and an incorrect square was never found, you win
@@ -480,7 +453,7 @@ var G;
 				G.level_complete = true;
 				PS.statusText("Level Complete! Click to continue");
 				PS.audioPlay(G.LEVEL_COMPLETE);
-				PS.dbEvent("thataway", "level", G.current_level, "levelTime", PS.date().time - G.timeSpent, "moves", G.numClicks);
+				PS.dbEvent("thatawayfinal", "level", G.current_level, "levelTime", PS.date().time - G.timeSpent, "moves", G.numClicks);
 				G.timeSpent = 0;
 				G.numClicks = 0;
 			} else {
@@ -525,7 +498,7 @@ var G;
 // This function should normally begin with a call to PS.gridSize( x, y )
 // where x and y are the desired initial dimensions of the grid
 PS.init = function( system, options ) {
-	PS.dbInit("thataway");
+	PS.dbInit("thatawayfinal");
 	G.init();
 };
 
@@ -587,17 +560,17 @@ PS.enter = function( x, y, data, options ) {
 	}
 };
 
-/*PS.exitGrid = function(options) {
+PS.exitGrid = function(options) {
 	if(G.mouse_down) {
 		G.mouse_down = false;
 		G.drawPath();
 		G.submitSolution();
 	}
-}*/
+}
 
 PS.shutdown = function() {
-	if(PS.dbData("thataway").events.length!=0) {
-		//PS.dbSend("thataway", "nchaput", {discard: true}); //uncomment for proper release
-		PS.dbErase("thataway"); //uncomment for testing
+	if(PS.dbData("thatawayfinal").events.length!=0) {
+		PS.dbSend("thatawayfinal", "nchaput", {discard: true}); //uncomment for proper release
+		//PS.dbErase("thatawayfinal"); //uncomment for testing
 	}
 };
