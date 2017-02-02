@@ -142,11 +142,11 @@ var G;
 				difficulty = G.INTERMEDIATE;
 			} else if (G.current_level < 11) {
 				difficulty = G.HARD;
-			} else if (G.current_level < 17) {
+			} else /*if (G.current_level < 17) {
 				difficulty = G.EX1;
 			} else {
 				difficulty = G.EX2;
-			}
+			}*/
 
 			if(G.current_level == 2) {
 				G.tut_msg = 3;
@@ -488,40 +488,6 @@ var G;
 			}
 		},
 
-		//markWrong(x,y,direction)
-		//mark a tile as incorrect
-		markWrong : function (x, y, direction) {
-			PS.bgColor(PS.ALL,PS.ALL,0x222222);
-			PS.bgAlpha(PS.ALL,PS.ALL,255);
-			PS.scale(x,y,97);
-			switch(direction) {
-				case G.LEFT:
-					//PS.border(x,y,{top:PS.CURRENT,left:30,right:PS.CURRENT,bottom:PS.CURRENT});
-					PS.border(x,y,{top:6,left:30,right:6,bottom:6});
-					PS.borderColor(x,y,G.WRONG_COLOR);
-					break;
-				case G.RIGHT:
-					//PS.border(x,y,{top:PS.CURRENT,left:PS.CURRENT,right:30,bottom:PS.CURRENT});
-					PS.border(x,y,{top:6,left:6,right:30,bottom:6});
-					PS.borderColor(x,y,G.WRONG_COLOR);
-					break;
-				case G.TOP:
-					//PS.border(x,y,{top:30,left:PS.CURRENT,right:PS.CURRENT,bottom:PS.CURRENT});
-					PS.border(x,y,{top:30,left:6,right:6,bottom:6});
-					PS.borderColor(x,y,G.WRONG_COLOR);
-					break;
-				case G.BOTTOM:
-					//PS.border(x,y,{top:PS.CURRENT,left:PS.CURRENT,right:PS.CURRENT,bottom:30});
-					PS.border(x,y,{top:6,left:6,right:6,bottom:30});
-					PS.borderColor(x,y,G.WRONG_COLOR);
-					break;
-				default:
-					PS.border(x,y,{top:6,left:6,right:6,bottom:6});
-					PS.borderColor(x,y,G.WRONG_COLOR);
-					break;
-			}
-		},
-
 		//markTile (x,y)
 		//mark the tile with the direction you think it goes in
 		markTile : function (x,y) {
@@ -621,13 +587,13 @@ PS.enter = function( x, y, data, options ) {
 	}
 };
 
-PS.exitGrid = function(options) {
+/*PS.exitGrid = function(options) {
 	if(G.mouse_down) {
 		G.mouse_down = false;
 		G.drawPath();
 		G.submitSolution();
 	}
-}
+}*/
 
 PS.shutdown = function() {
 	if(PS.dbData("thataway").events.length!=0) {
