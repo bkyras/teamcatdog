@@ -391,7 +391,7 @@ var G;
 				G.level_complete = true;
 				PS.statusText("Level Complete! Click to continue");
 				PS.audioPlay(G.LEVEL_COMPLETE);
-				PS.dbEvent("thataway", "level", G.current_level, "levelTime", PS.date().time - G.timeSpent, "moves", G.numClicks);
+				//PS.dbEvent("thataway", "level", G.current_level, "levelTime", PS.date().time - G.timeSpent, "moves", G.numClicks);
 				G.timeSpent = 0;
 				G.numClicks = 0;
 			} else {
@@ -410,7 +410,7 @@ var G;
 // This function should normally begin with a call to PS.gridSize( x, y )
 // where x and y are the desired initial dimensions of the grid
 PS.init = function( system, options ) {
-	PS.dbInit("thataway");
+	//PS.dbInit("thataway");
 	G.init();
 };
 
@@ -444,8 +444,8 @@ PS.enter = function( x, y, data, options ) {
 	}
 };
 
-PS.shutdown = function() {
+/*PS.shutdown = function() {
 	if(PS.dbData("thataway").events.length!=0) {
 		PS.dbSend("thataway", "nchaput", {discard: true});
 	}
-}
+}*/
