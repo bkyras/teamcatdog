@@ -40,6 +40,8 @@ var G;
 	var heraX = 12;
 	var heraY = 15;
 	
+	var lure = 0;
+	
 	var idMoveTimer = "";
 	var path = null;
 	var step = 0;
@@ -47,35 +49,50 @@ var G;
 	var tick = function () {
 		moveEcho();
 		moveHera();
+		if(lure > 0)
+			lure--;
+		else
+			PS.statusText("");
 	};
 	
 	var moveHera = function() {
 		var rand = PS.random(4) - 1;
-		switch(rand){
-			case 0:
-				if(heraX != 0) {
-					PS.spriteMove(heraSprite, heraX-1, heraY)
-					heraX -= 1;
+		if(lure > 0) {
+			var hPath = PS.line(heraX, heraY, echoX, echoY);
+			if(hPath.length > 1) {
+				var hx = hPath[0][0];
+				var hy = hPath[0][1]
+				PS.spriteMove(heraSprite, hx, hy)
+				heraX = hx;
+				heraY = hy;
 				}
-				break;
-			case 1:
-				if(heraX != GRID_WIDTH-2) {
-					PS.spriteMove(heraSprite, heraX+1, heraY)
-					heraX += 1;
-				}
-				break;
-			case 2:
-				if(heraY != 0) {
-					PS.spriteMove(heraSprite, heraX, heraY-1)
-					heraY -= 1;
-				}
-				break;
-			case 3:
-				if(heraY != GRID_HEIGHT-2) {
-					PS.spriteMove(heraSprite, heraX, heraY+1)
-					heraY += 1;
-				}
-				break;
+		} else {
+			switch(rand){
+				case 0:
+					if(heraX != 0) {
+						PS.spriteMove(heraSprite, heraX-1, heraY)
+						heraX -= 1;
+					}
+					break;
+				case 1:
+					if(heraX != GRID_WIDTH-2) {
+						PS.spriteMove(heraSprite, heraX+1, heraY)
+						heraX += 1;
+					}
+					break;
+				case 2:
+					if(heraY != 0) {
+						PS.spriteMove(heraSprite, heraX, heraY-1)
+						heraY -= 1;
+					}
+					break;
+				case 3:
+					if(heraY != GRID_HEIGHT-2) {
+						PS.spriteMove(heraSprite, heraX, heraY+1)
+						heraY += 1;
+					}
+					break;
+			}
 		}
 	};
 	
@@ -121,8 +138,8 @@ var G;
 			path = PS.line(echoX, echoY, x, y);
 		},
 		
-		influence : function() {
-			
+		lure : function() {
+			lure = 12; //num ticks to be lured for
 		}
 	};
 }());
@@ -192,7 +209,8 @@ PS.keyDown = function( key, shift, ctrl, options ) {
 	//	PS.debug( "DOWN: key = " + key + ", shift = " + shift + "\n" );
 
 	// Add code here for when a key is pressed
-	PS.statusText(key);
+	PS.statusText("Over here!");
+	G.lure();
 };
 
 
