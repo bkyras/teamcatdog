@@ -43,7 +43,7 @@ var G;
 	var lure = 0;
 	
 	var idMoveTimer = "";
-	var path = null;
+	var path = [];
 	var step = 0;
 	
 	var tick = function () {
@@ -99,16 +99,17 @@ var G;
 	var moveEcho = function() {
 		var p, nx, ny, ptr, val;
 
-		if (!path) {
+		if (path.length === 0) {
 			return;
 		}
 
 		p = path[ step ];
+		
 		nx = p[ 0 ]; // next x-pos
 		ny = p[ 1 ]; // next y-pos
 
 		if ((echoX === nx) && (echoY === ny)) {
-			path = null;
+			path = [];
 			return;
 		}
 
@@ -119,7 +120,7 @@ var G;
 		step++;
 		
 		if ( step >= path.length ) {
-			path = null;
+			path = [];
 		}
 	};
 	
