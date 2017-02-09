@@ -44,6 +44,10 @@ var G;
 	var zeusX = 10;
 	var zeusY = 2;
 	
+	var zeusActive = false;
+	var heraActive = false;
+	var echoActive = false;
+	
 	var lure = 0;
 	var heraTime = 2;
 	
@@ -52,12 +56,17 @@ var G;
 	var step = 0;
 	
 	var tick = function () {
-		moveEcho();
-		if(heraTime == 0) {
-			moveHera();
-			heraTime = 2;
+		if (echoActive) {
+			moveEcho();
 		}
+		
+		if (heraActive) {
+			if(heraTime == 0) {
+				moveHera();
+				heraTime = 2;
+			}
 		heraTime--;
+		}
 		if(lure > 0)
 			lure--;
 //		else if(lure == 0)
@@ -142,18 +151,31 @@ var G;
 	G = {
 		init : function() {
 			idMoveTimer = PS.timerStart(5, tick);
+			G.initEcho();
+		},
+		
+		initEcho : function() {
 			echoSprite = PS.spriteSolid(2, 2);
-			heraSprite = PS.spriteSolid(2, 2);
-			zeusSprite = PS.spriteSolid(2, 2);
 			PS.spritePlane(echoSprite, 1);
-			PS.spritePlane(heraSprite, 2);
-			PS.spritePlane(zeusSprite, 3);
-			PS.spriteCollide(heraSprite, heraCollide);
-			PS.spriteSolidColor(zeusSprite, PS.COLOR_YELLOW);
-			PS.spriteSolidColor(heraSprite, PS.COLOR_RED);
-			PS.spriteMove(zeusSprite, zeusX, zeusY);
 			PS.spriteMove(echoSprite, echoX, echoY);
+			echoActive = true;
+		},
+		
+		initZeus : function() {
+			zeusSprite = PS.spriteSolid(2, 2);
+			PS.spritePlane(zeusSprite, 3);
+			PS.spriteSolidColor(zeusSprite, PS.COLOR_YELLOW);
+			PS.spriteMove(zeusSprite, zeusX, zeusY);
+			zeusActive = true;
+		},
+		
+		initHera : function() {
+			heraSprite = PS.spriteSolid(2, 2);
+			PS.spritePlane(heraSprite, 2);
+			PS.spriteCollide(heraSprite, heraCollide);
+			PS.spriteSolidColor(heraSprite, PS.COLOR_RED);
 			PS.spriteMove(heraSprite, heraX, heraY);
+			heraActive = true;
 		},
 		
 		move : function(x, y) {
@@ -232,8 +254,14 @@ PS.keyDown = function( key, shift, ctrl, options ) {
 	//	PS.debug( "DOWN: key = " + key + ", shift = " + shift + "\n" );
 
 	// Add code here for when a key is pressed
-	PS.statusText("Over here!");
-	G.lure();
+	if (key == 32) {
+		PS.statusText("Over here!");
+		G.lure();
+	} else if (key == PS.KEY_ARROW_UP) {
+		G.initHera();
+	} else if (key == PS.KEY_ARROW_DOWN) {
+		G.initZeus();
+	}
 };
 
 
