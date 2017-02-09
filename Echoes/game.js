@@ -35,12 +35,17 @@ var G;
 	
 	var echoSprite = "";
 	var heraSprite = "";
+	var zeusSprite = "";
+	
 	var echoX = 2;
 	var echoY = 3;
 	var heraX = 12;
 	var heraY = 15;
+	var zeusX = 10;
+	var zeusY = 2;
 	
 	var lure = 0;
+	var heraTime = 2;
 	
 	var idMoveTimer = "";
 	var path = [];
@@ -48,11 +53,21 @@ var G;
 	
 	var tick = function () {
 		moveEcho();
-		moveHera();
+		if(heraTime == 0) {
+			moveHera();
+			heraTime = 2;
+		}
+		heraTime--;
 		if(lure > 0)
 			lure--;
-		else
-			PS.statusText("");
+//		else if(lure == 0)
+//			PS.statusText("");
+	};
+	
+	var heraCollide = function(s1, p1, s2, p2, type) {
+		if(s2 == zeusSprite) {
+			PS.statusText("Hera found zeus, you loser");
+		}
 	};
 	
 	var moveHera = function() {
@@ -129,7 +144,14 @@ var G;
 			idMoveTimer = PS.timerStart(5, tick);
 			echoSprite = PS.spriteSolid(2, 2);
 			heraSprite = PS.spriteSolid(2, 2);
+			zeusSprite = PS.spriteSolid(2, 2);
+			PS.spritePlane(echoSprite, 1);
+			PS.spritePlane(heraSprite, 2);
+			PS.spritePlane(zeusSprite, 3);
+			PS.spriteCollide(heraSprite, heraCollide);
+			PS.spriteSolidColor(zeusSprite, PS.COLOR_YELLOW);
 			PS.spriteSolidColor(heraSprite, PS.COLOR_RED);
+			PS.spriteMove(zeusSprite, zeusX, zeusY);
 			PS.spriteMove(echoSprite, echoX, echoY);
 			PS.spriteMove(heraSprite, heraX, heraY);
 		},
