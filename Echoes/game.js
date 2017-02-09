@@ -30,8 +30,6 @@ along with Perlenspiel. If not, see <http://www.gnu.org/licenses/>.
 var G;
 
 (function(){
-	var GRID_HEIGHT = 20;
-	var GRID_WIDTH = 20;
 	var ECHO_LURE_SOUND = "fx_squawk";
 	
 	var echoSprite = "", echoActive = false;
@@ -100,7 +98,7 @@ var G;
 					}
 					break;
 				case 1:
-					if(heraX != GRID_WIDTH-2) {
+					if(heraX != G.GRID_WIDTH-2) {
 						PS.spriteMove(heraSprite, heraX+1, heraY)
 						heraX += 1;
 					}
@@ -112,7 +110,7 @@ var G;
 					}
 					break;
 				case 3:
-					if(heraY != GRID_HEIGHT-2) {
+					if(heraY != G.GRID_HEIGHT-2) {
 						PS.spriteMove(heraSprite, heraX, heraY+1)
 						heraY += 1;
 					}
@@ -138,7 +136,7 @@ var G;
 			return;
 		}
 
-		if(nx == GRID_WIDTH-1 || ny == GRID_HEIGHT-1)
+		if(nx == G.GRID_WIDTH-1 || ny == G.GRID_HEIGHT-1)
 			path = [];
 		else {
 			PS.spriteMove(echoSprite, nx, ny);
@@ -175,6 +173,8 @@ var G;
 	}
 	
 	G = {
+		GRID_HEIGHT : 30,
+		GRID_WIDTH : 30,
 		init : function() {
 			idMoveTimer = PS.timerStart(5, tick);
 			PS.audioLoad(ECHO_LURE_SOUND);
@@ -235,7 +235,7 @@ PS.init = function( system, options ) {
 	// Do this FIRST to avoid problems!
 	// Otherwise you will get the default 8x8 grid
 
-	PS.gridSize(20, 20);
+	PS.gridSize(G.GRID_WIDTH, G.GRID_HEIGHT);
 	PS.border(PS.ALL, PS.ALL, 0);
 	PS.gridColor(0xDDDDDD);
 	G.init();
