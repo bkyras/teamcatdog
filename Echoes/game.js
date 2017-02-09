@@ -55,6 +55,10 @@ var G;
 	var path = [];
 	var step = 0;
 	
+	var statusTextTimer = null;
+	var curStatText = "";
+	var fullStatText = "";
+	
 	var tick = function () {
 		if (echoActive) {
 			moveEcho();
@@ -152,6 +156,27 @@ var G;
 		}
 	};
 	
+	var customStatusText = function (statusText) {
+		var characterDelay = 20;
+		
+		if (statusTextTimer !== null) {
+			clearInterval(statusTextTimer);
+		}
+		
+		curStatText = "";
+		fullStatText = statusText;
+		statusTextTimer = setInterval(incrementStatusText, characterDelay);
+	};
+	
+	var incrementStatusText = function() {
+		curStatText = fullStatText.slice(0,curStatText.length + 1);
+		PS.statusText(curStatText);
+		
+		if(curStatText.length === fullStatText.length) {
+			clearInterval(statusTextTimer);
+		}
+	}
+	
 	G = {
 		init : function() {
 			idMoveTimer = PS.timerStart(5, tick);
@@ -171,6 +196,7 @@ var G;
 			PS.spriteSolidColor(zeusSprite, PS.COLOR_YELLOW);
 			PS.spriteMove(zeusSprite, zeusX, zeusY);
 			zeusActive = true;
+			customStatusText("Hera created");
 		},
 		
 		initHera : function() {
@@ -180,6 +206,7 @@ var G;
 			PS.spriteSolidColor(heraSprite, PS.COLOR_RED);
 			PS.spriteMove(heraSprite, heraX, heraY);
 			heraActive = true;
+			customStatusText("Zeus created");
 		},
 		
 		move : function(x, y) {
