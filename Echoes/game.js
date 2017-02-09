@@ -202,6 +202,8 @@ PS.init = function( system, options ) {
 	// Otherwise you will get the default 8x8 grid
 
 	PS.gridSize(20, 20);
+	PS.border(PS.ALL, PS.ALL, 0);
+	PS.gridColor(0xDDDDDD);
 	G.init();
 
 	// Add any other initialization code you need here
