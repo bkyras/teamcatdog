@@ -32,23 +32,18 @@ var G;
 (function(){
 	var GRID_HEIGHT = 20;
 	var GRID_WIDTH = 20;
+	var ECHO_LURE_SOUND = "fx_squawk";
 	
-	var echoSprite = "";
-	var heraSprite = "";
-	var zeusSprite = "";
+	var echoSprite = "", echoActive = false;
+	var heraSprite = "", heraActive = false;
+	var zeusSprite = "", zeusActive = false;
 	
-	var echoX = 2;
-	var echoY = 3;
-	var heraX = 12;
-	var heraY = 15;
-	var zeusX = 10;
-	var zeusY = 2;
-	
-	var zeusActive = false;
-	var heraActive = false;
-	var echoActive = false;
+	var echoX = 2, echoY = 3;
+	var heraX = 12, heraY = 15;
+	var zeusX = 10, zeusY = 2;
 	
 	var lure = 0;
+	var lureCooldown = 0;
 	var heraTime = 2;
 	
 	var idMoveTimer = "";
@@ -71,6 +66,8 @@ var G;
 			}
 		heraTime--;
 		}
+		if(lureCooldown > 0)
+			lureCooldown--;
 		if(lure > 0)
 			lure--;
 //		else if(lure == 0)
@@ -180,6 +177,7 @@ var G;
 	G = {
 		init : function() {
 			idMoveTimer = PS.timerStart(5, tick);
+			PS.audioLoad(ECHO_LURE_SOUND);
 			G.initEcho();
 		},
 		
@@ -215,7 +213,12 @@ var G;
 		},
 		
 		lure : function() {
-			lure = 12; //num ticks to be lured for
+			if(lureCooldown == 0) {
+				PS.statusText("Over here!");
+				PS.audioPlay(ECHO_LURE_SOUND);
+				lure = 12; //num ticks to be lured for
+				lureCooldown = 30; //num ticks of lure cooldown (includes lured time)
+			}
 		}
 	};
 }());
@@ -288,7 +291,6 @@ PS.keyDown = function( key, shift, ctrl, options ) {
 
 	// Add code here for when a key is pressed
 	if (key == 32) {
-		PS.statusText("Over here!");
 		G.lure();
 	} else if (key == PS.KEY_ARROW_UP) {
 		G.initHera();
