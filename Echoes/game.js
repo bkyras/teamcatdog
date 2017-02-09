@@ -137,9 +137,13 @@ var G;
 			return;
 		}
 
-		PS.spriteMove(echoSprite, nx, ny);
-		echoX = nx;
-		echoY = ny;
+		if(nx == GRID_WIDTH-1 || ny == GRID_HEIGHT-1)
+			path = [];
+		else {
+			PS.spriteMove(echoSprite, nx, ny);
+			echoX = nx;
+			echoY = ny;
+		}
 		
 		step++;
 		
