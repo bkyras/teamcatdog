@@ -42,7 +42,7 @@ var G;
 	var ladySprites = [];
 	var forDeletion = [];
 	
-	var echoX = 2, echoY = 3;
+	var echoX = 14, echoY = 6;
 	var heraX = 12, heraY = 15;
 	var zeusX = 10, zeusY = 2;
 	
@@ -57,6 +57,14 @@ var G;
 	var statusTextTimer = null;
 	var curStatText = "";
 	var fullStatText = ""; 
+	
+	var T; //variable containing tutorial functions. 
+	T = {
+		index : 0,
+		numMoves : 0,
+		timer : null,
+		onMove : function(){}
+	};
 	
 	var tick = function () {
 		if (echoActive) {
@@ -217,6 +225,7 @@ var G;
 		
 		if (statusTextTimer !== null) {
 			clearInterval(statusTextTimer);
+			statusTextTimer = null;
 		}
 		
 		curStatText = "";
@@ -230,6 +239,7 @@ var G;
 		
 		if(curStatText.length === fullStatText.length) {
 			clearInterval(statusTextTimer);
+			statusTextTimer = null;
 		}
 	};
 	
@@ -264,6 +274,61 @@ var G;
 		}
 	};
 	
+	var incrementTutorial = function() {
+		T.index += 1;
+		T.numMoves = 0;
+		clearTimeout(T.timer);
+		T.timer = null;
+		T.onMove = function(){};
+		
+		var SMALL_WAIT = 3000;
+		
+		switch(T.index) {
+			case 1:
+				customStatusText("You are Echo, a nymph.");
+				T.timer = setTimeout(function(){
+					incrementTutorial();
+				}, SMALL_WAIT);
+				break;
+			case 2:
+				customStatusText("Click to move.");
+				T.onMove = function(){
+					console.log("On move fired\n" + T.timer);
+					T.numMoves += 1;
+					if (T.timer === null && T.numMoves > 1) {
+						incrementTutorial();
+					}
+				};
+				T.timer = setTimeout(function(){
+					console.log("timeout fired");
+					if (T.numMoves > 1) {
+						incrementTutorial();
+					} else {
+						clearTimeout(T.timer);
+						T.timer = null;
+					}
+				}, SMALL_WAIT);
+				break;
+			case 3:
+				customStatusText("This is Hera, a Goddess.");
+				T.timer = setTimeout(function(){
+					activateBeads(22,22);
+					G.initHera();
+					incrementTutorial();
+				}, SMALL_WAIT);
+				break;
+			case 4:
+				customStatusText("Talk to Hera with Spacebar");
+				T.timer = setTimeout(function(){
+					incrementTutorial();
+				}, SMALL_WAIT);
+				break;
+			case 5:
+				customStatusText("t s ts st s ts t ");
+				break;
+		}
+	};
+	
 	G = {
 		GRID_HEIGHT : 30,
 		GRID_WIDTH : 30,
@@ -283,7 +348,9 @@ var G;
 			PS.audioLoad(ECHO_LURE_SOUND);
 			PS.audioLoad(LADY_SOUND);
 			G.initEcho();
-			activateBeads(20,20);
+			activateBeads(14,14);
+			
+			incrementTutorial();
 		},
 		
 		initEcho : function() {
@@ -301,7 +368,6 @@ var G;
 			PS.spriteMove(zeusSprite, zeusX, zeusY);
 			zeusActive = true;
 			customStatusText("Zeus created");
-			activateBeads(25,25);
 		},
 		
 		initHera : function() {
@@ -311,13 +377,12 @@ var G;
 			PS.spriteSolidColor(heraSprite, PS.COLOR_RED);
 			PS.spriteMove(heraSprite, heraX, heraY);
 			heraActive = true;
-			customStatusText("Hera created");
-			activateBeads(30,30);
 		},
 		
 		move : function(x, y) {
 			step = 0;
 			path = PS.line(echoX, echoY, x, y);
+			T.onMove();
 		},
 		
 		spawn : function() {
