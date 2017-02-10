@@ -343,7 +343,7 @@ var G;
 				break;
 			case 3:
 				customStatusText("This is Hera, a Goddess.");
-				activateBeads(22,22);
+				activateBeads(30,30);
 				G.initHera();
 				T.timer = setTimeout(function(){
 					incrementTutorial();
@@ -363,9 +363,9 @@ var G;
 				break;
 			case 6:
 				customStatusText("So will regular ladies.");
+				ladiesActive = true;
+				spawnLady();
 				T.timer = setTimeout(function(){
-					ladiesActive = true;
-					spawnLady();
 					incrementTutorial();
 				}, SMALL_WAIT);
 				break;
@@ -374,22 +374,26 @@ var G;
 				T.timer = setTimeout(function(){
 					incrementTutorial();
 				}, SMALL_WAIT);
+				break;
 			case 8:
 				customStatusText("Don't let Hera find him.");
 				T.timer = setTimeout(function(){
 					incrementTutorial();
 				}, SMALL_WAIT);
+				break;
 			case 9:
 				customStatusText("There he is now!");
 				G.initZeus();
 				T.timer = setTimeout(function(){
 					incrementTutorial();
 				}, SMALL_WAIT);
+				break;
 			case 10:
 				customStatusText("Keep Hera distracted by chatting.");
 				T.timer = setTimeout(function(){
 					incrementTutorial();
 				}, SMALL_WAIT);
+				break;
 		}
 	};
 	
@@ -413,7 +417,7 @@ var G;
 			PS.audioLoad(LADY_SOUND);
 			ladiesActive = false;
 			G.initEcho();
-			activateBeads(14,14);
+			activateBeads(20,20);
 			
 			incrementTutorial();
 		},
@@ -432,7 +436,6 @@ var G;
 			PS.spriteSolidColor(zeusSprite, PS.COLOR_YELLOW);
 			PS.spriteMove(zeusSprite, zeusX, zeusY);
 			zeusActive = true;
-			customStatusText("Zeus created");
 		},
 		
 		initHera : function() {
@@ -456,7 +459,6 @@ var G;
 		
 		lure : function() {
 			if(lureCooldown == 0) {
-				customStatusText("Over here!");
 				PS.audioPlay(ECHO_LURE_SOUND);
 				lure = 18; //num ticks to be lured for
 				lureCooldown = 30; //num ticks of lure cooldown (includes lured time)
