@@ -62,6 +62,9 @@ var G;
 	var curStatText = "";
 	var fullStatText = ""; 
 	
+	var girlsEaten = 0;
+	var timeRemaining = 0;
+	
 	var T; //variable containing tutorial functions. 
 	T = {
 		index : 0,
@@ -249,6 +252,7 @@ var G;
 			PS.audioPlay(LADY_SOUND);
 			ladySprites.splice(i, 1);
 			forDeletion.push(s2);
+			girlsEaten += 1;
 		}
 	};
 	
@@ -314,6 +318,7 @@ var G;
 		T.onMove = function(){};
 		
 		var SMALL_WAIT = 3000;
+		var MEDIUM_WAIT = 5000;
 		
 		switch(T.index) {
 			case 1:
@@ -325,14 +330,12 @@ var G;
 			case 2:
 				customStatusText("Click to move.");
 				T.onMove = function(){
-					console.log("On move fired\n" + T.timer);
 					T.numMoves += 1;
 					if (T.timer === null && T.numMoves > 1) {
 						incrementTutorial();
 					}
 				};
 				T.timer = setTimeout(function(){
-					console.log("timeout fired");
 					if (T.numMoves > 1) {
 						incrementTutorial();
 					} else {
@@ -359,7 +362,7 @@ var G;
 				customStatusText("If you're near, she'll listen.");
 				T.timer = setTimeout(function(){
 					incrementTutorial();
-				}, SMALL_WAIT);
+				}, MEDIUM_WAIT);
 				break;
 			case 6:
 				customStatusText("So will regular ladies.");
@@ -367,32 +370,55 @@ var G;
 				spawnLady();
 				T.timer = setTimeout(function(){
 					incrementTutorial();
-				}, SMALL_WAIT);
+				}, MEDIUM_WAIT);
 				break;
 			case 7:
 				customStatusText("Hera's husband, Zeus, is cheating.");
 				T.timer = setTimeout(function(){
 					incrementTutorial();
-				}, SMALL_WAIT);
+				}, MEDIUM_WAIT);
 				break;
 			case 8:
 				customStatusText("Don't let Hera find him.");
 				T.timer = setTimeout(function(){
 					incrementTutorial();
-				}, SMALL_WAIT);
+				}, MEDIUM_WAIT);
 				break;
 			case 9:
 				customStatusText("There he is now!");
 				G.initZeus();
 				T.timer = setTimeout(function(){
 					incrementTutorial();
-				}, SMALL_WAIT);
+				}, MEDIUM_WAIT);
 				break;
 			case 10:
 				customStatusText("Keep Hera distracted by chatting.");
 				T.timer = setTimeout(function(){
 					incrementTutorial();
+				}, MEDIUM_WAIT);
+				break;
+			case 11:
+				customStatusText("Time remaining: 1m 00s  Girls Eaten: " + girlsEaten);
+				T.timer = setTimeout(function(){
+					incrementTutorial();
 				}, SMALL_WAIT);
+				break;
+			case 12:
+				timeRemaining = 60;
+				T.timer = setInterval(function(){
+					timeRemaining -= 1;
+					if (timeRemaining >= 0) {
+						PS.statusText("Time remaining: " + Math.floor(timeRemaining / 60) +"m " + ("00" + timeRemaining % 60).slice(-2) + "s  Girls Eaten: " + girlsEaten);
+					} else {
+						clearInterval(T.timer);
+						T.timer = null;
+						incrementTutorial();
+					}
+				}, 1000);
+				break;
+			case 13:
+				customStatusText("Good work! To be continued...");
+				activateBeads(0,0);
 				break;
 		}
 	};
@@ -430,6 +456,17 @@ var G;
 		},
 		
 		initZeus : function() {
+			if (heraX < 15) {
+				zeusX = 28;
+			} else {
+				zeusX = 1;
+			}
+			if (heraY < 15) {
+				zeusY = 28;
+			} else {
+				zeusY = 1;
+			}
+			
 			zeusSprite = PS.spriteSolid(2, 2);
 			PS.spritePlane(zeusSprite, ZEUS_PLANE);
 			PS.spriteCollide(zeusSprite, wooLady);
