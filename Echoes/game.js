@@ -30,17 +30,17 @@ along with Perlenspiel. If not, see <http://www.gnu.org/licenses/>.
 var G;
 
 (function(){
-	var GRID_HEIGHT = 30;
-	var GRID_WIDTH = 30;
-	
-	var activeBoardWidth = GRID_WIDTH;
-	var activeBoardHeight = GRID_HEIGHT;
 	
 	var ECHO_LURE_SOUND = "fx_squawk";
+	var LADY_SOUND = "fx_hoot";
+	var LADY_PLANE = 1, ZEUS_PLANE = 2, HERA_PLANE = 3, ECHO_PLANE = 4;
 	
 	var echoSprite = "", echoActive = false;
 	var heraSprite = "", heraActive = false;
 	var zeusSprite = "", zeusActive = false;
+	
+	var ladySprites = [];
+	var forDeletion = [];
 	
 	var echoX = 2, echoY = 3;
 	var heraX = 12, heraY = 15;
@@ -70,12 +70,18 @@ var G;
 			}
 		heraTime--;
 		}
+		if(zeusActive)
+			moveZeus();
 		if(lureCooldown > 0)
 			lureCooldown--;
 		if(lure > 0)
 			lure--;
 //		else if(lure == 0)
 //			PS.statusText("");
+		while(forDeletion.length > 0) {
+			var spr = forDeletion.pop();
+			PS.spriteDelete(spr);
+		}
 	};
 	
 	var heraCollide = function(s1, p1, s2, p2, type) {
@@ -104,7 +110,7 @@ var G;
 					}
 					break;
 				case 1:
-					if(heraX != GRID_WIDTH-2) {
+					if(heraX != G.GRID_WIDTH-2) {
 						PS.spriteMove(heraSprite, heraX+1, heraY)
 						heraX += 1;
 					}
@@ -116,12 +122,42 @@ var G;
 					}
 					break;
 				case 3:
-					if(heraY != GRID_HEIGHT-2) {
+					if(heraY != G.GRID_HEIGHT-2) {
 						PS.spriteMove(heraSprite, heraX, heraY+1)
 						heraY += 1;
 					}
 					break;
 			}
+		}
+	};
+	
+	var moveZeus = function() {
+		var rand = PS.random(4) - 1;
+		switch(rand){
+			case 0:
+				if(zeusX != 0) {
+					PS.spriteMove(zeusSprite, zeusX-1, zeusY)
+					zeusX -= 1;
+				}
+				break;
+			case 1:
+				if(zeusX != G.GRID_WIDTH-2) {
+					PS.spriteMove(zeusSprite, zeusX+1, zeusY)
+					zeusX += 1;
+				}
+				break;
+			case 2:
+				if(zeusY != 0) {
+					PS.spriteMove(zeusSprite, zeusX, zeusY-1)
+					zeusY -= 1;
+				}
+				break;
+			case 3:
+				if(zeusY != G.GRID_HEIGHT-2) {
+					PS.spriteMove(zeusSprite, zeusX, zeusY+1)
+					zeusY += 1;
+				}
+				break;
 		}
 	};
 	
@@ -142,7 +178,7 @@ var G;
 			return;
 		}
 
-		if(nx == GRID_WIDTH-1 || ny == GRID_HEIGHT-1)
+		if(nx == G.GRID_WIDTH-1 || ny == G.GRID_HEIGHT-1)
 			path = [];
 		else {
 			PS.spriteMove(echoSprite, nx, ny);
@@ -154,6 +190,25 @@ var G;
 		
 		if ( step >= path.length ) {
 			path = [];
+		}
+	};
+	
+	var spawnLady = function() {
+		var a = PS.spriteSolid(2, 2);
+		PS.spritePlane(a, LADY_PLANE);
+		PS.spriteSolidColor(a, PS.COLOR_BLUE);
+		var rx = PS.random(G.GRID_WIDTH - 1) - 1;
+		var ry = PS.random(G.GRID_HEIGHT - 1) - 1;
+		PS.spriteMove(a, rx, ry);
+		ladySprites.push(a);
+	};
+	
+	var wooLady = function(s1, p1, s2, p2, type) {
+		var i = ladySprites.indexOf(s2);
+		if(i != -1) {
+			PS.audioPlay(LADY_SOUND);
+			ladySprites.splice(i, 1);
+			forDeletion.push(s2);
 		}
 	};
 	
@@ -182,23 +237,23 @@ var G;
 		var x, y;
 		
 		//should only use even values
-		activeBoardWidth = newWidth;
-		activeBoardHeight = newHeight;
+		G.activeBoardWidth = newWidth;
+		G.activeBoardHeight = newHeight;
 		
-		if (activeBoardWidth > GRID_WIDTH) {
-			activeBoardWidth = GRID_WIDTH;
+		if (G.activeBoardWidth > G.GRID_WIDTH) {
+			G.activeBoardWidth = G.GRID_WIDTH;
 		}
 		
-		if (activeBoardHeight > GRID_HEIGHT) {
-			activeBoardHeight = GRID_HEIGHT;
+		if (G.activeBoardHeight > G.GRID_HEIGHT) {
+			G.activeBoardHeight = G.GRID_HEIGHT;
 		}
 		
-		for (x = 0; x < GRID_WIDTH; x++) {
-			for (y = 0; y < GRID_HEIGHT; y++) {
+		for (x = 0; x < G.GRID_WIDTH; x++) {
+			for (y = 0; y < G.GRID_HEIGHT; y++) {
 				var dw = (2*x) + 1;
-				var lowBound = GRID_WIDTH - (activeBoardWidth + 1);
-				var upBound = GRID_WIDTH + (activeBoardWidth + 1);
-				if (y < activeBoardHeight && dw > lowBound && dw < upBound) {
+				var lowBound = G.GRID_WIDTH - (G.activeBoardWidth + 1);
+				var upBound = G.GRID_WIDTH + (G.activeBoardWidth + 1);
+				if (y < G.activeBoardHeight && dw > lowBound && dw < upBound) {
 					PS.active(x,y,true);
 					PS.visible(x,y,true);
 				} else {
@@ -210,41 +265,54 @@ var G;
 	};
 	
 	G = {
+		GRID_HEIGHT : 30,
+		GRID_WIDTH : 30,
+	
+		activeBoardWidth : null,
+		activeBoardHeight : null,
+		
 		init : function() {
-			PS.gridSize(GRID_WIDTH, GRID_HEIGHT);
+			PS.gridSize(G.GRID_WIDTH, G.GRID_HEIGHT);
 			PS.border(PS.ALL, PS.ALL, 0);
 			PS.gridColor(0xDDDDDD);
 			
+			G.activeBoardHeight = G.GRID_HEIGHT;
+			G.activeBoardWidth = G.GRID_WIDTH;
+			
 			idMoveTimer = PS.timerStart(5, tick);
 			PS.audioLoad(ECHO_LURE_SOUND);
+			PS.audioLoad(LADY_SOUND);
 			G.initEcho();
 			activateBeads(20,20);
 		},
 		
 		initEcho : function() {
 			echoSprite = PS.spriteSolid(2, 2);
-			PS.spritePlane(echoSprite, 1);
+			PS.spritePlane(echoSprite, ECHO_PLANE);
 			PS.spriteMove(echoSprite, echoX, echoY);
 			echoActive = true;
 		},
 		
 		initZeus : function() {
 			zeusSprite = PS.spriteSolid(2, 2);
-			PS.spritePlane(zeusSprite, 3);
+			PS.spritePlane(zeusSprite, ZEUS_PLANE);
+			PS.spriteCollide(zeusSprite, wooLady);
 			PS.spriteSolidColor(zeusSprite, PS.COLOR_YELLOW);
 			PS.spriteMove(zeusSprite, zeusX, zeusY);
 			zeusActive = true;
-			customStatusText("Hera created");
+			customStatusText("Zeus created");
+			activateBeads(25,25);
 		},
 		
 		initHera : function() {
 			heraSprite = PS.spriteSolid(2, 2);
-			PS.spritePlane(heraSprite, 2);
+			PS.spritePlane(heraSprite, HERA_PLANE);
 			PS.spriteCollide(heraSprite, heraCollide);
 			PS.spriteSolidColor(heraSprite, PS.COLOR_RED);
 			PS.spriteMove(heraSprite, heraX, heraY);
 			heraActive = true;
-			customStatusText("Zeus created");
+			customStatusText("Hera created");
+			activateBeads(30,30);
 		},
 		
 		move : function(x, y) {
@@ -252,9 +320,13 @@ var G;
 			path = PS.line(echoX, echoY, x, y);
 		},
 		
+		spawn : function() {
+			spawnLady();
+		},
+		
 		lure : function() {
 			if(lureCooldown == 0) {
-				PS.statusText("Over here!");
+				customStatusText("Over here!");
 				PS.audioPlay(ECHO_LURE_SOUND);
 				lure = 12; //num ticks to be lured for
 				lureCooldown = 30; //num ticks of lure cooldown (includes lured time)
@@ -274,6 +346,7 @@ PS.init = function( system, options ) {
 	// the initial dimensions you want (32 x 32 maximum)
 	// Do this FIRST to avoid problems!
 	// Otherwise you will get the default 8x8 grid
+
 
 	G.init();
 
@@ -333,6 +406,8 @@ PS.keyDown = function( key, shift, ctrl, options ) {
 		G.initHera();
 	} else if (key == PS.KEY_ARROW_DOWN) {
 		G.initZeus();
+	} else if (key == PS.KEY_ARROW_RIGHT) {
+		G.spawn();
 	}
 };
 
