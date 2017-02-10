@@ -477,8 +477,9 @@ PS.init = function( system, options ) {
 	// the initial dimensions you want (32 x 32 maximum)
 	// Do this FIRST to avoid problems!
 	// Otherwise you will get the default 8x8 grid
-
-
+	
+	//PS.dbInit("echoesPrototype", {login: true});
+	
 	G.init();
 
 	// Add any other initialization code you need here
