@@ -31,10 +31,15 @@ var G;
 
 (function(){
 	var ECHO_LURE_SOUND = "fx_squawk";
+	var LADY_SOUND = "fx_hoot";
+	var LADY_PLANE = 1, ZEUS_PLANE = 2, HERA_PLANE = 3, ECHO_PLANE = 4;
 	
 	var echoSprite = "", echoActive = false;
 	var heraSprite = "", heraActive = false;
 	var zeusSprite = "", zeusActive = false;
+	
+	var ladySprites = [];
+	var forDeletion = [];
 	
 	var echoX = 2, echoY = 3;
 	var heraX = 12, heraY = 15;
@@ -64,12 +69,18 @@ var G;
 			}
 		heraTime--;
 		}
+		if(zeusActive)
+			moveZeus();
 		if(lureCooldown > 0)
 			lureCooldown--;
 		if(lure > 0)
 			lure--;
 //		else if(lure == 0)
 //			PS.statusText("");
+		while(forDeletion.length > 0) {
+			var spr = forDeletion.pop();
+			PS.spriteDelete(spr);
+		}
 	};
 	
 	var heraCollide = function(s1, p1, s2, p2, type) {
@@ -119,6 +130,36 @@ var G;
 		}
 	};
 	
+	var moveZeus = function() {
+		var rand = PS.random(4) - 1;
+		switch(rand){
+			case 0:
+				if(zeusX != 0) {
+					PS.spriteMove(zeusSprite, zeusX-1, zeusY)
+					zeusX -= 1;
+				}
+				break;
+			case 1:
+				if(zeusX != G.GRID_WIDTH-2) {
+					PS.spriteMove(zeusSprite, zeusX+1, zeusY)
+					zeusX += 1;
+				}
+				break;
+			case 2:
+				if(zeusY != 0) {
+					PS.spriteMove(zeusSprite, zeusX, zeusY-1)
+					zeusY -= 1;
+				}
+				break;
+			case 3:
+				if(zeusY != G.GRID_HEIGHT-2) {
+					PS.spriteMove(zeusSprite, zeusX, zeusY+1)
+					zeusY += 1;
+				}
+				break;
+		}
+	};
+	
 	var moveEcho = function() {
 		var p, nx, ny, ptr, val;
 
@@ -151,6 +192,25 @@ var G;
 		}
 	};
 	
+	var spawnLady = function() {
+		var a = PS.spriteSolid(2, 2);
+		PS.spritePlane(a, LADY_PLANE);
+		PS.spriteSolidColor(a, PS.COLOR_BLUE);
+		var rx = PS.random(G.GRID_WIDTH - 1) - 1;
+		var ry = PS.random(G.GRID_HEIGHT - 1) - 1;
+		PS.spriteMove(a, rx, ry);
+		ladySprites.push(a);
+	};
+	
+	var wooLady = function(s1, p1, s2, p2, type) {
+		var i = ladySprites.indexOf(s2);
+		if(i != -1) {
+			PS.audioPlay(LADY_SOUND);
+			ladySprites.splice(i, 1);
+			forDeletion.push(s2);
+		}
+	};
+	
 	var customStatusText = function (statusText) {
 		var characterDelay = 20;
 		
@@ -178,33 +238,35 @@ var G;
 		init : function() {
 			idMoveTimer = PS.timerStart(5, tick);
 			PS.audioLoad(ECHO_LURE_SOUND);
+			PS.audioLoad(LADY_SOUND);
 			G.initEcho();
 		},
 		
 		initEcho : function() {
 			echoSprite = PS.spriteSolid(2, 2);
-			PS.spritePlane(echoSprite, 1);
+			PS.spritePlane(echoSprite, ECHO_PLANE);
 			PS.spriteMove(echoSprite, echoX, echoY);
 			echoActive = true;
 		},
 		
 		initZeus : function() {
 			zeusSprite = PS.spriteSolid(2, 2);
-			PS.spritePlane(zeusSprite, 3);
+			PS.spritePlane(zeusSprite, ZEUS_PLANE);
+			PS.spriteCollide(zeusSprite, wooLady);
 			PS.spriteSolidColor(zeusSprite, PS.COLOR_YELLOW);
 			PS.spriteMove(zeusSprite, zeusX, zeusY);
 			zeusActive = true;
-			customStatusText("Hera created");
+			customStatusText("Zeus created");
 		},
 		
 		initHera : function() {
 			heraSprite = PS.spriteSolid(2, 2);
-			PS.spritePlane(heraSprite, 2);
+			PS.spritePlane(heraSprite, HERA_PLANE);
 			PS.spriteCollide(heraSprite, heraCollide);
 			PS.spriteSolidColor(heraSprite, PS.COLOR_RED);
 			PS.spriteMove(heraSprite, heraX, heraY);
 			heraActive = true;
-			customStatusText("Zeus created");
+			customStatusText("Hera created");
 		},
 		
 		move : function(x, y) {
@@ -212,9 +274,13 @@ var G;
 			path = PS.line(echoX, echoY, x, y);
 		},
 		
+		spawn : function() {
+			spawnLady();
+		},
+		
 		lure : function() {
 			if(lureCooldown == 0) {
-				PS.statusText("Over here!");
+				customStatusText("Over here!");
 				PS.audioPlay(ECHO_LURE_SOUND);
 				lure = 12; //num ticks to be lured for
 				lureCooldown = 30; //num ticks of lure cooldown (includes lured time)
@@ -296,6 +362,8 @@ PS.keyDown = function( key, shift, ctrl, options ) {
 		G.initHera();
 	} else if (key == PS.KEY_ARROW_DOWN) {
 		G.initZeus();
+	} else if (key == PS.KEY_ARROW_RIGHT) {
+		G.spawn();
 	}
 };
 
