@@ -619,9 +619,10 @@ PS.keyDown = function( key, shift, ctrl, options ) {
 			if (!G.gameStarted) {
 				G.gameStarted = true;
 				G.startTutorial();
+			} else {
+				PS.dbEvent("echoesPrototype", "spacebar", "true");
+				G.lure();
 			}
-			PS.dbEvent("echoesPrototype", "spacebar", "true");
-			G.lure();
 		}
 	} 
 //	else if (key == PS.KEY_ARROW_UP) {
