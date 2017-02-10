@@ -350,14 +350,46 @@ var G;
 				}, SMALL_WAIT);
 				break;
 			case 4:
-				customStatusText("Talk to Hera with Spacebar");
+				customStatusText("Talk to Hera with Spacebar.");
 				T.timer = setTimeout(function(){
 					incrementTutorial();
 				}, SMALL_WAIT);
 				break;
 			case 5:
-				customStatusText("t s ts st s ts t ");
+				customStatusText("If you're near, she'll listen.");
+				T.timer = setTimeout(function(){
+					incrementTutorial();
+				}, SMALL_WAIT);
 				break;
+			case 6:
+				customStatusText("So will regular ladies.");
+				T.timer = setTimeout(function(){
+					ladiesActive = true;
+					spawnLady();
+					incrementTutorial();
+				}, SMALL_WAIT);
+				break;
+			case 7:
+				customStatusText("Hera's husband, Zeus, is cheating.");
+				T.timer = setTimeout(function(){
+					incrementTutorial();
+				}, SMALL_WAIT);
+			case 8:
+				customStatusText("Don't let Hera find him.");
+				T.timer = setTimeout(function(){
+					incrementTutorial();
+				}, SMALL_WAIT);
+			case 9:
+				customStatusText("There he is now!");
+				G.initZeus();
+				T.timer = setTimeout(function(){
+					incrementTutorial();
+				}, SMALL_WAIT);
+			case 10:
+				customStatusText("Keep Hera distracted by chatting.");
+				T.timer = setTimeout(function(){
+					incrementTutorial();
+				}, SMALL_WAIT);
 		}
 	};
 	
@@ -379,7 +411,7 @@ var G;
 			idMoveTimer = PS.timerStart(5, tick);
 			PS.audioLoad(ECHO_LURE_SOUND);
 			PS.audioLoad(LADY_SOUND);
-			ladiesActive = true;
+			ladiesActive = false;
 			G.initEcho();
 			activateBeads(14,14);
 			
