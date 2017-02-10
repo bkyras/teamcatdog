@@ -407,7 +407,7 @@ var G;
 				customStatusText("Time remaining: 1m 00s  Ladies Loved: " + girlsEaten);
 				T.timer = setTimeout(function(){
 					incrementTutorial();
-				}, SMALL_WAIT);
+				}, 1000);
 				break;
 			case 12:
 				timeRemaining = 60;
@@ -440,6 +440,8 @@ var G;
 		activeBoardWidth : null,
 		activeBoardHeight : null,
 		
+		gameStarted : false,
+		
 		init : function() {
 			PS.gridSize(G.GRID_WIDTH, G.GRID_HEIGHT);
 			PS.border(PS.ALL, PS.ALL, 0);
@@ -453,9 +455,12 @@ var G;
 			PS.audioLoad(LADY_SOUND);
 			ladiesActive = false;
 			G.initEcho();
-			activateBeads(20,20);
+			activateBeads(30,30);
 			
-			incrementTutorial();
+			//incrementTutorial();
+			
+			PS.statusText("Press spacebar to begin.");
+			PS.dbInit("echoesprototype", true);
 		},
 		
 		initEcho : function() {
@@ -480,7 +485,7 @@ var G;
 			zeusSprite = PS.spriteSolid(2, 2);
 			PS.spritePlane(zeusSprite, ZEUS_PLANE);
 			PS.spriteCollide(zeusSprite, wooLady);
-			PS.spriteSolidColor(zeusSprite, PS.COLOR_YELLOW);
+			PS.spriteSolidColor(zeusSprite, 0xFFCC22);
 			PS.spriteMove(zeusSprite, zeusX, zeusY);
 			zeusActive = true;
 		},
@@ -534,6 +539,10 @@ var G;
 				PS.dbEvent("echoesprototype", "endgame", "lost");
 			PS.dbEvent("echoesprototype", "timeLeft", timeRemaining, "girlsLoved", girlsEaten);
 			PS.dbSend("echoesprototype", ["nchaput", "bsheridan"], {discard: true, message: "Thanks for playing!"});
+		},
+		
+		startTutorial : function() {
+			incrementTutorial();
 		}
 	};
 }());
@@ -549,8 +558,6 @@ PS.init = function( system, options ) {
 	// the initial dimensions you want (32 x 32 maximum)
 	// Do this FIRST to avoid problems!
 	// Otherwise you will get the default 8x8 grid
-	
-	PS.dbInit("echoesprototype", {prompt: true});
 	
 	G.init();
 
@@ -609,6 +616,10 @@ PS.keyDown = function( key, shift, ctrl, options ) {
 	// Add code here for when a key is pressed
 	if (key == 32) {
 		if(!G.gameover){
+			if (!G.gameStarted) {
+				G.gameStarted = true;
+				G.startTutorial();
+			}
 			PS.dbEvent("echoesPrototype", "spacebar", "true");
 			G.lure();
 		}
