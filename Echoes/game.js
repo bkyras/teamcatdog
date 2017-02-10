@@ -34,7 +34,7 @@ var G;
 	var ECHO_LURE_SOUND = "fx_squawk";
 	var LADY_SOUND = "fx_hoot";
 	var LADY_PLANE = 1, ZEUS_PLANE = 2, HERA_PLANE = 3, ECHO_PLANE = 4;
-	var LURE_RADIUS = 12;
+	var LURE_RADIUS = 9;
 	var MAX_LADIES = 6;
 	
 	var echoSprite = "", echoActive = false;
@@ -117,7 +117,13 @@ var G;
 	
 	var heraCollide = function(s1, p1, s2, p2, type) {
 		if(s2 == zeusSprite) {
-			PS.statusText("Hera found zeus, you loser");
+			PS.statusText("Zeus got caught... refresh");
+			PS.timerStop(idMoveTimer);
+			clearTimeout(T.timer);
+			clearInterval(T.timer);
+			T.timer = null;
+			G.gameover = true;
+			G.lastDbSend(false);
 		}
 	};
 	
@@ -398,7 +404,7 @@ var G;
 				}, MEDIUM_WAIT);
 				break;
 			case 11:
-				customStatusText("Time remaining: 1m 00s  Girls Eaten: " + girlsEaten);
+				customStatusText("Time remaining: 1m 00s  Ladies Loved: " + girlsEaten);
 				T.timer = setTimeout(function(){
 					incrementTutorial();
 				}, SMALL_WAIT);
@@ -408,7 +414,7 @@ var G;
 				T.timer = setInterval(function(){
 					timeRemaining -= 1;
 					if (timeRemaining >= 0) {
-						PS.statusText("Time remaining: " + Math.floor(timeRemaining / 60) +"m " + ("00" + timeRemaining % 60).slice(-2) + "s  Girls Eaten: " + girlsEaten);
+						PS.statusText("Time: " + Math.floor(timeRemaining / 60) +"m " + ("00" + timeRemaining % 60).slice(-2) + "s  Ladies Loved: " + girlsEaten);
 					} else {
 						clearInterval(T.timer);
 						T.timer = null;
@@ -418,6 +424,8 @@ var G;
 				break;
 			case 13:
 				customStatusText("Good work! To be continued...");
+				G.gameover = true;
+				G.lastDbSend(true);
 				activateBeads(0,0);
 				break;
 		}
@@ -426,6 +434,8 @@ var G;
 	G = {
 		GRID_HEIGHT : 30,
 		GRID_WIDTH : 30,
+		
+		gameover: false,
 	
 		activeBoardWidth : null,
 		activeBoardHeight : null,
@@ -501,6 +511,29 @@ var G;
 				lureCooldown = 30; //num ticks of lure cooldown (includes lured time)
 				PS.spriteSolidAlpha(echoSprite, 125);
 			}
+		},
+		
+		restart : function() {
+			while(ladySprites.length > 0) {
+				var spr = ladySprites.pop();
+				PS.spriteDelete(spr);
+			}
+			PS.spriteMove(zeusSprite, 2, 2);
+			PS.spriteMove(heraSprite, 15, 15);
+			PS.spriteMove(echoSprite, 7, 7);
+			G.gameover = false;
+			T.index = 11;
+			incrementTutorial();
+			idMoveTimer = PS.timerStart(5, tick);
+		},
+		
+		lastDbSend : function(won) {
+			if(won)
+				PS.dbEvent("echoesprototype", "endgame", "won");
+			else
+				PS.dbEvent("echoesprototype", "endgame", "lost");
+			PS.dbEvent("echoesprototype", "timeLeft", timeRemaining, "girlsLoved", girlsEaten);
+			PS.dbSend("echoesprototype", ["nchaput", "bsheridan"], {discard: true, message: "Thanks for playing!"});
 		}
 	};
 }());
@@ -517,7 +550,7 @@ PS.init = function( system, options ) {
 	// Do this FIRST to avoid problems!
 	// Otherwise you will get the default 8x8 grid
 	
-	//PS.dbInit("echoesPrototype", {login: true});
+	PS.dbInit("echoesprototype", {prompt: true});
 	
 	G.init();
 
@@ -530,7 +563,10 @@ PS.touch = function( x, y, data, options ) {
 	// PS.debug( "PS.touch() @ " + x + ", " + y + "\n" );
 
 	// Add code here for mouse clicks/touches over a bead
-	G.move(x, y);
+	if(!G.gameover){
+		PS.dbEvent("echoesprototype", "mouseclick", "true");
+		G.move(x, y);
+	}
 };
 
 
@@ -572,14 +608,18 @@ PS.keyDown = function( key, shift, ctrl, options ) {
 
 	// Add code here for when a key is pressed
 	if (key == 32) {
-		G.lure();
-	} else if (key == PS.KEY_ARROW_UP) {
-		G.initHera();
-	} else if (key == PS.KEY_ARROW_DOWN) {
-		G.initZeus();
-	} else if (key == PS.KEY_ARROW_RIGHT) {
-		G.spawn();
-	}
+		if(!G.gameover){
+			PS.dbEvent("echoesPrototype", "spacebar", "true");
+			G.lure();
+		}
+	} 
+//	else if (key == PS.KEY_ARROW_UP) {
+//		G.initHera();
+//	} else if (key == PS.KEY_ARROW_DOWN) {
+//		G.initZeus();
+//	} else if (key == PS.KEY_ARROW_RIGHT) {
+//		G.spawn();
+//	}
 };
 
 
@@ -607,6 +647,7 @@ PS.input = function( sensors, options ) {
 
 
 PS.shutdown = function( options ) {
-
 	// Add code here for when Perlenspiel is about to close
+	PS.dbEvent("echoesprototype", "endgame", "closed");
+	PS.dbSend("echoesprototype", ["nchaput", "bsheridan"], {discard: true});
 };
