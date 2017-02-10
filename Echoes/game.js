@@ -30,8 +30,12 @@ along with Perlenspiel. If not, see <http://www.gnu.org/licenses/>.
 var G;
 
 (function(){
-	var GRID_HEIGHT = 20;
-	var GRID_WIDTH = 20;
+	var GRID_HEIGHT = 30;
+	var GRID_WIDTH = 30;
+	
+	var activeBoardWidth = GRID_WIDTH;
+	var activeBoardHeight = GRID_HEIGHT;
+	
 	var ECHO_LURE_SOUND = "fx_squawk";
 	
 	var echoSprite = "", echoActive = false;
@@ -52,7 +56,7 @@ var G;
 	
 	var statusTextTimer = null;
 	var curStatText = "";
-	var fullStatText = "";
+	var fullStatText = ""; 
 	
 	var tick = function () {
 		if (echoActive) {
@@ -172,13 +176,49 @@ var G;
 		if(curStatText.length === fullStatText.length) {
 			clearInterval(statusTextTimer);
 		}
-	}
+	};
+	
+	var activateBeads = function(newWidth, newHeight) {
+		var x, y;
+		
+		//should only use even values
+		activeBoardWidth = newWidth;
+		activeBoardHeight = newHeight;
+		
+		if (activeBoardWidth > GRID_WIDTH) {
+			activeBoardWidth = GRID_WIDTH;
+		}
+		
+		if (activeBoardHeight > GRID_HEIGHT) {
+			activeBoardHeight = GRID_HEIGHT;
+		}
+		
+		for (x = 0; x < GRID_WIDTH; x++) {
+			for (y = 0; y < GRID_HEIGHT; y++) {
+				var dw = (2*x) + 1;
+				var lowBound = GRID_WIDTH - (activeBoardWidth + 1);
+				var upBound = GRID_WIDTH + (activeBoardWidth + 1);
+				if (y < activeBoardHeight && dw > lowBound && dw < upBound) {
+					PS.active(x,y,true);
+					PS.visible(x,y,true);
+				} else {
+					PS.visible(x,y,false);
+					PS.active(x,y,false);
+				}
+			}
+		}
+	};
 	
 	G = {
 		init : function() {
+			PS.gridSize(GRID_WIDTH, GRID_HEIGHT);
+			PS.border(PS.ALL, PS.ALL, 0);
+			PS.gridColor(0xDDDDDD);
+			
 			idMoveTimer = PS.timerStart(5, tick);
 			PS.audioLoad(ECHO_LURE_SOUND);
 			G.initEcho();
+			activateBeads(20,20);
 		},
 		
 		initEcho : function() {
@@ -235,9 +275,6 @@ PS.init = function( system, options ) {
 	// Do this FIRST to avoid problems!
 	// Otherwise you will get the default 8x8 grid
 
-	PS.gridSize(20, 20);
-	PS.border(PS.ALL, PS.ALL, 0);
-	PS.gridColor(0xDDDDDD);
 	G.init();
 
 	// Add any other initialization code you need here
