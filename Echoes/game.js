@@ -34,11 +34,15 @@ var G;
 	var ECHO_LURE_SOUND = "fx_squawk";
 	var LADY_SOUND = "fx_hoot";
 	var LADY_PLANE = 1, ZEUS_PLANE = 2, HERA_PLANE = 3, ECHO_PLANE = 4;
+	var LURE_RADIUS = 12;
+	var MAX_LADIES = 6;
 	
 	var echoSprite = "", echoActive = false;
 	var heraSprite = "", heraActive = false;
 	var zeusSprite = "", zeusActive = false;
+	var ladiesActive = false;
 	
+	var spawnLadyTimer = 50;
 	var ladySprites = [];
 	var forDeletion = [];
 	
@@ -48,7 +52,7 @@ var G;
 	
 	var lure = 0;
 	var lureCooldown = 0;
-	var heraTime = 2;
+	var heraTime = 2, zeusTime = 4, ladyTime = 3;
 	
 	var idMoveTimer = "";
 	var path = [];
@@ -70,22 +74,38 @@ var G;
 		if (echoActive) {
 			moveEcho();
 		}
-		
-		if (heraActive) {
-			if(heraTime == 0) {
-				moveHera();
-				heraTime = 2;
-			}
 		heraTime--;
+		zeusTime--;
+		ladyTime--;
+		
+		if(heraActive && heraTime <= 0) {
+			moveHera();
+			heraTime = 2;
 		}
-		if(zeusActive)
+		if(zeusActive && zeusTime <= 0) {
 			moveZeus();
-		if(lureCooldown > 0)
+			zeusTime = 4;
+		}
+		if(ladyTime <= 0) {
+			moveLadies();
+			ladyTime = 3;
+		}
+		if(lureCooldown == 0)
+			PS.spriteSolidAlpha(echoSprite, 255);
+		if(lureCooldown > 0) {
+			var a = PS.spriteSolidAlpha(echoSprite);
+			PS.spriteSolidAlpha(echoSprite, a+((255-a)/lureCooldown));
 			lureCooldown--;
+		}
 		if(lure > 0)
 			lure--;
-//		else if(lure == 0)
-//			PS.statusText("");
+		
+		if(ladiesActive && ladySprites.length < MAX_LADIES && spawnLadyTimer == 0) {
+			spawnLady();
+			spawnLadyTimer = 50;
+		}
+		if(spawnLadyTimer > 0)
+			spawnLadyTimer--;
 		while(forDeletion.length > 0) {
 			var spr = forDeletion.pop();
 			PS.spriteDelete(spr);
@@ -98,74 +118,86 @@ var G;
 		}
 	};
 	
+	var moveRandom = function(sprite, x, y) {
+		var rand = PS.random(4) - 1;
+			switch(rand){
+				case 0:
+					if(x != 0)
+						x -= 1;
+					break;
+				case 1:
+					if(x != G.GRID_WIDTH-2)
+						x += 1;
+					break;
+				case 2:
+					if(y != 0)
+						y -= 1;
+					break;
+				case 3:
+					if(y != G.GRID_HEIGHT-2)
+						y += 1;
+					break;
+			}
+		PS.spriteMove(sprite, x, y)
+		return {xPos: x, yPos: y};
+	};
+	
 	var moveHera = function() {
 		var rand = PS.random(4) - 1;
 		if(lure > 0) {
 			var hPath = PS.line(heraX, heraY, echoX, echoY);
-			if(hPath.length > 1) {
+			if(hPath.length > 1 && hPath.length <= LURE_RADIUS) {
+				PS.spriteSolidAlpha(heraSprite, 180);
 				var hx = hPath[0][0];
 				var hy = hPath[0][1]
 				PS.spriteMove(heraSprite, hx, hy)
 				heraX = hx;
 				heraY = hy;
+				} else {
+					var pos = moveRandom(heraSprite, heraX, heraY);
+					heraX = pos.xPos;
+					heraY = pos.yPos;
 				}
 		} else {
-			switch(rand){
-				case 0:
-					if(heraX != 0) {
-						PS.spriteMove(heraSprite, heraX-1, heraY)
-						heraX -= 1;
-					}
-					break;
-				case 1:
-					if(heraX != G.GRID_WIDTH-2) {
-						PS.spriteMove(heraSprite, heraX+1, heraY)
-						heraX += 1;
-					}
-					break;
-				case 2:
-					if(heraY != 0) {
-						PS.spriteMove(heraSprite, heraX, heraY-1)
-						heraY -= 1;
-					}
-					break;
-				case 3:
-					if(heraY != G.GRID_HEIGHT-2) {
-						PS.spriteMove(heraSprite, heraX, heraY+1)
-						heraY += 1;
-					}
-					break;
-			}
+			PS.spriteSolidAlpha(heraSprite, 255);
+			var pos = moveRandom(heraSprite, heraX, heraY);
+			heraX = pos.xPos;
+			heraY = pos.yPos;
+		}
+	};
+	
+	var moveLadies = function() {
+		for(let spr of ladySprites) {
+			if(lure > 0) {
+				var pos = PS.spriteMove(spr);
+				var lPath = PS.line(pos.x, pos.y, echoX, echoY);
+				if(lPath.length > 1 && lPath.length <= LURE_RADIUS) {
+					PS.spriteSolidAlpha(spr, 180);
+					var lx = lPath[0][0];
+					var ly = lPath[0][1]
+					PS.spriteMove(spr, lx, ly)
+				}
+			} else
+				PS.spriteSolidAlpha(spr, 255);
 		}
 	};
 	
 	var moveZeus = function() {
 		var rand = PS.random(4) - 1;
-		switch(rand){
-			case 0:
-				if(zeusX != 0) {
-					PS.spriteMove(zeusSprite, zeusX-1, zeusY)
-					zeusX -= 1;
+		if(ladySprites.length > 0) {
+			var pos = PS.spriteMove(ladySprites[0]);
+			var zPath = PS.line(zeusX, zeusY, pos.x, pos.y);
+			if(zPath.length > 1) {
+				var zx = zPath[0][0];
+				var zy = zPath[0][1]
+				PS.spriteMove(zeusSprite, zx, zy)
+				zeusX = zx;
+				zeusY = zy;
 				}
-				break;
-			case 1:
-				if(zeusX != G.GRID_WIDTH-2) {
-					PS.spriteMove(zeusSprite, zeusX+1, zeusY)
-					zeusX += 1;
-				}
-				break;
-			case 2:
-				if(zeusY != 0) {
-					PS.spriteMove(zeusSprite, zeusX, zeusY-1)
-					zeusY -= 1;
-				}
-				break;
-			case 3:
-				if(zeusY != G.GRID_HEIGHT-2) {
-					PS.spriteMove(zeusSprite, zeusX, zeusY+1)
-					zeusY += 1;
-				}
-				break;
+		} else {
+			var pos = moveRandom(zeusSprite, zeusX, zeusY);
+			zeusX = pos.xPos;
+			zeusY = pos.yPos;
 		}
 	};
 	
@@ -347,6 +379,7 @@ var G;
 			idMoveTimer = PS.timerStart(5, tick);
 			PS.audioLoad(ECHO_LURE_SOUND);
 			PS.audioLoad(LADY_SOUND);
+			ladiesActive = true;
 			G.initEcho();
 			activateBeads(14,14);
 			
@@ -393,8 +426,9 @@ var G;
 			if(lureCooldown == 0) {
 				customStatusText("Over here!");
 				PS.audioPlay(ECHO_LURE_SOUND);
-				lure = 12; //num ticks to be lured for
+				lure = 18; //num ticks to be lured for
 				lureCooldown = 30; //num ticks of lure cooldown (includes lured time)
+				PS.spriteSolidAlpha(echoSprite, 125);
 			}
 		}
 	};
