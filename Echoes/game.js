@@ -35,10 +35,14 @@ var G;
 	var LADY_SOUND = "fx_hoot";
 	var LADY_PLANE = 1, ZEUS_PLANE = 2, HERA_PLANE = 3, ECHO_PLANE = 4;
 	
+	var MAX_LADIES = 6;
+	
 	var echoSprite = "", echoActive = false;
 	var heraSprite = "", heraActive = false;
 	var zeusSprite = "", zeusActive = false;
+	var ladiesActive = false;
 	
+	var spawnLadyTimer = 50;
 	var ladySprites = [];
 	var forDeletion = [];
 	
@@ -48,7 +52,7 @@ var G;
 	
 	var lure = 0;
 	var lureCooldown = 0;
-	var heraTime = 2;
+	var heraTime = 2, zeusTime = 4;
 	
 	var idMoveTimer = "";
 	var path = [];
@@ -62,22 +66,28 @@ var G;
 		if (echoActive) {
 			moveEcho();
 		}
-		
-		if (heraActive) {
-			if(heraTime == 0) {
-				moveHera();
-				heraTime = 2;
-			}
 		heraTime--;
+		zeusTime--;
+		if (heraActive && heraTime <= 0) {
+			moveHera();
+			heraTime = 2;
 		}
-		if(zeusActive)
+		if(zeusActive && zeusTime <= 0) {
 			moveZeus();
+			zeusTime = 4;
+		}
 		if(lureCooldown > 0)
 			lureCooldown--;
 		if(lure > 0)
 			lure--;
 //		else if(lure == 0)
 //			PS.statusText("");
+		if(ladiesActive && ladySprites.length < MAX_LADIES && spawnLadyTimer == 0) {
+			spawnLady();
+			spawnLadyTimer = 50;
+		}
+		if(spawnLadyTimer > 0)
+			spawnLadyTimer--;
 		while(forDeletion.length > 0) {
 			var spr = forDeletion.pop();
 			PS.spriteDelete(spr);
@@ -133,31 +143,43 @@ var G;
 	
 	var moveZeus = function() {
 		var rand = PS.random(4) - 1;
-		switch(rand){
-			case 0:
-				if(zeusX != 0) {
-					PS.spriteMove(zeusSprite, zeusX-1, zeusY)
-					zeusX -= 1;
+		if(ladySprites.length > 0) {
+			var pos = PS.spriteMove(ladySprites[0]);
+			var zPath = PS.line(zeusX, zeusY, pos.x, pos.y);
+			if(zPath.length > 1) {
+				var zx = zPath[0][0];
+				var zy = zPath[0][1]
+				PS.spriteMove(zeusSprite, zx, zy)
+				zeusX = zx;
+				zeusY = zy;
 				}
-				break;
-			case 1:
-				if(zeusX != G.GRID_WIDTH-2) {
-					PS.spriteMove(zeusSprite, zeusX+1, zeusY)
-					zeusX += 1;
-				}
-				break;
-			case 2:
-				if(zeusY != 0) {
-					PS.spriteMove(zeusSprite, zeusX, zeusY-1)
-					zeusY -= 1;
-				}
-				break;
-			case 3:
-				if(zeusY != G.GRID_HEIGHT-2) {
-					PS.spriteMove(zeusSprite, zeusX, zeusY+1)
-					zeusY += 1;
-				}
-				break;
+		} else {
+			switch(rand){
+				case 0:
+					if(zeusX != 0) {
+						PS.spriteMove(zeusSprite, zeusX-1, zeusY)
+						zeusX -= 1;
+					}
+					break;
+				case 1:
+					if(zeusX != G.GRID_WIDTH-2) {
+						PS.spriteMove(zeusSprite, zeusX+1, zeusY)
+						zeusX += 1;
+					}
+					break;
+				case 2:
+					if(zeusY != 0) {
+						PS.spriteMove(zeusSprite, zeusX, zeusY-1)
+						zeusY -= 1;
+					}
+					break;
+				case 3:
+					if(zeusY != G.GRID_HEIGHT-2) {
+						PS.spriteMove(zeusSprite, zeusX, zeusY+1)
+						zeusY += 1;
+					}
+					break;
+			}
 		}
 	};
 	
@@ -282,6 +304,7 @@ var G;
 			idMoveTimer = PS.timerStart(5, tick);
 			PS.audioLoad(ECHO_LURE_SOUND);
 			PS.audioLoad(LADY_SOUND);
+			ladiesActive = true;
 			G.initEcho();
 			activateBeads(20,20);
 		},
