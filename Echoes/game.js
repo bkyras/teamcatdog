@@ -343,9 +343,9 @@ var G;
 				break;
 			case 3:
 				customStatusText("This is Hera, a Goddess.");
+				activateBeads(22,22);
+				G.initHera();
 				T.timer = setTimeout(function(){
-					activateBeads(22,22);
-					G.initHera();
 					incrementTutorial();
 				}, SMALL_WAIT);
 				break;
