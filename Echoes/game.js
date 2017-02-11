@@ -123,6 +123,7 @@ var G;
 			clearInterval(T.timer);
 			T.timer = null;
 			G.gameover = true;
+			T.index = 999;
 			G.lastDbSend(false);
 		}
 	};
@@ -442,6 +443,8 @@ var G;
 		
 		gameStarted : false,
 		
+		mouseDown : false,
+		
 		init : function() {
 			PS.gridSize(G.GRID_WIDTH, G.GRID_HEIGHT);
 			PS.border(PS.ALL, PS.ALL, 0);
@@ -573,6 +576,7 @@ PS.touch = function( x, y, data, options ) {
 	if(!G.gameover){
 		PS.dbEvent("echoesprototype", "mouseclick", "true");
 		G.move(x, y);
+		G.mouseDown = true;
 	}
 };
 
@@ -581,6 +585,7 @@ PS.release = function( x, y, data, options ) {
 	// Uncomment the following line to inspect parameters
 	// PS.debug( "PS.release() @ " + x + ", " + y + "\n" );
 
+	G.mouseDown = false;
 	// Add code here for when the mouse button/touch is released over a bead
 };
 
@@ -589,6 +594,11 @@ PS.enter = function( x, y, data, options ) {
 	// Uncomment the following line to inspect parameters
 	// PS.debug( "PS.enter() @ " + x + ", " + y + "\n" );
 
+	if (G.mouseDown) {
+		PS.dbEvent("echoesprototype", "mouseclick", "true");
+		G.move(x, y);
+	}
+	
 	// Add code here for when the mouse cursor/touch enters a bead
 };
 
@@ -605,6 +615,7 @@ PS.exitGrid = function( options ) {
 	// Uncomment the following line to verify operation
 	// PS.debug( "PS.exitGrid() called\n" );
 
+	G.mouseDown = false;
 	// Add code here for when the mouse cursor/touch moves off the grid
 };
 
@@ -661,5 +672,6 @@ PS.input = function( sensors, options ) {
 PS.shutdown = function( options ) {
 	// Add code here for when Perlenspiel is about to close
 	PS.dbEvent("echoesprototype", "endgame", "closed");
-	PS.dbSend("echoesprototype", ["nchaput", "bsheridan"], {discard: true});
+	//PS.dbSend("echoesprototype", ["nchaput", "bsheridan"], {discard: true});
+	PS.dbErase("echoesprototype");
 };
