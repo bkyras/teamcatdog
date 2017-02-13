@@ -117,6 +117,7 @@ var G;
 			spawnLadyTimer--;
 		while(forDeletion.length > 0) {
 			var spr = forDeletion.pop();
+			console.log(spr);
 			deleteLady(spr);
 		}
 		
@@ -125,16 +126,8 @@ var G;
 		}
 	};
 	
-	deleteLady = function(ladySpr) {
-		var ladyPos = PS.spriteMove(ladySpr);
-		PS.glyph(ladyPos.x,ladyPos.y,0x2665);
-		PS.spriteDelete(spr);
-		PS.glyphFade(ladyPos.x,ladyPos.y,60,{onEnd:function(x,y){
-			PS.glyphFade(x,y,PS.DEFAULT,PS.DEFAULT);
-			PS.glyph(x,y,"");
-			PS.glyphAlpha(x,y,100);
-		},params:[ladyPos.x,ladyPos.y];
-		PS.glyphAlpha(ladyPos.x,ladyPos.y,0);
+	var deleteLady = function(ladySpr) {
+		PS.spriteDelete(ladySpr);
 	};
 	
 	var heraCollide = function(s1, p1, s2, p2, type) {
@@ -391,7 +384,8 @@ var G;
 					incrementTutorial();
 				}, SMALL_WAIT);
 				break;
-			case 5:Hera will approach to listen.");
+			case 5:
+				customStatusText("Hera will approach to listen.");
 				T.timer = setTimeout(function(){
 					incrementTutorial();
 				}, MEDIUM_WAIT);
