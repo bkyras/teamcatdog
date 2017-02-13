@@ -76,6 +76,10 @@ var G;
 	};
 	
 	var tick = function () {
+		if (G.gameover) {
+			return;
+		}
+		
 		if (echoActive) {
 			moveEcho();
 		}
@@ -113,12 +117,24 @@ var G;
 			spawnLadyTimer--;
 		while(forDeletion.length > 0) {
 			var spr = forDeletion.pop();
-			PS.spriteDelete(spr);
+			deleteLady(spr);
 		}
 		
 		if (heraCaughtZeus) {
 			zeusGameOver();
 		}
+	};
+	
+	deleteLady = function(ladySpr) {
+		var ladyPos = PS.spriteMove(ladySpr);
+		PS.glyph(ladyPos.x,ladyPos.y,0x2665);
+		PS.spriteDelete(spr);
+		PS.glyphFade(ladyPos.x,ladyPos.y,60,{onEnd:function(x,y){
+			PS.glyphFade(x,y,PS.DEFAULT,PS.DEFAULT);
+			PS.glyph(x,y,"");
+			PS.glyphAlpha(x,y,100);
+		},params:[ladyPos.x,ladyPos.y];
+		PS.glyphAlpha(ladyPos.x,ladyPos.y,0);
 	};
 	
 	var heraCollide = function(s1, p1, s2, p2, type) {
@@ -375,8 +391,7 @@ var G;
 					incrementTutorial();
 				}, SMALL_WAIT);
 				break;
-			case 5:
-				customStatusText("If you're near, she'll listen.");
+			case 5:Hera will approach to listen.");
 				T.timer = setTimeout(function(){
 					incrementTutorial();
 				}, MEDIUM_WAIT);
@@ -421,7 +436,7 @@ var G;
 				}, 1000);
 				break;
 			case 12:
-				timeRemaining = 60;
+				timeRemaining = 5;
 				T.timer = setInterval(function(){
 					timeRemaining -= 1;
 					if (timeRemaining >= 0) {
