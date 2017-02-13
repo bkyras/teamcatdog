@@ -442,6 +442,32 @@ var G;
 		}
 	};
 	
+	var loadMap = function(mapData) {
+		for(var row = 0; row < mapData.length; row++) {
+			for(var col = 0; col < mapData[row].length; col++) {
+				switch(mapData[row][col]) {
+					case 0:
+						PS.color(col, row, GROUND_COLOR);
+						break;
+					case 1:
+						PS.color(col, row, DIRT_COLOR);
+						break;
+					case 2:
+						PS.color(col, row, PATH_COLOR);
+						break;
+					case 3:
+						PS.color(col, row, TREE_COLOR);
+						break;
+					case 4:
+						PS.color(col, row, WATER_COLOR);
+						break;
+					default:
+						PS.color(col, row, DEFAULT_COLOR);
+				}
+			}
+		}
+	};
+	
 	G = {
 		GRID_HEIGHT : 30,
 		GRID_WIDTH : 30,
@@ -472,6 +498,27 @@ var G;
 			
 			PS.statusText("Press spacebar to begin.");
 			PS.dbInit("echoesprototype", true);
+		},
+		
+		initPart2: function() {
+			PS.gridSize(G.GRID_WIDTH, G.GRID_HEIGHT);
+			PS.border(PS.ALL, PS.ALL, 0);
+			PS.gridColor(0xDDDDDD);
+			loadMap(start);
+		},
+		
+		mapMove: function(x, y) {
+			if(x==G.GRID_WIDTH-1) {
+				if(map[mapPos[0]].length > mapPos[1]+1) {
+					loadMap(map[mapPos[0]][mapPos[1]+1]);
+					mapPos = [mapPos[0], mapPos[1]+1];
+				}
+			} else if(x==0) {
+				if(mapPos[1]-1 >= 0) {
+					loadMap(map[mapPos[0]][mapPos[1]-1]);
+					mapPos = [mapPos[0], mapPos[1]-1];
+				}
+			}
 		},
 		
 		initEcho : function() {
@@ -571,7 +618,7 @@ PS.init = function( system, options ) {
 	// Otherwise you will get the default 8x8 grid
 	
 	G.init();
-
+	//G.initPart2();
 	// Add any other initialization code you need here
 };
 
@@ -585,6 +632,7 @@ PS.touch = function( x, y, data, options ) {
 		PS.dbEvent("echoesprototype", "mouseclick", "true");
 		G.move(x, y);
 	}
+	//G.mapMove(x, y);
 };
 
 
