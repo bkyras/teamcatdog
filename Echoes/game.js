@@ -65,6 +65,8 @@ var G;
 	var girlsEaten = 0;
 	var timeRemaining = 0;
 	
+	var heraCaughtZeus = false;
+	
 	var T; //variable containing tutorial functions. 
 	T = {
 		index : 0,
@@ -113,19 +115,27 @@ var G;
 			var spr = forDeletion.pop();
 			PS.spriteDelete(spr);
 		}
+		
+		if (heraCaughtZeus) {
+			zeusGameOver();
+		}
 	};
 	
 	var heraCollide = function(s1, p1, s2, p2, type) {
 		if(s2 == zeusSprite) {
-			PS.statusText("Zeus got caught... refresh");
-			PS.timerStop(idMoveTimer);
-			clearTimeout(T.timer);
-			clearInterval(T.timer);
-			T.timer = null;
-			G.gameover = true;
-			T.index = 999;
-			G.lastDbSend(false);
+			heraCaughtZeus = true;
 		}
+	};
+	
+	var zeusGameOver = function() {
+		PS.statusText("Zeus got caught... refresh");
+		PS.timerStop(idMoveTimer);
+		clearTimeout(T.timer);
+		clearInterval(T.timer);
+		T.timer = null;
+		G.gameover = true;
+		T.index = 999;
+		//G.lastDbSend(false);
 	};
 	
 	var moveRandom = function(sprite, x, y) {
@@ -426,7 +436,7 @@ var G;
 			case 13:
 				customStatusText("Good work! To be continued...");
 				G.gameover = true;
-				G.lastDbSend(true);
+				//G.lastDbSend(true);
 				activateBeads(0,0);
 				break;
 		}
@@ -442,8 +452,6 @@ var G;
 		activeBoardHeight : null,
 		
 		gameStarted : false,
-		
-		mouseDown : false,
 		
 		init : function() {
 			PS.gridSize(G.GRID_WIDTH, G.GRID_HEIGHT);
@@ -576,7 +584,6 @@ PS.touch = function( x, y, data, options ) {
 	if(!G.gameover){
 		PS.dbEvent("echoesprototype", "mouseclick", "true");
 		G.move(x, y);
-		G.mouseDown = true;
 	}
 };
 
@@ -585,7 +592,6 @@ PS.release = function( x, y, data, options ) {
 	// Uncomment the following line to inspect parameters
 	// PS.debug( "PS.release() @ " + x + ", " + y + "\n" );
 
-	G.mouseDown = false;
 	// Add code here for when the mouse button/touch is released over a bead
 };
 
@@ -594,7 +600,7 @@ PS.enter = function( x, y, data, options ) {
 	// Uncomment the following line to inspect parameters
 	// PS.debug( "PS.enter() @ " + x + ", " + y + "\n" );
 
-	if (G.mouseDown) {
+	if (options.touching) {
 		PS.dbEvent("echoesprototype", "mouseclick", "true");
 		G.move(x, y);
 	}
@@ -614,8 +620,6 @@ PS.exit = function( x, y, data, options ) {
 PS.exitGrid = function( options ) {
 	// Uncomment the following line to verify operation
 	// PS.debug( "PS.exitGrid() called\n" );
-
-	G.mouseDown = false;
 	// Add code here for when the mouse cursor/touch moves off the grid
 };
 
