@@ -465,13 +465,13 @@ var G;
 				}, MEDIUM_WAIT);
 				break;
 			case 11:
-				customStatusText("Time remaining: 1m 00s  Ladies Loved: " + girlsEaten);
+				customStatusText("Time remaining: 0m 30s  Ladies Loved: " + girlsEaten);
 				T.timer = setTimeout(function(){
 					incrementTutorial();
 				}, 1000);
 				break;
 			case 12:
-				timeRemaining = 5;
+				timeRemaining = 30;
 				T.timer = setInterval(function(){
 					timeRemaining -= 1;
 					if (timeRemaining >= 0) {
