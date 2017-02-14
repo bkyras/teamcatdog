@@ -319,6 +319,7 @@ var G;
 		if(i != -1) {
 			var phrase = chattyLadies[keys[i]].phrase;
 			PS.statusText(phrase);
+			repeatable = PS.statusText();
 		}
 	}
 	
@@ -490,9 +491,9 @@ var G;
 				deleteZeus();
 
 				//G.lastDbSend(true);
-				activateBeads(17,17);
 				PS.spriteMove(echoSprite, 10, 7);
 				PS.spriteMove(heraSprite, 17, 7);
+				activateBeads(17,17);
 
 				T.timer = setTimeout(function(){
 					incrementTutorial();
@@ -1052,9 +1053,6 @@ PS.keyDown = function( key, shift, ctrl, options ) {
 		} else {
 			G.echo(repeatable);
 		}
-	}
-	if(key == PS.KEY_ARROW_RIGHT && G.isPart2) {
-		repeatable = PS.statusText();
 	}
 };
 
