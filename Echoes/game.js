@@ -960,7 +960,7 @@ var G;
 			heraSprite = PS.spriteSolid(2, 2);
 			PS.spritePlane(heraSprite, HERA_PLANE);
 			PS.spriteCollide(heraSprite, heraCollide);
-			PS.spriteSolidColor(heraSprite, PS.COLOR_RED);
+			PS.spriteSolidColor(heraSprite, PS.COLOR_CYAN);
 			PS.spriteMove(heraSprite, heraX, heraY);
 			heraActive = true;
 		},
