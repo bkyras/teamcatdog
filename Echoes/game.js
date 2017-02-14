@@ -504,7 +504,7 @@ var G;
 				}, 1000);
 				break;
 			case 12:
-				timeRemaining = 5;
+				timeRemaining = 30;
 				T.timer = setInterval(function(){
 					timeRemaining -= 1;
 					if (timeRemaining >= 0) {
@@ -524,6 +524,8 @@ var G;
 				deleteZeus();
 
 				//G.lastDbSend(true);
+				PS.spriteSolidAlpha(echoSprite, 255);
+				PS.spriteSolidAlpha(heraSprite, 255);
 				PS.spriteMove(echoSprite, 10, 7);
 				PS.spriteMove(heraSprite, 17, 7);
 				activateBeads(17,17);
