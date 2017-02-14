@@ -658,7 +658,7 @@ var G;
 				customStatusText("Some time later...");
 
 				activateBeads(30,30);
-				//initPart2();
+				G.initPart2();
 
 				T.timer = setTimeout(function(){
 					incrementTutorial();
@@ -693,6 +693,7 @@ var G;
 		ladySprites.forEach(function(spr){
 			PS.spriteDelete(spr);
 		});
+		ladySprites = [];
 	};
 
 	var deleteZeus = function() {
@@ -773,6 +774,8 @@ var G;
 		activeBoardHeight : null,
 		
 		gameStarted : false,
+
+		isPart2 : false,
 		
 		init : function() {
 			PS.gridSize(G.GRID_WIDTH, G.GRID_HEIGHT);
@@ -782,11 +785,11 @@ var G;
 			G.activeBoardHeight = G.GRID_HEIGHT;
 			G.activeBoardWidth = G.GRID_WIDTH;
 			
-			//idMoveTimer = PS.timerStart(5, tick); uncomment for real game
+			idMoveTimer = PS.timerStart(5, tick); //uncomment for real game
 			PS.audioLoad(ECHO_LURE_SOUND);
 			PS.audioLoad(LADY_SOUND);
 			ladiesActive = false;
-			//G.initEcho(); uncomment for real game
+			G.initEcho(); //uncomment for real game
 			activateBeads(30,30);
 			
 			//incrementTutorial();
@@ -795,14 +798,14 @@ var G;
 			PS.dbInit("echoesprototype", true);
 
 			//For tut skips
-			T.index = 20;
-			isPart2 = true;
+			//T.index = 20;
+			//isPart2 = true;
 		},
 		
 		initPart2: function() {
-			PS.gridSize(G.GRID_WIDTH, G.GRID_HEIGHT);
-			PS.border(PS.ALL, PS.ALL, 0);
-			PS.gridColor(0xDDDDDD);
+			G.isPart2 = true;
+			PS.spriteDelete(echoSprite);
+			PS.timerStop(idMoveTimer);
 			idMoveTimer = PS.timerStart(5, tick2);
 			loadMap(start);
 			G.initGhostEcho();
@@ -980,8 +983,7 @@ PS.init = function( system, options ) {
 	// Do this FIRST to avoid problems!
 	// Otherwise you will get the default 8x8 grid
 	
-	//G.init();
-	G.initPart2();
+	G.init();
 	// Add any other initialization code you need here
 };
 
@@ -1040,21 +1042,22 @@ PS.keyDown = function( key, shift, ctrl, options ) {
 	//	PS.debug( "DOWN: key = " + key + ", shift = " + shift + "\n" );
 
 	// Add code here for when a key is pressed
-//	if (key == 32) {
-//		if(!G.gameover){
-//			if (!G.gameStarted) {
-//				G.gameStarted = true;
-//				G.startTutorial();
-//			} else {
-//				PS.dbEvent("echoesPrototype", "spacebar", "true");
-//				G.lure();
-//			}
-//		}
-//	}
-	if(key == 32) {
-		G.echo(repeatable);
+	if (key == 32) {
+		if (!G.isPart2) {
+			if(!G.gameover){
+				if (!G.gameStarted) {
+					G.gameStarted = true;
+					G.startTutorial();
+				} else {
+					PS.dbEvent("echoesPrototype", "spacebar", "true");
+					G.lure();
+				}
+			}
+		} else {
+			G.echo(repeatable);
+		}
 	}
-	if(key == PS.KEY_ARROW_RIGHT) {
+	if(key == PS.KEY_ARROW_RIGHT && G.isPart2) {
 		repeatable = PS.statusText();
 	}
 //	else if (key == PS.KEY_ARROW_UP) {
