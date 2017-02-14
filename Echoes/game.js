@@ -912,6 +912,7 @@ var G;
 		},
 		
 		echo : function(phrase) {
+			PS.audioPlay(ECHO_LURE_SOUND);
 			PS.statusText("");
 			PS.statusColor(PS.COLOR_CYAN);
 			customStatusText(phrase);
