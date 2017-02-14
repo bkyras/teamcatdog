@@ -159,6 +159,7 @@ var G;
 				customStatusText("'Who are you?'");
 				firstEnc = true;
 				setTimeout(function(){
+					//T.index = 25;
 					incrementTutorial();
 				}, 3000);
 			}
@@ -318,6 +319,8 @@ var G;
 		var i = keys.indexOf(s2);
 		if(i != -1) {
 			var phrase = chattyLadies[keys[i]].phrase;
+			PS.statusText("");
+			PS.statusColor(PS.COLOR_BLACK);
 			PS.statusText(phrase);
 			repeatable = PS.statusText();
 		}
@@ -455,15 +458,16 @@ var G;
 				customStatusText("There he is now!");
 				G.initZeus();
 				T.timer = setTimeout(function(){
+					T.index = 10;
 					incrementTutorial();
 				}, MEDIUM_WAIT);
 				break;
-			case 10:
-				customStatusText("Keep Hera distracted by chatting.");
-				T.timer = setTimeout(function(){
-					incrementTutorial();
-				}, MEDIUM_WAIT);
-				break;
+//			case 10:
+//				customStatusText("Keep Hera distracted by chatting.");
+//				T.timer = setTimeout(function(){
+//					incrementTutorial();
+//				}, MEDIUM_WAIT);
+//				break;
 			case 11:
 				customStatusText("Time remaining: 0m 30s  Ladies Loved: " + girlsEaten);
 				T.timer = setTimeout(function(){
@@ -471,7 +475,7 @@ var G;
 				}, 1000);
 				break;
 			case 12:
-				timeRemaining = 30;
+				timeRemaining = 5;
 				T.timer = setInterval(function(){
 					timeRemaining -= 1;
 					if (timeRemaining >= 0) {
@@ -672,6 +676,20 @@ var G;
 					incrementTutorial();
 				}, SMALL_WAIT);
 				break;
+			case 31:
+				customStatusText("That pond looked nice.");
+
+				T.timer = setTimeout(function(){
+					incrementTutorial();
+				}, SMALL_WAIT);
+				break;
+			case 31:
+				customStatusText("Find Narcissus, bring him there.");
+
+				T.timer = setTimeout(function(){
+					incrementTutorial();
+				}, SMALL_WAIT);
+				break;
 		}
 	};
 
@@ -745,8 +763,8 @@ var G;
 		PS.spritePlane(l1, HERA_PLANE);
 		PS.spriteShow(l1, false);
 		PS.spriteMove(l1, 5, 15);
-		chattyLadies[l1] = {mapPos: [1, 1],
-												phrase: "I like pie"};
+		chattyLadies[l1] = {mapPos: [1, 2],
+												phrase: "I like trees"};
 		var l2 = PS.spriteSolid(2, 2);
 		PS.spriteSolidColor(l2, PS.COLOR_YELLOW);
 		PS.spritePlane(l2, HERA_PLANE);
@@ -781,6 +799,7 @@ var G;
 		init : function() {
 			PS.gridSize(G.GRID_WIDTH, G.GRID_HEIGHT);
 			PS.border(PS.ALL, PS.ALL, 0);
+			PS.color(PS.ALL, PS.ALL, GROUND_COLOR);
 			PS.gridColor(0xDDDDDD);
 			
 			G.activeBoardHeight = G.GRID_HEIGHT;
@@ -808,7 +827,7 @@ var G;
 			PS.spriteDelete(echoSprite);
 			PS.timerStop(idMoveTimer);
 			idMoveTimer = PS.timerStart(5, tick2);
-			loadMap(start);
+			loadMap(pond);
 			G.initGhostEcho();
 			makeChattyLadies();
 			echoActive = true;
@@ -864,6 +883,8 @@ var G;
 		},
 		
 		echo : function(phrase) {
+			PS.statusText("");
+			PS.statusColor(PS.COLOR_CYAN);
 			customStatusText(phrase);
 		},
 		
@@ -877,8 +898,8 @@ var G;
 		initGhostEcho : function() {
 			echoGhostSprite = PS.spriteSolid(2, 2);
 			PS.spritePlane(echoGhostSprite, ECHO_PLANE);
-			echoX = 10;
-			echoY = 10;
+			echoX = 14;
+			echoY = 20;
 			PS.spriteSolidColor(echoGhostSprite, 0xAAAAAA);
 			PS.spriteSolidAlpha(echoGhostSprite, 165);
 			PS.spriteCollide(echoGhostSprite, hearLady);
