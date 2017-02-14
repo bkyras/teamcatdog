@@ -202,6 +202,27 @@ var G;
 		PS.spriteMove(sprite, x, y)
 		return {xPos: x, yPos: y};
 	};
+
+	var moveRandomHera = function(sprite, x, y) {
+        var rand = PS.random(10);
+        var pos;
+
+        if (rand > 6 && zeusActive) {
+            var hPath = PS.line(heraX, heraY, zeusX, zeusY);
+            if (hPath.length > 0) {
+                var hx = hPath[0][0];
+                var hy = hPath[0][1]
+                pos = {xPos: hx, yPos: hy};
+            } else {
+                pos = moveRandom(sprite, x, y);
+            }
+        } else {
+            pos = moveRandom(sprite, x, y);
+        }
+
+        PS.spriteMove(sprite, pos.xPos, pos.yPos)
+        return {xPos: pos.xPos, yPos: pos.yPos};
+    };
 	
 	var moveHera = function() {
 		var rand = PS.random(4) - 1;
@@ -221,7 +242,7 @@ var G;
 				}
 		} else {
 			PS.spriteSolidAlpha(heraSprite, 255);
-			var pos = moveRandom(heraSprite, heraX, heraY);
+			var pos = moveRandomHera(heraSprite, heraX, heraY);
 			heraX = pos.xPos;
 			heraY = pos.yPos;
 		}
@@ -247,6 +268,14 @@ var G;
 		var rand = PS.random(4) - 1;
 		if(ladySprites.length > 0) {
 			var pos = PS.spriteMove(ladySprites[0]);
+            var pLength = PS.line(heraX, heraY, pos.x, pos.y).length;
+            ladySprites.forEach(function(spr){
+               var newPos =  PS.spriteMove(spr);
+                if (PS.line(heraX, heraY, newPos.x, newPos.y).length > pLength) {
+                    pos = newPos;
+                    pLength = PS.line(heraX, heraY, newPos.x, newPos.y).length;
+                }
+            });
 			var zPath = PS.line(zeusX, zeusY, pos.x, pos.y);
 			if(zPath.length > 1) {
 				var zx = zPath[0][0];
