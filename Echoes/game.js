@@ -33,7 +33,7 @@ var G;
 	
 	var ECHO_LURE_SOUND = "fx_squawk";
 	var LADY_SOUND = "fx_hoot";
-	var LADY_PLANE = 1, ZEUS_PLANE = 2, HERA_PLANE = 3, ECHO_PLANE = 4;
+	var LADY_PLANE = 1, ZEUS_PLANE = 2, HERA_PLANE = 3, ECHO_PLANE = 4, NARC_PLANE = 5;
 	var LURE_RADIUS = 9;
 	var MAX_LADIES = 6;
 	
@@ -41,6 +41,7 @@ var G;
 	var echoGhostSprite = "", echoGhostActive = false;
 	var heraSprite = "", heraActive = false;
 	var zeusSprite = "", zeusActive = false;
+	var narcSprite = "", narcActive = false;
 	var ladiesActive = false;
 	
 	var spawnLadyTimer = 50;
@@ -50,6 +51,7 @@ var G;
 	var echoX = 14, echoY = 6;
 	var heraX = 12, heraY = 15;
 	var zeusX = 10, zeusY = 2;
+	var narcX = 14, narcY = 9;
 	
 	var lure = 0;
 	var lureCooldown = 0;
@@ -65,8 +67,15 @@ var G;
 	
 	var girlsEaten = 0;
 	var timeRemaining = 0;
+	var curseFlag = false;
+	var CURSE1 = 0xBBBBBB;
+	var CURSE2 = 0x777777;
 	
 	var heraCaughtZeus = false;
+
+	var isPart2 = false;
+	var firstEnc = false;
+	var firstTalk = false;
 	
 	var T; //variable containing tutorial functions. 
 	T = {
@@ -139,6 +148,22 @@ var G;
 	var heraCollide = function(s1, p1, s2, p2, type) {
 		if(s2 == zeusSprite) {
 			heraCaughtZeus = true;
+		}
+	};
+
+	var narcCollide = function() {
+		if (isPart2) {
+			if (!firstEnc) {
+				PS.statusText("");
+				PS.statusColor(PS.COLOR_RED);
+				customStatusText("'Who are you?'");
+				firstEnc = true;
+				setTimeout(function(){
+					incrementTutorial();
+				}, 3000);
+			}
+		} else {
+
 		}
 	};
 	
@@ -334,7 +359,7 @@ var G;
 		if (G.activeBoardHeight > G.GRID_HEIGHT) {
 			G.activeBoardHeight = G.GRID_HEIGHT;
 		}
-		
+
 		for (x = 0; x < G.GRID_WIDTH; x++) {
 			for (y = 0; y < G.GRID_HEIGHT; y++) {
 				var dw = (2*x) + 1;
@@ -458,12 +483,223 @@ var G;
 				}, 1000);
 				break;
 			case 13:
-				customStatusText("Good work! To be continued...");
-				G.gameover = true;
+				customStatusText("Zeus got away! Good job!");
+				PS.timerStop(idMoveTimer);
+
+				deleteAllLadies();
+				deleteZeus();
+
 				//G.lastDbSend(true);
+				activateBeads(17,17);
+				PS.spriteMove(echoSprite, 10, 7);
+				PS.spriteMove(heraSprite, 17, 7);
+
+				T.timer = setTimeout(function(){
+					incrementTutorial();
+				}, MEDIUM_WAIT);
+				break;
+			case 14:
+				customStatusText("But Hera caught on.");
+				PS.spriteMove(heraSprite, 15, 7);
+
+				T.timer = setTimeout(function(){
+					incrementTutorial();
+				}, SMALL_WAIT);
+				break;
+			case 15:
+				customStatusText("She knows you distracted her.");
+				PS.spriteMove(echoSprite, 9, 7);
+				PS.spriteMove(heraSprite, 13, 7);
+
+				T.timer = setTimeout(function(){
+					incrementTutorial();
+				}, SMALL_WAIT);
+				break;
+			case 16:
+				customStatusText("Hera is furious.");
+				PS.spriteMove(echoSprite, 8, 7);
+				PS.spriteMove(heraSprite, 11, 7);
+
+				T.timer = setTimeout(function(){
+					incrementTutorial();
+				}, SMALL_WAIT);
+				break;
+			case 17:
+				customStatusText("She has cursed you.");
+				PS.spriteMove(echoSprite, 8, 7);
+				PS.spriteMove(heraSprite, 11, 7);
+
+				timeRemaining = 10;
+				curseFlag = true;
+				T.timer = setInterval(function(){
+					timeRemaining -= 1;
+					if (timeRemaining >= 0) {
+						if (curseFlag) {
+							PS.gridColor(CURSE1);
+							curseFlag = false;
+						} else {
+							PS.gridColor(CURSE2);
+							curseFlag = true;
+						}
+					} else {
+						clearInterval(T.timer);
+						T.timer = null;
+						incrementTutorial();
+					}
+				}, 250);
+				break;
+			case 18:
+				PS.spriteDelete(echoSprite);
+				echoActive = false;
+				PS.spriteDelete(heraSprite);
+				heraActive = false;
+				ladiesActive = false;
+
 				activateBeads(0,0);
+
+				customStatusText("You can no longer speak.");
+
+				T.timer = setTimeout(function(){
+					incrementTutorial();
+				}, SMALL_WAIT);
+				break;
+			case 19:
+				customStatusText("You can only repeat others.");
+
+				T.timer = setTimeout(function(){
+				 incrementTutorial();
+				 }, MEDIUM_WAIT);
+				break;
+			case 20:
+				customStatusText("Some time later...");
+
+				isPart2 = true;
+
+				T.timer = setTimeout(function(){
+					incrementTutorial();
+				}, SMALL_WAIT);
+				break;
+			case 21:
+				customStatusText("You're wandering the forest.");
+
+				activateBeads(20,20);
+				echoX = 8;
+				echoY = 9;
+				G.initEcho();
+
+				T.timer = setTimeout(function(){
+					incrementTutorial();
+				}, SMALL_WAIT);
+				break;
+			case 22:
+				customStatusText("You encounter Narcissus.");
+
+				initNarcissus();
+
+				T.timer = setTimeout(function(){
+					incrementTutorial();
+				}, MEDIUM_WAIT);
+				break;
+			case 23:
+				customStatusText("Narcissus is a total hottie.");
+
+				T.timer = setTimeout(function(){
+					incrementTutorial();
+				}, SMALL_WAIT);
+				break;
+			case 24:
+				customStatusText("Go on. Approach him.");
+
+				idMoveTimer = PS.timerStart(5, tick);
+				break;
+			case 25:
+				PS.statusText("");
+				PS.statusColor(PS.DEFAULT);
+				customStatusText("Now try talking to him.");
+				break;
+			case 26:
+				PS.statusText("");
+				PS.statusColor(PS.COLOR_RED);
+				customStatusText("'You're weird. Leave me alone.'");
+
+				timeRemaining = 12;
+				T.timer = setInterval(function(){
+					timeRemaining -= 1;
+					if (timeRemaining >= 0) {
+						narcX += 1;
+						PS.spriteMove(narcSprite,narcX,narcY);
+					} else {
+						deleteNarcissus();
+						clearInterval(T.timer);
+						T.timer = null;
+						incrementTutorial();
+					}
+				}, 200);
+				break;
+			case 27:
+				PS.statusText("");
+				PS.statusColor(PS.DEFAULT);
+				customStatusText("Oh no. You got rejected.");
+
+				T.timer = setTimeout(function(){
+					incrementTutorial();
+				}, SMALL_WAIT);
+				break;
+			case 28:
+				customStatusText("You die of sadness.");
+
+				activateBeads(0,0);
+
+				T.timer = setTimeout(function(){
+					incrementTutorial();
+				}, SMALL_WAIT);
+				break;
+			case 29:
+				customStatusText("Some time later...");
+
+				activateBeads(30,30);
+				//initPart2();
+
+				T.timer = setTimeout(function(){
+					incrementTutorial();
+				}, SMALL_WAIT);
+				break;
+			case 30:
+				customStatusText("You are now a ghost.");
+
+				T.timer = setTimeout(function(){
+					incrementTutorial();
+				}, SMALL_WAIT);
 				break;
 		}
+	};
+
+	var deleteNarcissus = function() {
+		if (narcSprite !== "") {
+			PS.spriteDelete(narcSprite);
+		}
+		narcActive = false;
+	};
+
+	var initNarcissus = function() {
+		narcSprite = PS.spriteSolid(2, 2);
+		PS.spritePlane(narcSprite, NARC_PLANE);
+		PS.spriteCollide(narcSprite, narcCollide);
+		PS.spriteSolidColor(narcSprite, PS.COLOR_MAGENTA);
+		PS.spriteMove(narcSprite, narcX, narcY);
+	};
+
+	var deleteAllLadies = function() {
+		ladySprites.forEach(function(spr){
+			PS.spriteDelete(spr);
+		});
+	};
+
+	var deleteZeus = function() {
+		if (zeusSprite !== "") {
+			PS.spriteDelete(zeusSprite);
+		}
+		zeusActive = false;
 	};
 	
 	//DEFAULT_COLOR = PS.COLOR_WHITE; //0
@@ -546,17 +782,21 @@ var G;
 			G.activeBoardHeight = G.GRID_HEIGHT;
 			G.activeBoardWidth = G.GRID_WIDTH;
 			
-			idMoveTimer = PS.timerStart(5, tick);
+			//idMoveTimer = PS.timerStart(5, tick); uncomment for real game
 			PS.audioLoad(ECHO_LURE_SOUND);
 			PS.audioLoad(LADY_SOUND);
 			ladiesActive = false;
-			G.initEcho();
+			//G.initEcho(); uncomment for real game
 			activateBeads(30,30);
 			
 			//incrementTutorial();
 			
 			PS.statusText("Press spacebar to begin.");
 			PS.dbInit("echoesprototype", true);
+
+			//For tut skips
+			T.index = 20;
+			isPart2 = true;
 		},
 		
 		initPart2: function() {
@@ -683,6 +923,15 @@ var G;
 		
 		lure : function() {
 			if(lureCooldown == 0) {
+				if (isPart2 && !firstTalk) {
+					PS.statusText("");
+					PS.statusColor(PS.COLOR_CYAN);
+					customStatusText("'Who are you?'");
+					firstTalk = true;
+					setTimeout(function(){
+						incrementTutorial();
+					}, 3000);
+				}
 				PS.audioPlay(ECHO_LURE_SOUND);
 				lure = 18; //num ticks to be lured for
 				lureCooldown = 30; //num ticks of lure cooldown (includes lured time)
