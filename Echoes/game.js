@@ -799,7 +799,7 @@ var G;
 		PS.spritePlane(l2, HERA_PLANE);
 		PS.spriteShow(l2, false);
 		PS.spriteMove(l2, 7, 17);
-		chattyLadies[l2] = {mapPos: [0, 1],
+		chattyLadies[l2] = {mapPos: [1, 1],
 											 phrase: "Let's eat rocks"};
 	};
 	
