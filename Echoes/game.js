@@ -917,10 +917,6 @@ var G;
 			T.onMove();
 		},
 		
-		spawn : function() {
-			spawnLady();
-		},
-		
 		lure : function() {
 			if(lureCooldown == 0) {
 				if (isPart2 && !firstTalk) {
@@ -1057,13 +1053,6 @@ PS.keyDown = function( key, shift, ctrl, options ) {
 	if(key == PS.KEY_ARROW_RIGHT) {
 		repeatable = PS.statusText();
 	}
-//	else if (key == PS.KEY_ARROW_UP) {
-//		G.initHera();
-//	} else if (key == PS.KEY_ARROW_DOWN) {
-//		G.initZeus();
-//	} else if (key == PS.KEY_ARROW_RIGHT) {
-//		G.spawn();
-//	}
 };
 
 
