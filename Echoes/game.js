@@ -38,6 +38,7 @@ var G;
 	var MAX_LADIES = 6;
 	
 	var echoSprite = "", echoActive = false;
+	var echoGhostSprite = "", echoGhostActive = false;
 	var heraSprite = "", heraActive = false;
 	var zeusSprite = "", zeusActive = false;
 	var ladiesActive = false;
@@ -81,7 +82,7 @@ var G;
 		}
 		
 		if (echoActive) {
-			moveEcho();
+			moveEcho(echoSprite);
 		}
 		heraTime--;
 		zeusTime--;
@@ -125,6 +126,11 @@ var G;
 			zeusGameOver();
 		}
 	};
+	
+	var tick2 = function() {
+		moveEcho(echoGhostSprite);
+		G.mapMove(echoX, echoY);
+	}
 	
 	var deleteLady = function(ladySpr) {
 		PS.spriteDelete(ladySpr);
@@ -230,7 +236,7 @@ var G;
 		}
 	};
 	
-	var moveEcho = function() {
+	var moveEcho = function(spr) {
 		var p, nx, ny, ptr, val;
 
 		if (path.length === 0) {
@@ -250,7 +256,7 @@ var G;
 		if(nx == G.GRID_WIDTH-1 || ny == G.GRID_HEIGHT-1)
 			path = [];
 		else {
-			PS.spriteMove(echoSprite, nx, ny);
+			PS.spriteMove(spr, nx, ny);
 			echoX = nx;
 			echoY = ny;
 		}
@@ -281,6 +287,15 @@ var G;
 			girlsEaten += 1;
 		}
 	};
+	
+	var hearLady = function(s1, p1, s2, p2, type) {
+		var keys = Object.keys(chattyLadies)
+		var i = keys.indexOf(s2);
+		if(i != -1) {
+			var phrase = chattyLadies[keys[i]].phrase;
+			PS.statusText(phrase);
+		}
+	}
 	
 	var customStatusText = function (statusText) {
 		var characterDelay = 20;
@@ -451,29 +466,64 @@ var G;
 		}
 	};
 	
+	//DEFAULT_COLOR = PS.COLOR_WHITE; //0
+	//GROUND_COLOR = 0x579532; //1
+	//PATH_COLOR = 0x222222; //2
+	//DIRT_COLOR = 0xAF623B; //3
+	//TREE_COLOR = PS.COLOR_GREEN; //4
+	//WATER_COLOR = PS.COLOR_BLUE; //5
 	var loadMap = function(mapData) {
 		for(var row = 0; row < mapData.length; row++) {
 			for(var col = 0; col < mapData[row].length; col++) {
 				switch(mapData[row][col]) {
 					case 0:
-						PS.color(col, row, GROUND_COLOR);
+						PS.color(col, row, DEFAULT_COLOR);
 						break;
 					case 1:
-						PS.color(col, row, DIRT_COLOR);
+						PS.color(col, row, GROUND_COLOR);
 						break;
 					case 2:
 						PS.color(col, row, PATH_COLOR);
 						break;
 					case 3:
-						PS.color(col, row, TREE_COLOR);
+						PS.color(col, row, DIRT_COLOR);
 						break;
 					case 4:
+						PS.color(col, row, TREE_COLOR);
+						break;
+					case 5:
 						PS.color(col, row, WATER_COLOR);
 						break;
 					default:
 						PS.color(col, row, DEFAULT_COLOR);
 				}
 			}
+		}
+	};
+	
+	var makeChattyLadies = function() {
+		var l1 = PS.spriteSolid(2, 2);
+		PS.spriteSolidColor(l1, PS.COLOR_YELLOW);
+		PS.spritePlane(l1, HERA_PLANE);
+		PS.spriteShow(l1, false);
+		PS.spriteMove(l1, 5, 15);
+		chattyLadies[l1] = {mapPos: [1, 1],
+												phrase: "I like pie"};
+		var l2 = PS.spriteSolid(2, 2);
+		PS.spriteSolidColor(l2, PS.COLOR_YELLOW);
+		PS.spritePlane(l2, HERA_PLANE);
+		PS.spriteShow(l2, false);
+		PS.spriteMove(l2, 7, 17);
+		chattyLadies[l2] = {mapPos: [0, 1],
+											 phrase: "Let's eat rocks"};
+	};
+	
+	var appearLadies = function(row, col) {
+		for(var key in chattyLadies) {
+			PS.spriteShow(key, false);
+			if(chattyLadies[key].mapPos[0] == row &&
+				chattyLadies[key].mapPos[1] == col)
+				PS.spriteShow(key, true);
 		}
 	};
 	
@@ -513,21 +563,64 @@ var G;
 			PS.gridSize(G.GRID_WIDTH, G.GRID_HEIGHT);
 			PS.border(PS.ALL, PS.ALL, 0);
 			PS.gridColor(0xDDDDDD);
+			idMoveTimer = PS.timerStart(5, tick2);
 			loadMap(start);
+			G.initGhostEcho();
+			makeChattyLadies();
+			echoActive = true;
 		},
 		
 		mapMove: function(x, y) {
-			if(x==G.GRID_WIDTH-1) {
+			// RIGHT same row, +1 col
+			if(x==G.GRID_WIDTH-2) {
 				if(map[mapPos[0]].length > mapPos[1]+1) {
-					loadMap(map[mapPos[0]][mapPos[1]+1]);
-					mapPos = [mapPos[0], mapPos[1]+1];
+					if(map[mapPos[0]][mapPos[1]+1] != null) {
+						loadMap(map[mapPos[0]][mapPos[1]+1]);
+						mapPos = [mapPos[0], mapPos[1]+1];
+						echoX = 1;
+						PS.spriteMove(echoGhostSprite, 1, y);
+						appearLadies(mapPos[0], mapPos[1]);
+					}
 				}
+				// LEFT same row, -1 col
 			} else if(x==0) {
 				if(mapPos[1]-1 >= 0) {
-					loadMap(map[mapPos[0]][mapPos[1]-1]);
-					mapPos = [mapPos[0], mapPos[1]-1];
+					if(map[mapPos[0]][mapPos[1]-1] != null) {
+						loadMap(map[mapPos[0]][mapPos[1]-1]);
+						mapPos = [mapPos[0], mapPos[1]-1];
+						echoX = G.GRID_WIDTH-3;
+						PS.spriteMove(echoGhostSprite, G.GRID_WIDTH-3, y);
+						appearLadies(mapPos[0], mapPos[1]);
+					}
+				}
+				// DOWN +1 row, same col
+			} else if(y==G.GRID_HEIGHT-2) {
+				if(map.length > mapPos[0]+1) {
+					if(map[mapPos[0]+1][mapPos[1]] != null) {
+						loadMap(map[mapPos[0]+1][mapPos[1]]);
+						mapPos = [mapPos[0]+1, mapPos[1]];
+						echoY = 2;
+						PS.spriteMove(echoGhostSprite, x, 2);
+						appearLadies(mapPos[0], mapPos[1]);
+					}
+				}
+				// UP -1 row, same col
+			} else if(y==0) {
+				if(mapPos[0]-1 >= 0) {
+					if(map[mapPos[0]-1][mapPos[1]] != null) {
+						loadMap(map[mapPos[0]-1][mapPos[1]]);
+						mapPos = [mapPos[0]-1, mapPos[1]];
+						echoY = G.GRID_HEIGHT-3;
+						PS.spriteMove(echoGhostSprite, x, G.GRID_HEIGHT-3);
+						appearLadies(mapPos[0], mapPos[1]);
+					}
 				}
 			}
+			
+		},
+		
+		echo : function(phrase) {
+			customStatusText(phrase);
 		},
 		
 		initEcho : function() {
@@ -535,6 +628,18 @@ var G;
 			PS.spritePlane(echoSprite, ECHO_PLANE);
 			PS.spriteMove(echoSprite, echoX, echoY);
 			echoActive = true;
+		},
+		
+		initGhostEcho : function() {
+			echoGhostSprite = PS.spriteSolid(2, 2);
+			PS.spritePlane(echoGhostSprite, ECHO_PLANE);
+			echoX = 10;
+			echoY = 10;
+			PS.spriteSolidColor(echoGhostSprite, 0xAAAAAA);
+			PS.spriteSolidAlpha(echoGhostSprite, 165);
+			PS.spriteCollide(echoGhostSprite, hearLady);
+			PS.spriteMove(echoGhostSprite, echoX, echoY);
+			echoGhostActive = true;
 		},
 		
 		initZeus : function() {
@@ -626,8 +731,8 @@ PS.init = function( system, options ) {
 	// Do this FIRST to avoid problems!
 	// Otherwise you will get the default 8x8 grid
 	
-	G.init();
-	//G.initPart2();
+	//G.init();
+	G.initPart2();
 	// Add any other initialization code you need here
 };
 
@@ -637,11 +742,11 @@ PS.touch = function( x, y, data, options ) {
 	// PS.debug( "PS.touch() @ " + x + ", " + y + "\n" );
 
 	// Add code here for mouse clicks/touches over a bead
-	if(!G.gameover){
-		PS.dbEvent("echoesprototype", "mouseclick", "true");
-		G.move(x, y);
-	}
-	//G.mapMove(x, y);
+//	if(!G.gameover){
+//		PS.dbEvent("echoesprototype", "mouseclick", "true");
+//		G.move(x, y);
+//	}
+	G.move(x, y);
 };
 
 
@@ -658,7 +763,7 @@ PS.enter = function( x, y, data, options ) {
 	// PS.debug( "PS.enter() @ " + x + ", " + y + "\n" );
 
 	if (options.touching) {
-		PS.dbEvent("echoesprototype", "mouseclick", "true");
+		//PS.dbEvent("echoesprototype", "mouseclick", "true");
 		G.move(x, y);
 	}
 	
@@ -686,17 +791,23 @@ PS.keyDown = function( key, shift, ctrl, options ) {
 	//	PS.debug( "DOWN: key = " + key + ", shift = " + shift + "\n" );
 
 	// Add code here for when a key is pressed
-	if (key == 32) {
-		if(!G.gameover){
-			if (!G.gameStarted) {
-				G.gameStarted = true;
-				G.startTutorial();
-			} else {
-				PS.dbEvent("echoesPrototype", "spacebar", "true");
-				G.lure();
-			}
-		}
-	} 
+//	if (key == 32) {
+//		if(!G.gameover){
+//			if (!G.gameStarted) {
+//				G.gameStarted = true;
+//				G.startTutorial();
+//			} else {
+//				PS.dbEvent("echoesPrototype", "spacebar", "true");
+//				G.lure();
+//			}
+//		}
+//	}
+	if(key == 32) {
+		G.echo(repeatable);
+	}
+	if(key == PS.KEY_ARROW_RIGHT) {
+		repeatable = PS.statusText();
+	}
 //	else if (key == PS.KEY_ARROW_UP) {
 //		G.initHera();
 //	} else if (key == PS.KEY_ARROW_DOWN) {

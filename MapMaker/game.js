@@ -29,12 +29,12 @@ along with Perlenspiel. If not, see <http://www.gnu.org/licenses/>.
 
 // This is a template for creating new Perlenspiel games
 var G;
-var DEFAULT_COLOR = PS.COLOR_WHITE;
-var GROUND_COLOR = 0x579532;
-var PATH_COLOR = 0x222222;
-var DIRT_COLOR = 0xAF623B;
-var TREE_COLOR = PS.COLOR_GREEN;
-var WATER_COLOR = PS.COLOR_BLUE;
+var DEFAULT_COLOR = PS.COLOR_WHITE; //0
+var GROUND_COLOR = 0x579532; //1
+var PATH_COLOR = 0x222222; //2
+var DIRT_COLOR = 0xAF623B; //3
+var TREE_COLOR = PS.COLOR_GREEN; //4
+var WATER_COLOR = PS.COLOR_BLUE; //5
 
 (function(){
 	G = {
@@ -84,7 +84,7 @@ var WATER_COLOR = PS.COLOR_BLUE;
 			for(var r = 0; r < G.GRID_HEIGHT; r++) {
 				PS.debug("[");
 				PS.debug(map[r]);
-				PS.debug("]\n");
+				PS.debug("],\n");
 			}
 			PS.debug("]");
 		}
@@ -210,6 +210,9 @@ PS.keyDown = function( key, shift, ctrl, options ) {
 			break;
 		case PS.KEY_PAD_4:
 			G.curColor = 4;
+			break;
+		case PS.KEY_PAD_5:
+			G.curColor = 5;
 			break;
 		case PS.KEY_ENTER:
 			G.outputMap();
