@@ -712,7 +712,7 @@ var G;
 					incrementTutorial();
 				}, SMALL_WAIT);
 				break;
-			case 31:
+			case 32:
 				customStatusText("Find Narcissus, bring him there.");
 
 				T.timer = setTimeout(function(){
