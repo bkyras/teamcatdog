@@ -52,6 +52,7 @@ var G;
 	var heraX = 12, heraY = 15;
 	var zeusX = 10, zeusY = 2;
 	var narcX = 14, narcY = 9;
+	var narcMapRow = 1, narcMapCol = 0;
 	
 	var lure = 0;
 	var lureCooldown = 0;
@@ -726,7 +727,7 @@ var G;
 
 	var deleteNarcissus = function() {
 		if (narcSprite !== "") {
-			PS.spriteDelete(narcSprite);
+			PS.spriteShow(narcSprite, false);
 		}
 		narcActive = false;
 	};
@@ -803,6 +804,14 @@ var G;
 		PS.spriteMove(l2, 7, 17);
 		chattyLadies[l2] = {mapPos: [1, 1],
 											 phrase: "Let's eat rocks"};
+		
+		var l3 = PS.spriteSolid(2, 2);
+		PS.spriteSolidColor(l2, PS.COLOR_YELLOW);
+		PS.spritePlane(l3, HERA_PLANE);
+		PS.spriteShow(l3, false);
+		PS.spriteMove(l3, 10, 3);
+		chattyLadies[l3] = {mapPos: [1, 0],
+											 phrase: "Follow me!"};
 	};
 	
 	var appearLadies = function(row, col) {
@@ -811,6 +820,12 @@ var G;
 			if(chattyLadies[key].mapPos[0] == row &&
 				chattyLadies[key].mapPos[1] == col)
 				PS.spriteShow(key, true);
+		}
+	};
+	
+	var drawNarc = function(row, col) {
+		if(row == narcMapRow && col == narcMapCol) {
+			PS.spriteShow(narcSprite, true);
 		}
 	};
 	
@@ -874,6 +889,7 @@ var G;
 						echoX = 1;
 						PS.spriteMove(echoGhostSprite, 1, y);
 						appearLadies(mapPos[0], mapPos[1]);
+						drawNarc(mapPos[0], mapPos[1]);
 					}
 				}
 				// LEFT same row, -1 col
@@ -885,6 +901,7 @@ var G;
 						echoX = G.GRID_WIDTH-3;
 						PS.spriteMove(echoGhostSprite, G.GRID_WIDTH-3, y);
 						appearLadies(mapPos[0], mapPos[1]);
+						drawNarc(mapPos[0], mapPos[1]);
 					}
 				}
 				// DOWN +1 row, same col
@@ -896,6 +913,7 @@ var G;
 						echoY = 2;
 						PS.spriteMove(echoGhostSprite, x, 2);
 						appearLadies(mapPos[0], mapPos[1]);
+						drawNarc(mapPos[0], mapPos[1]);
 					}
 				}
 				// UP -1 row, same col
@@ -907,6 +925,8 @@ var G;
 						echoY = G.GRID_HEIGHT-3;
 						PS.spriteMove(echoGhostSprite, x, G.GRID_HEIGHT-3);
 						appearLadies(mapPos[0], mapPos[1]);
+						drawNarc(mapPos[0], mapPos[1]);
+						
 					}
 				}
 			}
@@ -918,6 +938,8 @@ var G;
 			PS.statusText("");
 			PS.statusColor(PS.COLOR_CYAN);
 			customStatusText(phrase);
+			if(mapPos[0] == narcMapRow && mapPos[1] == narcMapCol)
+				narcReact(phrase);
 		},
 		
 		initEcho : function() {

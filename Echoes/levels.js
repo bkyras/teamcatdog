@@ -136,3 +136,9 @@ var map = [[null, pond, null],
 
 var repeatable = "";
 var chattyLadies = {};
+
+var narcReact = function(phrase) {
+	if(phrase.contains("rock")) {
+		
+	}
+};
