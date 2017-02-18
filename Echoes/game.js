@@ -848,8 +848,12 @@ var G;
 	var narcReact = function(phrase) {
 		if(phrase.includes("rock")) {
 			PS.spriteMove(narcSprite, narcX-1, narcY-1);
-			narcX = narcX - 1;
-			narcY = narcY - 1;
+			narcX -= 1;
+			narcY -= 1;
+		} else if (phrase.includes("tree")) {
+			PS.spriteMove(narcSprite, narcX+1, narcY+1);
+			narcX += 1;
+			narcY += 1;
 		}
 	};
 	
