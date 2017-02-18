@@ -820,10 +820,10 @@ var G;
 											 phrase: "Let's eat rocks"};
 		
 		var l3 = PS.spriteSolid(2, 2);
-		PS.spriteSolidColor(l2, PS.COLOR_YELLOW);
+		PS.spriteSolidColor(l3, PS.COLOR_YELLOW);
 		PS.spritePlane(l3, HERA_PLANE);
 		PS.spriteShow(l3, false);
-		PS.spriteMove(l3, 10, 3);
+		PS.spriteMove(l3, 10, 8);
 		chattyLadies[l3] = {mapPos: [1, 0],
 											 phrase: "Follow me!"};
 	};
@@ -840,6 +840,16 @@ var G;
 	var drawNarc = function(row, col) {
 		if(row == narcMapRow && col == narcMapCol) {
 			PS.spriteShow(narcSprite, true);
+		} else {
+			PS.spriteShow(narcSprite, false);
+		}
+	};
+	
+	var narcReact = function(phrase) {
+		if(phrase.includes("rock")) {
+			PS.spriteMove(narcSprite, narcX-1, narcY-1);
+			narcX = narcX - 1;
+			narcY = narcY - 1;
 		}
 	};
 	
