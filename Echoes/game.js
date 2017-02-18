@@ -750,6 +750,20 @@ var G;
 		}
 		zeusActive = false;
 	};
+
+	var deleteHera = function() {
+		if (heraSprite !== "") {
+			PS.spriteDelete(heraSprite);
+		}
+		heraActive = false;
+	};
+
+	var deleteEcho = function() {
+		if (echoSprite !== "") {
+			PS.spriteDelete(echoSprite);
+		}
+		echoActive = false;
+	};
 	
 	//DEFAULT_COLOR = PS.COLOR_WHITE; //0
 	//GROUND_COLOR = 0x579532; //1
@@ -843,12 +857,28 @@ var G;
 			
 			//incrementTutorial();
 			
-			PS.statusText("Press spacebar to begin.");
-			PS.dbInit("echoesprototype", true);
+			//PS.statusText("Press spacebar to begin.");
+			PS.dbInit("echoesprototype", {login: G.finishInit});
 
 			//For tut skips
 			//T.index = 20;
 			//isPart2 = true;
+		},
+
+		skipToNarc : function() {
+			T.index = 20;
+			isPart2 = true;
+			deleteAllLadies();
+			deleteHera();
+			deleteZeus();
+			deleteEcho();
+			PS.timerStop(idMoveTimer);
+			incrementTutorial();
+		},
+
+		finishInit : function() {
+			G.gameStarted = true;
+			G.startTutorial();
 		},
 		
 		initPart2: function() {
@@ -991,15 +1021,19 @@ var G;
 		},
 		
 		restart : function() {
-			while(ladySprites.length > 0) {
-				var spr = ladySprites.pop();
-				PS.spriteDelete(spr);
-			}
+			deleteAllLadies();
 			PS.spriteMove(zeusSprite, 2, 2);
+			zeusX = 2;
+			zeusY = 2;
 			PS.spriteMove(heraSprite, 15, 15);
+			heraX = 15;
+			heraY = 15;
 			PS.spriteMove(echoSprite, 7, 7);
+			echoX = 7;
+			echoY = 7;
 			G.gameover = false;
-			T.index = 11;
+			heraCaughtZeus = false;
+			T.index = 10;
 			incrementTutorial();
 			idMoveTimer = PS.timerStart(5, tick);
 		},
@@ -1045,7 +1079,11 @@ PS.touch = function( x, y, data, options ) {
 //		PS.dbEvent("echoesprototype", "mouseclick", "true");
 //		G.move(x, y);
 //	}
-	G.move(x, y);
+	if (!G.gameover) {
+		G.move(x, y);
+	} else {
+		G.restart();
+	}
 };
 
 
@@ -1093,16 +1131,17 @@ PS.keyDown = function( key, shift, ctrl, options ) {
 	if (key == 32) {
 		if (!G.isPart2) {
 			if(!G.gameover){
-				if (!G.gameStarted) {
-					G.gameStarted = true;
-					G.startTutorial();
-				} else {
-					PS.dbEvent("echoesPrototype", "spacebar", "true");
-					G.lure();
-				}
+				PS.dbEvent("echoesPrototype", "spacebar", "true");
+				G.lure();
+			} else {
+				G.restart();
 			}
 		} else {
 			G.echo(repeatable);
+		}
+	} else if (key == PS.KEY_ARROW_DOWN) {
+		if (!G.isPart2) {
+			G.skipToNarc();
 		}
 	}
 };
