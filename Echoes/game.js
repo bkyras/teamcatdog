@@ -200,7 +200,7 @@ var G;
 						y += 1;
 					break;
 			}
-		PS.spriteMove(sprite, x, y)
+		//PS.spriteMove(sprite, x, y)
 		return {xPos: x, yPos: y};
 	};
 
@@ -221,7 +221,7 @@ var G;
             pos = moveRandom(sprite, x, y);
         }
 
-        PS.spriteMove(sprite, pos.xPos, pos.yPos)
+        //PS.spriteMove(sprite, pos.xPos, pos.yPos)
         return {xPos: pos.xPos, yPos: pos.yPos};
     };
 	
@@ -233,19 +233,27 @@ var G;
 				PS.spriteSolidAlpha(heraSprite, 180);
 				var hx = hPath[0][0];
 				var hy = hPath[0][1]
-				PS.spriteMove(heraSprite, hx, hy)
-				heraX = hx;
-				heraY = hy;
+				if (isMoveValidPart1(heraSprite, hx, hy)) {
+					PS.spriteMove(heraSprite, hx, hy)
+					heraX = hx;
+					heraY = hy;
+				}
 				} else {
 					var pos = moveRandom(heraSprite, heraX, heraY);
-					heraX = pos.xPos;
-					heraY = pos.yPos;
+					if (isMoveValidPart1(heraSprite, pos.xPos, pos.yPos)) {
+						PS.spriteMove(heraSprite, pos.xPos, pos.yPos);
+						heraX = pos.xPos;
+						heraY = pos.yPos;
+					}
 				}
 		} else {
 			PS.spriteSolidAlpha(heraSprite, 255);
 			var pos = moveRandomHera(heraSprite, heraX, heraY);
-			heraX = pos.xPos;
-			heraY = pos.yPos;
+			if (isMoveValidPart1(heraSprite, pos.xPos, pos.yPos)) {
+				PS.spriteMove(heraSprite, pos.xPos, pos.yPos);
+				heraX = pos.xPos;
+				heraY = pos.yPos;
+			}
 		}
 	};
 	
@@ -258,7 +266,9 @@ var G;
 					PS.spriteSolidAlpha(spr, 180);
 					var lx = lPath[0][0];
 					var ly = lPath[0][1]
-					PS.spriteMove(spr, lx, ly)
+					if (isMoveValidPart1(spr, lx, ly)) {
+						PS.spriteMove(spr, lx, ly)
+					}
 				}
 			} else
 				PS.spriteSolidAlpha(spr, 255);
@@ -281,14 +291,19 @@ var G;
 			if(zPath.length > 1) {
 				var zx = zPath[0][0];
 				var zy = zPath[0][1]
-				PS.spriteMove(zeusSprite, zx, zy)
-				zeusX = zx;
-				zeusY = zy;
+				if (isMoveValidPart1(zeusSprite, zx, zy)) {
+					PS.spriteMove(zeusSprite, zx, zy)
+					zeusX = zx;
+					zeusY = zy;
 				}
+			}
 		} else {
 			var pos = moveRandom(zeusSprite, zeusX, zeusY);
-			zeusX = pos.xPos;
-			zeusY = pos.yPos;
+			if (isMoveValidPart1(zeusSprite, pos.xPos, pos.yPos)) {
+				PS.spriteMove(zeusSprite,pos.xPos, pos.yPos);
+				zeusX = pos.xPos;
+				zeusY = pos.yPos;
+			}
 		}
 	};
 	
@@ -312,16 +327,75 @@ var G;
 		if(nx == G.GRID_WIDTH-1 || ny == G.GRID_HEIGHT-1)
 			path = [];
 		else {
-			PS.spriteMove(spr, nx, ny);
-			echoX = nx;
-			echoY = ny;
+			if (isMoveValidPart1(spr, nx, ny)) {
+				PS.spriteMove(spr, nx, ny);
+				echoX = nx;
+				echoY = ny;
+				step++;  // uncomment here to get blocked normally
+			}
 		}
-		
-		step++;
+
+		//step++;  uncomment here for telepotting
 		
 		if ( step >= path.length ) {
 			path = [];
 		}
+	};
+
+	//returns true if a move will not cause sprites to be overlapped
+	var isMoveValidPart1 = function(spr, x, y) {
+		var log = false;
+
+		if (spr === echoSprite) {
+			log = true;
+		}
+
+		var collision = false;
+
+		var spriteList = [];
+		ladySprites.forEach(function(lSpr){
+			if (lSpr !== spr) {
+				spriteList.push(lSpr);
+				if (log) {
+					console.log("lady spr: " + lSpr);
+				}
+			}
+		});
+		if (heraSprite !== spr && heraActive) {
+			spriteList.push(heraSprite);
+			if (log) {
+				console.log("hera spr: " + heraSprite);
+			}
+		}
+		if (zeusSprite !== spr && zeusActive) {
+			spriteList.push(zeusSprite);
+			if (log) {
+				console.log("zeus spr: " + zeusSprite);
+			}
+		}
+		if (echoSprite !== spr && echoActive) {
+			spriteList.push(echoSprite);
+			if (log) {
+				console.log("echo spr: " + echoSprite);
+			}
+		}
+
+		spriteList.forEach(function(cSpr){
+			var cPos = PS.spriteMove(cSpr);
+			if (cPos.x >= x - 1 && cPos.x <= x + 1
+				&& cPos.y >= y - 1 && cPos.y <= y + 1) {
+				if (log) {
+					console.log("collision with sprite: " + cSpr);
+				}
+				collision = true;
+			}
+		});
+
+		if (log) {
+			console.log("");
+		}
+
+		return !collision;
 	};
 	
 	var spawnLady = function() {
