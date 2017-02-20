@@ -155,11 +155,13 @@ var G;
 	var narcCollide = function() {
 		if (isPart2) {
 			if (!firstEnc) {
+				clearTutorial();
 				PS.statusText("");
 				PS.statusColor(PS.COLOR_RED);
 				customStatusText("'Who are you?'");
-				firstEnc = true;
-				setTimeout(function(){
+				firstEnc = true
+				T.index = 24;
+				T.timer = setTimeout(function(){
 					//T.index = 25;
 					incrementTutorial();
 				}, 3000);
@@ -483,8 +485,16 @@ var G;
 			}
 		}
 	};
+
+	var clearTutorial = function() {
+		T.numMoves = 0;
+		clearTimeout(T.timer);
+		T.timer = null;
+		T.onMove = function(){};
+	};
 	
 	var incrementTutorial = function() {
+		//console.log("function called from: " + incrementTutorial.caller);
 		T.index += 1;
 		T.numMoves = 0;
 		clearTimeout(T.timer);
@@ -706,6 +716,7 @@ var G;
 				customStatusText("You encounter Narcissus.");
 
 				initNarcissus();
+				idMoveTimer = PS.timerStart(5, tick);
 
 				T.timer = setTimeout(function(){
 					incrementTutorial();
@@ -720,8 +731,6 @@ var G;
 				break;
 			case 24:
 				customStatusText("Go on. Approach him.");
-
-				idMoveTimer = PS.timerStart(5, tick);
 				break;
 			case 25:
 				PS.statusText("");
@@ -733,9 +742,12 @@ var G;
 				PS.statusColor(PS.COLOR_RED);
 				customStatusText("'You're weird. Leave me alone.'");
 
+
+
 				timeRemaining = 12;
 				T.timer = setInterval(function(){
 					timeRemaining -= 1;
+					console.log(timeRemaining);
 					if (timeRemaining >= 0) {
 						narcX += 1;
 						PS.spriteMove(narcSprite,narcX,narcY);
@@ -963,7 +975,9 @@ var G;
 			//incrementTutorial();
 			
 			//PS.statusText("Press spacebar to begin.");
-			PS.dbInit("echoesprototype", {login: G.finishInit});
+			//PS.dbInit("echoesprototype", {login: G.finishInit});
+			PS.dbInit("echoesprototype");
+			G.finishInit();
 
 			//For tut skips
 			//T.index = 20;
@@ -989,7 +1003,9 @@ var G;
 		initPart2: function() {
 			G.isPart2 = true;
 			PS.spriteDelete(echoSprite);
-			PS.timerStop(idMoveTimer);
+			if (idMoveTimer !== null) {
+				PS.timerStop(idMoveTimer);
+			}
 			idMoveTimer = PS.timerStart(5, tick2);
 			loadMap(pond);
 			G.initGhostEcho();
@@ -1117,10 +1133,12 @@ var G;
 		lure : function() {
 			if(lureCooldown == 0) {
 				if (isPart2 && !firstTalk) {
+					clearTutorial();
 					PS.statusText("");
 					PS.statusColor(PS.COLOR_CYAN);
 					customStatusText("'Who are you?'");
 					firstTalk = true;
+					T.index = 25;
 					setTimeout(function(){
 						incrementTutorial();
 					}, 3000);
