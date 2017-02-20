@@ -52,11 +52,12 @@ var G;
 	var heraX = 12, heraY = 15;
 	var zeusX = 10, zeusY = 2;
 	var narcX = 14, narcY = 9;
-	var narcMapRow = 1, narcMapCol = 0;
+	var narcMapRow = 0, narcMapCol = 0;
+	var narcPathPos = 0;
 	
 	var lure = 0;
 	var lureCooldown = 0;
-	var heraTime = 2, zeusTime = 4, ladyTime = 3;
+	var heraTime = 2, zeusTime = 4, ladyTime = 3, narcTime = 5;
 	
 	var idMoveTimer = "";
 	var path = [];
@@ -129,7 +130,7 @@ var G;
 		while(forDeletion.length > 0) {
 			var spr = forDeletion.pop();
 			console.log(spr);
-			deleteLady(spr);
+			PS.spriteDelete(spr);
 		}
 		
 		if (heraCaughtZeus) {
@@ -139,12 +140,9 @@ var G;
 	
 	var tick2 = function() {
 		moveEcho(echoGhostSprite);
+		moveNarc();
 		G.mapMove(echoX, echoY);
 	}
-	
-	var deleteLady = function(ladySpr) {
-		PS.spriteDelete(ladySpr);
-	};
 	
 	var heraCollide = function(s1, p1, s2, p2, type) {
 		if(s2 == zeusSprite) {
@@ -152,6 +150,48 @@ var G;
 		}
 	};
 
+	var hasCoord = function(pathArray, coord) {
+		for(var i = 0; i < pathArray.length; i++) {
+			if(pathArray[i][0] == coord[0] && pathArray[i][1] == coord[1])
+				return true;
+		}
+		return false;
+	}
+	var moveNarc = function() {
+		if(narcTime <= 0 && mapPos[0] == narcMapRow && mapPos[1] == narcMapCol) {
+			if(!hasCoord(narcPaths[narcMapRow][narcMapCol], [narcX, narcY])) {
+				var p = narcPaths[narcMapRow][narcMapCol]
+				var path = PS.line(narcX, narcY, p[0][0], p[0][1])
+				for(var i = 0; i < p.length; i++) {
+					var newPath = PS.line(narcX, narcY, p[i][0], p[i][1]);
+					if(newPath.length <= path.length) {
+						narcPathPos = i;
+						path = newPath;
+					}
+				}
+				if(path.length > 0) {
+					narcX = path[0][0];
+					narcY = path[0][1];
+					PS.spriteMove(narcSprite, narcX, narcY);
+				}
+				narcTime = 5;
+			}
+			else if(narcPaths[narcMapRow][narcMapCol].length > narcPathPos) {
+				var p = narcPaths[narcMapRow][narcMapCol][narcPathPos];
+				narcX = p[0];
+				narcY = p[1];
+				PS.spriteMove(narcSprite, narcX, narcY);
+				narcPathPos++;
+				narcTime = 5;
+			} else {
+				PS.spriteShow(narcSprite, false);
+				narcMapCol+=1;
+				narcPathPos = 0;
+			}
+		}
+		narcTime--;
+	};
+	
 	var narcCollide = function() {
 		if (isPart2) {
 			if (!firstEnc) {
@@ -345,10 +385,14 @@ var G;
 	};
 	
 	var hearLady = function(s1, p1, s2, p2, type) {
-		var keys = Object.keys(chattyLadies)
-		var i = keys.indexOf(s2);
+		var lads = chattyLadies[mapPos[0]][mapPos[1]];
+		var i = -1;
+		for(var j = 0; j < lads.length; j++) {
+			if(lads[j].sprite == s2)
+				i = j;
+		}
 		if(i != -1) {
-			var phrase = chattyLadies[keys[i]].phrase;
+			var phrase = lads[i].phrase;
 			PS.statusText("");
 			PS.statusColor(PS.COLOR_BLACK);
 			PS.statusText(phrase);
@@ -666,7 +710,9 @@ var G;
 						narcX += 1;
 						PS.spriteMove(narcSprite,narcX,narcY);
 					} else {
-						deleteNarcissus();
+						if (narcSprite !== "") {
+							PS.spriteShow(narcSprite, false);
+						}
 						clearInterval(T.timer);
 						T.timer = null;
 						incrementTutorial();
@@ -701,35 +747,28 @@ var G;
 					incrementTutorial();
 				}, SMALL_WAIT);
 				break;
-			case 30:
-				customStatusText("You are now a ghost.");
-
-				T.timer = setTimeout(function(){
-					incrementTutorial();
-				}, SMALL_WAIT);
-				break;
-			case 31:
-				customStatusText("That pond looked nice.");
-
-				T.timer = setTimeout(function(){
-					incrementTutorial();
-				}, SMALL_WAIT);
-				break;
-			case 32:
-				customStatusText("Find Narcissus, bring him there.");
-
-				T.timer = setTimeout(function(){
-					incrementTutorial();
-				}, SMALL_WAIT);
-				break;
+//			case 30:
+//				customStatusText("You are now a ghost.");
+//
+//				T.timer = setTimeout(function(){
+//					incrementTutorial();
+//				}, SMALL_WAIT);
+//				break;
+//			case 31:
+//				customStatusText("That pond looked nice.");
+//
+//				T.timer = setTimeout(function(){
+//					incrementTutorial();
+//				}, SMALL_WAIT);
+//				break;
+//			case 32:
+//				customStatusText("Find Narcissus, bring him there.");
+//
+//				T.timer = setTimeout(function(){
+//					incrementTutorial();
+//				}, SMALL_WAIT);
+//				break;
 		}
-	};
-
-	var deleteNarcissus = function() {
-		if (narcSprite !== "") {
-			PS.spriteShow(narcSprite, false);
-		}
-		narcActive = false;
 	};
 
 	var initNarcissus = function() {
@@ -809,31 +848,30 @@ var G;
 		PS.spritePlane(l1, HERA_PLANE);
 		PS.spriteShow(l1, false);
 		PS.spriteMove(l1, 5, 15);
-		chattyLadies[l1] = {mapPos: [1, 2],
-												phrase: "I like trees"};
+		chattyLadies[0][0].push({sprite: l1,
+														 phrase: "I like trees"});
+		
 		var l2 = PS.spriteSolid(2, 2);
 		PS.spriteSolidColor(l2, PS.COLOR_YELLOW);
 		PS.spritePlane(l2, HERA_PLANE);
 		PS.spriteShow(l2, false);
 		PS.spriteMove(l2, 7, 17);
-		chattyLadies[l2] = {mapPos: [1, 1],
-											 phrase: "Let's eat rocks"};
-		
-		var l3 = PS.spriteSolid(2, 2);
-		PS.spriteSolidColor(l3, PS.COLOR_YELLOW);
-		PS.spritePlane(l3, HERA_PLANE);
-		PS.spriteShow(l3, false);
-		PS.spriteMove(l3, 10, 8);
-		chattyLadies[l3] = {mapPos: [1, 0],
-											 phrase: "Follow me!"};
+		chattyLadies[0][0].push({sprite: l2,
+											 phrase: "Let's eat rocks"});
+//		
+//		var l3 = PS.spriteSolid(2, 2);
+//		PS.spriteSolidColor(l3, PS.COLOR_YELLOW);
+//		PS.spritePlane(l3, HERA_PLANE);
+//		PS.spriteShow(l3, false);
+//		PS.spriteMove(l3, 10, 8);
+//		chattyLadies[l3] = {mapPos: [0, 0],
+//											 phrase: "Follow me!"};
 	};
 	
-	var appearLadies = function(row, col) {
-		for(var key in chattyLadies) {
-			PS.spriteShow(key, false);
-			if(chattyLadies[key].mapPos[0] == row &&
-				chattyLadies[key].mapPos[1] == col)
-				PS.spriteShow(key, true);
+	var changeLadies = function(row, col, appear) {
+		for(var key in chattyLadies[row][col]) {
+			console.log(chattyLadies[row][col][key]);
+			PS.spriteShow(chattyLadies[row][col][key].sprite, appear);
 		}
 	};
 	
@@ -889,7 +927,9 @@ var G;
 			//incrementTutorial();
 			
 			//PS.statusText("Press spacebar to begin.");
-			PS.dbInit("echoesprototype", {login: G.finishInit});
+			//PS.dbInit("echoesprototype", {login: G.finishInit});
+			PS.dbInit("echoesprototype");
+			G.finishInit();
 
 			//For tut skips
 			//T.index = 20;
@@ -917,9 +957,14 @@ var G;
 			PS.spriteDelete(echoSprite);
 			PS.timerStop(idMoveTimer);
 			idMoveTimer = PS.timerStart(5, tick2);
-			loadMap(pond);
+			loadMap(map[mapPos[0]][mapPos[1]]);
 			G.initGhostEcho();
+			narcX = 1;
+			narcY = 15;
+			PS.spriteMove(narcSprite, narcX, narcY);
+			PS.spriteShow(narcSprite, true);
 			makeChattyLadies();
+			changeLadies(mapPos[0], mapPos[1], true);
 			echoActive = true;
 		},
 		
@@ -929,10 +974,11 @@ var G;
 				if(map[mapPos[0]].length > mapPos[1]+1) {
 					if(map[mapPos[0]][mapPos[1]+1] != null) {
 						loadMap(map[mapPos[0]][mapPos[1]+1]);
+						changeLadies(mapPos[0], mapPos[1], false);
 						mapPos = [mapPos[0], mapPos[1]+1];
 						echoX = 1;
 						PS.spriteMove(echoGhostSprite, 1, y);
-						appearLadies(mapPos[0], mapPos[1]);
+						changeLadies(mapPos[0], mapPos[1], true);
 						drawNarc(mapPos[0], mapPos[1]);
 					}
 				}
@@ -941,10 +987,11 @@ var G;
 				if(mapPos[1]-1 >= 0) {
 					if(map[mapPos[0]][mapPos[1]-1] != null) {
 						loadMap(map[mapPos[0]][mapPos[1]-1]);
+						changeLadies(mapPos[0], mapPos[1], false);
 						mapPos = [mapPos[0], mapPos[1]-1];
 						echoX = G.GRID_WIDTH-3;
 						PS.spriteMove(echoGhostSprite, G.GRID_WIDTH-3, y);
-						appearLadies(mapPos[0], mapPos[1]);
+						changeLadies(mapPos[0], mapPos[1], true);
 						drawNarc(mapPos[0], mapPos[1]);
 					}
 				}
@@ -953,10 +1000,11 @@ var G;
 				if(map.length > mapPos[0]+1) {
 					if(map[mapPos[0]+1][mapPos[1]] != null) {
 						loadMap(map[mapPos[0]+1][mapPos[1]]);
+						changeLadies(mapPos[0], mapPos[1], false);
 						mapPos = [mapPos[0]+1, mapPos[1]];
 						echoY = 2;
 						PS.spriteMove(echoGhostSprite, x, 2);
-						appearLadies(mapPos[0], mapPos[1]);
+						changeLadies(mapPos[0], mapPos[1], true);
 						drawNarc(mapPos[0], mapPos[1]);
 					}
 				}
@@ -965,10 +1013,11 @@ var G;
 				if(mapPos[0]-1 >= 0) {
 					if(map[mapPos[0]-1][mapPos[1]] != null) {
 						loadMap(map[mapPos[0]-1][mapPos[1]]);
+						changeLadies(mapPos[0], mapPos[1], false);
 						mapPos = [mapPos[0]-1, mapPos[1]];
 						echoY = G.GRID_HEIGHT-3;
 						PS.spriteMove(echoGhostSprite, x, G.GRID_HEIGHT-3);
-						appearLadies(mapPos[0], mapPos[1]);
+						changeLadies(mapPos[0], mapPos[1], true);
 						drawNarc(mapPos[0], mapPos[1]);
 						
 					}

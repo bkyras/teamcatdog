@@ -29,34 +29,16 @@ along with Perlenspiel. If not, see <http://www.gnu.org/licenses/>.
 
 // This is a template for creating new Perlenspiel games
 var G;
-var DEFAULT_COLOR = PS.COLOR_WHITE; //0
-var GROUND_COLOR = 0x579532; //1
 var PATH_COLOR = 0x883E19; //2
-var DIRT_COLOR = 0xAF623B; //3
-var TREE_COLOR = PS.COLOR_GREEN; //4
-var WATER_COLOR = PS.COLOR_BLUE; //5
+
 
 (function(){
 	G = {
 		GRID_WIDTH: 30,
 		GRID_HEIGHT: 30,
-		colors: [DEFAULT_COLOR, GROUND_COLOR, PATH_COLOR, DIRT_COLOR, TREE_COLOR, WATER_COLOR],
-		curColor: 1,
-		curSize: 1,
 		
-		statusChange : function() {
-			PS.statusText("Color: " + G.curColor + ", Size: " + G.curSize)
-		},
-		
-		incSize : function() {
-			if(G.curSize < 10)
-				G.curSize++;
-		},
-		
-		decSize : function() {
-			if(G.curSize > 1)
-				G.curSize--;
-		},
+		curSize : 1,
+		path: [],
 		
 		colorTiles : function(x, y) {
 			for(var i = 0; i < G.curSize; i++) {
@@ -64,27 +46,20 @@ var WATER_COLOR = PS.COLOR_BLUE; //5
 					var a = x+i < G.GRID_WIDTH;
 					var b = y+j < G.GRID_HEIGHT;
 					if(a && b) {
-						PS.color(x+i, y+j, G.colors[G.curColor]);
-						PS.data(x+i, y+j, G.curColor);
+						PS.color(x+i, y+j, PATH_COLOR);
+						PS.data(x+i, y+j, PATH_COLOR);
+						G.path.push([x+i, y+j]);
 					}
 				}
 			}
 		},
 		
 		outputMap: function() {
-			var map = [];
-			for(var row = 0; row < G.GRID_WIDTH; row++) {
-				var rowData = [];
-				for(var col = 0; col < G.GRID_HEIGHT; col++) {
-					rowData.push(PS.data(col, row));
-				}
-				map.push(rowData);
-			}
 			PS.debug("[");
-			for(var r = 0; r < G.GRID_HEIGHT; r++) {
-				PS.debug("[");
-				PS.debug(map[r]);
-				PS.debug("],\n");
+			for(var i = 0; i<G.path.length; i++) {
+				PS.debug("[")
+				PS.debug(G.path[i]);
+				PS.debug("],")
 			}
 			PS.debug("]");
 		}
@@ -109,7 +84,6 @@ PS.init = function( system, options ) {
 	PS.gridColor(0xDDDDDD);
 	PS.border(PS.ALL, PS.ALL, 0);
 	PS.data(PS.ALL, PS.ALL, 0);
-	G.statusChange();
 
 	// Add any other initialization code you need here
 };
@@ -196,80 +170,19 @@ PS.keyDown = function( key, shift, ctrl, options ) {
 
 	// Add code here for when a key is pressed
 	switch(key) {
-		case PS.KEY_PAD_0:
-			G.curColor = 0;
-			break;
-		case PS.KEY_PAD_1:
-			G.curColor = 1;
-			break;
-		case PS.KEY_PAD_2:
-			G.curColor = 2;
-			break;
-		case PS.KEY_PAD_3:
-			G.curColor = 3;
-			break;
-		case PS.KEY_PAD_4:
-			G.curColor = 4;
-			break;
-		case PS.KEY_PAD_5:
-			G.curColor = 5;
-			break;
 		case PS.KEY_ENTER:
 			G.outputMap();
-			break;
-		case PS.KEY_ARROW_UP:
-			G.incSize();
-			break;
-		case PS.KEY_ARROW_DOWN:
-			G.decSize();
-			break;
 	}
-	
-	G.statusChange();
 };
 
-// PS.keyUp ( key, shift, ctrl, options )
-// Called when a key on the keyboard is released
-// It doesn't have to do anything
-// [key] = ASCII code of the pressed key, or one of the PS.KEY constants documented at:
-// http://users.wpi.edu/~bmoriarty/ps/constants.html
-// [shift] = true if shift key is held down, false otherwise
-// [ctrl] = true if control key is held down, false otherwise
-// [options] = an object with optional parameters; see documentation for details
 
 PS.keyUp = function( key, shift, ctrl, options ) {
-	// Uncomment the following line to inspect parameters
-	// PS.debug( "PS.keyUp(): key = " + key + ", shift = " + shift + ", ctrl = " + ctrl + "\n" );
-
-	// Add code here for when a key is released
 };
 
-// PS.input ( sensors, options )
-// Called when an input device event (other than mouse/touch/keyboard) is detected
-// It doesn't have to do anything
-// [sensors] = an object with sensor information; see documentation for details
-// [options] = an object with optional parameters; see documentation for details
 
 PS.input = function( sensors, options ) {
-	// Uncomment the following block to inspect parameters
-	/*
-	PS.debug( "PS.input() called\n" );
-	var device = sensors.wheel; // check for scroll wheel
-	if ( device )
-	{
-		PS.debug( "sensors.wheel = " + device + "\n" );
-	}
-	*/
-	
-	// Add code here for when an input event is detected
 };
 
-// PS.shutdown ( options )
-// Called when the browser window running Perlenspiel is about to close
-// It doesn't have to do anything
-// [options] = an object with optional parameters; see documentation for details
 
 PS.shutdown = function( options ) {
-
-	// Add code here for when Perlenspiel is about to close
 };
