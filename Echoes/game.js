@@ -32,6 +32,7 @@ var G;
 (function(){
 	
 	var ECHO_LURE_SOUND = "fx_squawk";
+	var ECHO_FAIL_SOUND = "fx_silencer";
 	var LADY_SOUND = "fx_hoot";
 	var LADY_PLANE = 1, ZEUS_PLANE = 2, HERA_PLANE = 3, ECHO_PLANE = 4, NARC_PLANE = 5;
 	var LURE_RADIUS = 9;
@@ -195,11 +196,13 @@ var G;
 	var narcCollide = function() {
 		if (isPart2) {
 			if (!firstEnc) {
+				clearTutorial();
 				PS.statusText("");
 				PS.statusColor(PS.COLOR_RED);
 				customStatusText("'Who are you?'");
-				firstEnc = true;
-				setTimeout(function(){
+				firstEnc = true
+				T.index = 24;
+				T.timer = setTimeout(function(){
 					//T.index = 25;
 					incrementTutorial();
 				}, 3000);
@@ -240,7 +243,7 @@ var G;
 						y += 1;
 					break;
 			}
-		PS.spriteMove(sprite, x, y)
+		//PS.spriteMove(sprite, x, y)
 		return {xPos: x, yPos: y};
 	};
 
@@ -261,7 +264,7 @@ var G;
             pos = moveRandom(sprite, x, y);
         }
 
-        PS.spriteMove(sprite, pos.xPos, pos.yPos)
+        //PS.spriteMove(sprite, pos.xPos, pos.yPos)
         return {xPos: pos.xPos, yPos: pos.yPos};
     };
 	
@@ -273,19 +276,27 @@ var G;
 				PS.spriteSolidAlpha(heraSprite, 180);
 				var hx = hPath[0][0];
 				var hy = hPath[0][1]
-				PS.spriteMove(heraSprite, hx, hy)
-				heraX = hx;
-				heraY = hy;
+				if (isMoveValidPart1(heraSprite, hx, hy)) {
+					PS.spriteMove(heraSprite, hx, hy)
+					heraX = hx;
+					heraY = hy;
+				}
 				} else {
 					var pos = moveRandom(heraSprite, heraX, heraY);
-					heraX = pos.xPos;
-					heraY = pos.yPos;
+					if (isMoveValidPart1(heraSprite, pos.xPos, pos.yPos)) {
+						PS.spriteMove(heraSprite, pos.xPos, pos.yPos);
+						heraX = pos.xPos;
+						heraY = pos.yPos;
+					}
 				}
 		} else {
 			PS.spriteSolidAlpha(heraSprite, 255);
 			var pos = moveRandomHera(heraSprite, heraX, heraY);
-			heraX = pos.xPos;
-			heraY = pos.yPos;
+			if (isMoveValidPart1(heraSprite, pos.xPos, pos.yPos)) {
+				PS.spriteMove(heraSprite, pos.xPos, pos.yPos);
+				heraX = pos.xPos;
+				heraY = pos.yPos;
+			}
 		}
 	};
 	
@@ -298,7 +309,9 @@ var G;
 					PS.spriteSolidAlpha(spr, 180);
 					var lx = lPath[0][0];
 					var ly = lPath[0][1]
-					PS.spriteMove(spr, lx, ly)
+					if (isMoveValidPart1(spr, lx, ly)) {
+						PS.spriteMove(spr, lx, ly)
+					}
 				}
 			} else
 				PS.spriteSolidAlpha(spr, 255);
@@ -321,14 +334,19 @@ var G;
 			if(zPath.length > 1) {
 				var zx = zPath[0][0];
 				var zy = zPath[0][1]
-				PS.spriteMove(zeusSprite, zx, zy)
-				zeusX = zx;
-				zeusY = zy;
+				if (isMoveValidPart1(zeusSprite, zx, zy)) {
+					PS.spriteMove(zeusSprite, zx, zy)
+					zeusX = zx;
+					zeusY = zy;
 				}
+			}
 		} else {
 			var pos = moveRandom(zeusSprite, zeusX, zeusY);
-			zeusX = pos.xPos;
-			zeusY = pos.yPos;
+			if (isMoveValidPart1(zeusSprite, pos.xPos, pos.yPos)) {
+				PS.spriteMove(zeusSprite,pos.xPos, pos.yPos);
+				zeusX = pos.xPos;
+				zeusY = pos.yPos;
+			}
 		}
 	};
 	
@@ -352,16 +370,75 @@ var G;
 		if(nx == G.GRID_WIDTH-1 || ny == G.GRID_HEIGHT-1)
 			path = [];
 		else {
-			PS.spriteMove(spr, nx, ny);
-			echoX = nx;
-			echoY = ny;
+			if (isMoveValidPart1(spr, nx, ny)) {
+				PS.spriteMove(spr, nx, ny);
+				echoX = nx;
+				echoY = ny;
+				step++;  // uncomment here to get blocked normally
+			}
 		}
-		
-		step++;
+
+		//step++;  uncomment here for telepotting
 		
 		if ( step >= path.length ) {
 			path = [];
 		}
+	};
+
+	//returns true if a move will not cause sprites to be overlapped
+	var isMoveValidPart1 = function(spr, x, y) {
+		var log = false;
+
+		if (spr === echoSprite) {
+			log = true;
+		}
+
+		var collision = false;
+
+		var spriteList = [];
+		ladySprites.forEach(function(lSpr){
+			if (lSpr !== spr) {
+				spriteList.push(lSpr);
+				if (log) {
+					console.log("lady spr: " + lSpr);
+				}
+			}
+		});
+		if (heraSprite !== spr && heraActive) {
+			spriteList.push(heraSprite);
+			if (log) {
+				console.log("hera spr: " + heraSprite);
+			}
+		}
+		if (zeusSprite !== spr && zeusActive) {
+			spriteList.push(zeusSprite);
+			if (log) {
+				console.log("zeus spr: " + zeusSprite);
+			}
+		}
+		if (echoSprite !== spr && echoActive) {
+			spriteList.push(echoSprite);
+			if (log) {
+				console.log("echo spr: " + echoSprite);
+			}
+		}
+
+		spriteList.forEach(function(cSpr){
+			var cPos = PS.spriteMove(cSpr);
+			if (cPos.x >= x - 1 && cPos.x <= x + 1
+				&& cPos.y >= y - 1 && cPos.y <= y + 1) {
+				if (log) {
+					console.log("collision with sprite: " + cSpr);
+				}
+				collision = true;
+			}
+		});
+
+		if (log) {
+			console.log("");
+		}
+
+		return !collision;
 	};
 	
 	var spawnLady = function() {
@@ -453,8 +530,16 @@ var G;
 			}
 		}
 	};
+
+	var clearTutorial = function() {
+		T.numMoves = 0;
+		clearTimeout(T.timer);
+		T.timer = null;
+		T.onMove = function(){};
+	};
 	
 	var incrementTutorial = function() {
+		//console.log("function called from: " + incrementTutorial.caller);
 		T.index += 1;
 		T.numMoves = 0;
 		clearTimeout(T.timer);
@@ -676,6 +761,7 @@ var G;
 				customStatusText("You encounter Narcissus.");
 
 				initNarcissus();
+				idMoveTimer = PS.timerStart(5, tick);
 
 				T.timer = setTimeout(function(){
 					incrementTutorial();
@@ -690,8 +776,6 @@ var G;
 				break;
 			case 24:
 				customStatusText("Go on. Approach him.");
-
-				idMoveTimer = PS.timerStart(5, tick);
 				break;
 			case 25:
 				PS.statusText("");
@@ -703,9 +787,12 @@ var G;
 				PS.statusColor(PS.COLOR_RED);
 				customStatusText("'You're weird. Leave me alone.'");
 
+
+
 				timeRemaining = 12;
 				T.timer = setInterval(function(){
 					timeRemaining -= 1;
+					console.log(timeRemaining);
 					if (timeRemaining >= 0) {
 						narcX += 1;
 						PS.spriteMove(narcSprite,narcX,narcY);
@@ -919,6 +1006,7 @@ var G;
 			
 			idMoveTimer = PS.timerStart(5, tick); //uncomment for real game
 			PS.audioLoad(ECHO_LURE_SOUND);
+			PS.audioLoad(ECHO_FAIL_SOUND);
 			PS.audioLoad(LADY_SOUND);
 			ladiesActive = false;
 			G.initEcho(); //uncomment for real game
@@ -955,7 +1043,9 @@ var G;
 		initPart2: function() {
 			G.isPart2 = true;
 			PS.spriteDelete(echoSprite);
-			PS.timerStop(idMoveTimer);
+			if (idMoveTimer !== null) {
+				PS.timerStop(idMoveTimer);
+			}
 			idMoveTimer = PS.timerStart(5, tick2);
 			loadMap(map[mapPos[0]][mapPos[1]]);
 			G.initGhostEcho();
@@ -1090,20 +1180,34 @@ var G;
 		},
 		
 		lure : function() {
+			var valid = true;
 			if(lureCooldown == 0) {
 				if (isPart2 && !firstTalk) {
-					PS.statusText("");
-					PS.statusColor(PS.COLOR_CYAN);
-					customStatusText("'Who are you?'");
-					firstTalk = true;
-					setTimeout(function(){
-						incrementTutorial();
-					}, 3000);
+					if (firstEnc) {
+						clearTutorial();
+						PS.statusText("");
+						PS.statusColor(PS.COLOR_CYAN);
+						customStatusText("'Who are you?'");
+						firstTalk = true;
+						T.index = 25;
+						setTimeout(function(){
+							incrementTutorial();
+						}, 3000);
+					} else {
+						valid = false;
+					}
 				}
-				PS.audioPlay(ECHO_LURE_SOUND);
-				lure = 18; //num ticks to be lured for
-				lureCooldown = 30; //num ticks of lure cooldown (includes lured time)
-				PS.spriteSolidAlpha(echoSprite, 125);
+				if (valid) {
+					PS.audioPlay(ECHO_LURE_SOUND);
+					lure = 18; //num ticks to be lured for
+					lureCooldown = 30; //num ticks of lure cooldown (includes lured time)
+					PS.spriteSolidAlpha(echoSprite, 125);
+				} else {
+					PS.audioPlay(ECHO_FAIL_SOUND);
+					//lure = 18; //num ticks to be lured for
+					//lureCooldown = 30; //num ticks of lure cooldown (includes lured time)
+					//PS.spriteSolidAlpha(echoSprite, 125);
+				}
 			}
 		},
 		
