@@ -32,6 +32,7 @@ var G;
 (function(){
 	
 	var ECHO_LURE_SOUND = "fx_squawk";
+	var ECHO_FAIL_SOUND = "fx_silencer";
 	var LADY_SOUND = "fx_hoot";
 	var LADY_PLANE = 1, ZEUS_PLANE = 2, HERA_PLANE = 3, ECHO_PLANE = 4, NARC_PLANE = 5;
 	var LURE_RADIUS = 9;
@@ -967,6 +968,7 @@ var G;
 			
 			idMoveTimer = PS.timerStart(5, tick); //uncomment for real game
 			PS.audioLoad(ECHO_LURE_SOUND);
+			PS.audioLoad(ECHO_FAIL_SOUND);
 			PS.audioLoad(LADY_SOUND);
 			ladiesActive = false;
 			G.initEcho(); //uncomment for real game
@@ -1131,22 +1133,34 @@ var G;
 		},
 		
 		lure : function() {
+			var valid = true;
 			if(lureCooldown == 0) {
 				if (isPart2 && !firstTalk) {
-					clearTutorial();
-					PS.statusText("");
-					PS.statusColor(PS.COLOR_CYAN);
-					customStatusText("'Who are you?'");
-					firstTalk = true;
-					T.index = 25;
-					setTimeout(function(){
-						incrementTutorial();
-					}, 3000);
+					if (firstEnc) {
+						clearTutorial();
+						PS.statusText("");
+						PS.statusColor(PS.COLOR_CYAN);
+						customStatusText("'Who are you?'");
+						firstTalk = true;
+						T.index = 25;
+						setTimeout(function(){
+							incrementTutorial();
+						}, 3000);
+					} else {
+						valid = false;
+					}
 				}
-				PS.audioPlay(ECHO_LURE_SOUND);
-				lure = 18; //num ticks to be lured for
-				lureCooldown = 30; //num ticks of lure cooldown (includes lured time)
-				PS.spriteSolidAlpha(echoSprite, 125);
+				if (valid) {
+					PS.audioPlay(ECHO_LURE_SOUND);
+					lure = 18; //num ticks to be lured for
+					lureCooldown = 30; //num ticks of lure cooldown (includes lured time)
+					PS.spriteSolidAlpha(echoSprite, 125);
+				} else {
+					PS.audioPlay(ECHO_FAIL_SOUND);
+					//lure = 18; //num ticks to be lured for
+					//lureCooldown = 30; //num ticks of lure cooldown (includes lured time)
+					//PS.spriteSolidAlpha(echoSprite, 125);
+				}
 			}
 		},
 		
