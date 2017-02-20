@@ -370,11 +370,18 @@ var G;
 		if(nx == G.GRID_WIDTH-1 || ny == G.GRID_HEIGHT-1)
 			path = [];
 		else {
-			if (isMoveValidPart1(spr, nx, ny)) {
-				PS.spriteMove(spr, nx, ny);
+			if(echoGhostActive) {
+				PS.spriteMove(spr, nx, ny)
 				echoX = nx;
 				echoY = ny;
-				step++;  // uncomment here to get blocked normally
+				step++;
+			} else {
+				if (isMoveValidPart1(spr, nx, ny)) {
+					PS.spriteMove(spr, nx, ny);
+					echoX = nx;
+					echoY = ny;
+					step++;  // uncomment here to get blocked normally
+				}
 			}
 		}
 
@@ -786,9 +793,6 @@ var G;
 				PS.statusText("");
 				PS.statusColor(PS.COLOR_RED);
 				customStatusText("'You're weird. Leave me alone.'");
-
-
-
 				timeRemaining = 12;
 				T.timer = setInterval(function(){
 					timeRemaining -= 1;
@@ -957,7 +961,6 @@ var G;
 	
 	var changeLadies = function(row, col, appear) {
 		for(var key in chattyLadies[row][col]) {
-			console.log(chattyLadies[row][col][key]);
 			PS.spriteShow(chattyLadies[row][col][key].sprite, appear);
 		}
 	};
