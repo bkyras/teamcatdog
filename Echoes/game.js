@@ -129,7 +129,7 @@ var G;
 		if(lure > 0) {
 			lure--;
 			if (!isPart2) {
-				drawLure2();
+				drawLure2(lure);
 			}
 		}
 		
@@ -235,12 +235,12 @@ var G;
 		}
 	};
 
-	var drawLure2 = function() {
+	var drawLure2 = function(count) {
 		var x,y;
 		var plane = PS.gridPlane();
 		PS.gridPlane(LURE_PLANE);
 
-		var lure_transition = Math.floor(255 * (lure / MAX_LURE_TIMER));
+		var lure_transition = Math.floor(255 * (count / MAX_LURE_TIMER));
 
 		for (x = 0; x < LURE_RADIUS; x++) {
 			for (y = 0; y+x < LURE_RADIUS; y++) {
@@ -275,13 +275,24 @@ var G;
 	
 	var tick2 = function() {
 		if(!endGame) {
+            var drawLureInt = 0;
 			moveEcho(echoGhostSprite);
-			if(lure > 0)
-				lure--;
-			if(repel > 0)
-				repel--;
-			if(stop > 0)
-				stop--;
+            eraseLure();
+			if(lure > 0) {
+                drawLureInt = lure;
+                lure--;
+            }
+			if(repel > 0) {
+                drawLureInt = repel;
+                repel--;
+            }
+			if(stop > 0) {
+                drawLureInt = stop;
+                stop--;
+            }
+            if (drawLureInt > 0) {
+                drawLure2(drawLureInt);
+            }
 			if(lureCooldown > 0)
 				lureCooldown--;
 			moveNarc();
