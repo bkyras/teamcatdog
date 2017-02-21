@@ -301,7 +301,7 @@ var G;
 					if(pathToEcho(curLadies[i].sprite, false).pathed)
 						moveAhead = false;
 				} else if(repel > 0) {
-					if(pathFromEcho(curLadies[i].sprite).pathed)
+					if(pathFromEcho(curLadies[i].sprite, false).pathed)
 						moveAhead = false;
 				} else if(stop > 0){
 					if(checkWithinLure(ladyPos.x, ladyPos.y, narcX, narcY).isWithinDist)
@@ -330,7 +330,7 @@ var G;
 				narcY = nPos.y;
 				narcTime = 5;
 			} else if(repel > 0) {
-				var nPos = pathFromEcho(narcSprite, narcX, narcY).location;
+				var nPos = pathFromEcho(narcSprite, false, narcX, narcY).location;
 				if(narcX != nPos.x || narcY != nPos.y)
 					moveAhead = false;
 				narcX = nPos.x;
@@ -504,7 +504,7 @@ var G;
 		return PS.spriteMove(spr);
 	};
 	
-	var pathToEcho = function(spr, isPart1, sprX = PS.spriteMove(spr).x, sprY = PS.spriteMove(spr).y) {
+	var pathByEcho = function(spr, isPart1, isAttract, sprX, sprY) {
 		var checkLure = checkWithinLure(sprX, sprY, echoX, echoY);
 		var pathed = false;
 		if(checkLure.isWithinDist) {
@@ -512,31 +512,35 @@ var G;
 			//PS.spriteSolidAlpha(spr, 180);
 			var nx = checkLure.nPath[0][0];
 			var ny = checkLure.nPath[0][1]
+			//part 1 can only be attract
 			if(isPart1) {
 				if(isMoveValidPart1(spr, nx, ny)) {
 					PS.spriteMove(spr, nx, ny);
 				}
-			} else if (isMoveValidPart2(spr, nx, ny)){
-				PS.spriteMove(spr, nx, ny);
+			} else {
+				if(isAttract) {
+					if(isMoveValidPart2(spr, nx, ny)){
+						PS.spriteMove(spr, nx, ny);
+					}
+				} else {
+					//reverses direction for repel
+					var xdiff = (sprX - nx);
+					var ydiff = (sprY - ny);
+					if (isMoveValidPart2(spr, sprX + xdiff, sprY + ydiff)){
+						PS.spriteMove(spr, sprX + xdiff, sprY + ydiff);
+					}
+				}
 			}
 		}
 		return {pathed: pathed, location: PS.spriteMove(spr)};
 	};
 	
-	var pathFromEcho = function(spr, sprX = PS.spriteMove(spr).x, sprY = PS.spriteMove(spr).y) {
-		var checkLure = checkWithinLure(sprX, sprY, echoX, echoY);
-		var pathed = false;
-		if(checkLure.isWithinDist) {
-			pathed = true;
-			var nx = checkLure.nPath[0][0];
-			var ny = checkLure.nPath[0][1];
-			var xdiff = (sprX - nx);
-			var ydiff = (sprY - ny);
-      if (isMoveValidPart2(spr, sprX + xdiff, sprY + ydiff)){
-        PS.spriteMove(spr, sprX + xdiff, sprY + ydiff);
-      }
-		}
-		return {pathed: pathed, location: PS.spriteMove(spr)};
+	var pathToEcho = function(spr, isPart1, sprX = PS.spriteMove(spr).x, sprY = PS.spriteMove(spr).y) {
+		return pathByEcho(spr, isPart1, true, sprX, sprY);
+	};
+	
+	var pathFromEcho = function(spr, isPart1, sprX = PS.spriteMove(spr).x, sprY = PS.spriteMove(spr).y) {
+		return pathByEcho(spr, isPart1, false, sprX, sprY);
 	};
 
 	//returns true if a move will not cause sprites to be overlapped
