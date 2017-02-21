@@ -30,11 +30,13 @@ along with Perlenspiel. If not, see <http://www.gnu.org/licenses/>.
 var G;
 
 (function(){
-	
+
+	var AUDIO_PATH = "/"; //uncomment for placeholder audio
+	//var AUDIO PATH = "audio/"; //uncomment for custom audio
 	var ECHO_LURE_SOUND = "fx_squawk";
+	//var ECHO_LURE_SOUND = "echomumble";
 	var ECHO_FAIL_SOUND = "fx_silencer";
 	var LADY_SOUND = "fx_hoot";
-	var LADY_PLANE = 1, ZEUS_PLANE = 2, HERA_PLANE = 3, ECHO_PLANE = 4, NARC_PLANE = 5;
 	var LURE_RADIUS = 9;
 	var MAX_LADIES = 6;
 	
@@ -58,6 +60,7 @@ var G;
 	
 	var lure = 0;
 	var lureCooldown = 0;
+	var MAX_LURE_TIMER = 18;
 	var heraTime = 2, zeusTime = 4, ladyTime = 3, narcTime = 5;
 	
 	var idMoveTimer = "";
@@ -119,8 +122,12 @@ var G;
 			PS.spriteSolidAlpha(echoSprite, a+((255-a)/lureCooldown));
 			lureCooldown--;
 		}
-		if(lure > 0)
+
+		eraseLure();
+		if(lure > 0) {
 			lure--;
+			drawLure2();
+		}
 		
 		if(ladiesActive && ladySprites.length < MAX_LADIES && spawnLadyTimer == 0) {
 			spawnLady();
@@ -137,6 +144,92 @@ var G;
 		if (heraCaughtZeus) {
 			zeusGameOver();
 		}
+	};
+
+	var initLurePlane = function() {
+		var plane = PS.gridPlane();
+		PS.gridPlane(LURE_PLANE);
+		PS.color(PS.ALL,PS.ALL,LURE_COLOR);
+		PS.alpha(PS.ALL,PS.ALL,0);
+		PS.gridPlane(plane);
+	};
+
+	//doesn't work, use drawLure2() instead
+	//this looks cool though
+	var drawLure = function() {
+		var x, y;
+
+		var colorDiff = LURE_COLOR - GROUND_COLOR;
+		var bDiff = colorDiff % 255;
+		var gDiff = ((colorDiff - bDiff) / 255) % 255;
+		var rDiff = (((colorDiff - bDiff) / 255) - gDiff) / 255;
+
+		var bTrans = Math.floor(bDiff * (lure / MAX_LURE_TIMER));
+		var gTrans = Math.floor(gDiff * (lure / MAX_LURE_TIMER));
+		var rTrans = Math.floor(rDiff * (lure / MAX_LURE_TIMER));
+
+		var colorTrans = bTrans + (gTrans * 255) + (rTrans * 255 * 255);
+
+		var lure_transition = GROUND_COLOR + colorTrans;
+
+		for (x = 0; x < LURE_RADIUS; x++) {
+			for (y = 0; y+x < LURE_RADIUS; y++) {
+				if (echoX - x >= 0) {
+					if (echoY - y >= 0) {
+						PS.color(echoX-x,echoY-y,lure_transition);
+					}
+					if (echoY + y < G.GRID_HEIGHT) {
+						PS.color(echoX-x,echoY+y,lure_transition);
+					}
+				}
+				if (echoX + x < G.GRID_WIDTH) {
+					if (echoY - y >= 0) {
+						PS.color(echoX+x,echoY-y,lure_transition);
+					}
+					if (echoY + y < G.GRID_HEIGHT) {
+						PS.color(echoX+x,echoY+y,lure_transition);
+					}
+				}
+			}
+		}
+	};
+
+	var drawLure2 = function() {
+		var x,y;
+		var plane = PS.gridPlane();
+		PS.gridPlane(LURE_PLANE);
+
+		var lure_transition = Math.floor(255 * (lure / MAX_LURE_TIMER));
+
+		for (x = 0; x < LURE_RADIUS; x++) {
+			for (y = 0; y+x < LURE_RADIUS; y++) {
+				if (echoX - x >= 0) {
+					if (echoY - y >= 0) {
+						PS.alpha(echoX-x,echoY-y,lure_transition);
+					}
+					if (echoY + y < G.GRID_HEIGHT) {
+						PS.alpha(echoX-x,echoY+y,lure_transition);
+					}
+				}
+				if (echoX + x < G.GRID_WIDTH) {
+					if (echoY - y >= 0) {
+						PS.alpha(echoX+x,echoY-y,lure_transition);
+					}
+					if (echoY + y < G.GRID_HEIGHT) {
+						PS.alpha(echoX+x,echoY+y,lure_transition);
+					}
+				}
+			}
+		}
+
+		PS.gridPlane(plane);
+	};
+
+	var eraseLure = function() {
+		var plane = PS.gridPlane();
+		PS.gridPlane(LURE_PLANE);
+		PS.alpha(PS.ALL,PS.ALL,0);
+		PS.gridPlane(plane);
 	};
 	
 	var tick2 = function() {
@@ -394,11 +487,6 @@ var G;
 
 	//returns true if a move will not cause sprites to be overlapped
 	var isMoveValidPart1 = function(spr, x, y) {
-		var log = false;
-
-		if (spr === echoSprite) {
-			log = true;
-		}
 
 		var collision = false;
 
@@ -406,44 +494,25 @@ var G;
 		ladySprites.forEach(function(lSpr){
 			if (lSpr !== spr) {
 				spriteList.push(lSpr);
-				if (log) {
-					console.log("lady spr: " + lSpr);
-				}
 			}
 		});
 		if (heraSprite !== spr && heraActive) {
 			spriteList.push(heraSprite);
-			if (log) {
-				console.log("hera spr: " + heraSprite);
-			}
 		}
 		if (zeusSprite !== spr && zeusActive) {
 			spriteList.push(zeusSprite);
-			if (log) {
-				console.log("zeus spr: " + zeusSprite);
-			}
 		}
 		if (echoSprite !== spr && echoActive) {
 			spriteList.push(echoSprite);
-			if (log) {
-				console.log("echo spr: " + echoSprite);
-			}
 		}
 
 		spriteList.forEach(function(cSpr){
 			var cPos = PS.spriteMove(cSpr);
 			if (cPos.x >= x - 1 && cPos.x <= x + 1
 				&& cPos.y >= y - 1 && cPos.y <= y + 1) {
-				if (log) {
-					console.log("collision with sprite: " + cSpr);
-				}
 				collision = true;
 			}
 		});
-
-		if (log) {
-			console.log("");
-		}
 
 		return !collision;
 	};
@@ -1006,9 +1075,11 @@ var G;
 			
 			G.activeBoardHeight = G.GRID_HEIGHT;
 			G.activeBoardWidth = G.GRID_WIDTH;
+
+			initLurePlane();
 			
 			idMoveTimer = PS.timerStart(5, tick); //uncomment for real game
-			PS.audioLoad(ECHO_LURE_SOUND);
+			PS.audioLoad(ECHO_LURE_SOUND, {path : AUDIO_PATH, fileTypes : ["ogg", "mp3", "wav"]});
 			PS.audioLoad(ECHO_FAIL_SOUND);
 			PS.audioLoad(LADY_SOUND);
 			ladiesActive = false;
@@ -1202,7 +1273,7 @@ var G;
 				}
 				if (valid) {
 					PS.audioPlay(ECHO_LURE_SOUND);
-					lure = 18; //num ticks to be lured for
+					lure = MAX_LURE_TIMER; //num ticks to be lured for
 					lureCooldown = 30; //num ticks of lure cooldown (includes lured time)
 					PS.spriteSolidAlpha(echoSprite, 125);
 				} else {
