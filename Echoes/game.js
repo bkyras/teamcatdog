@@ -30,68 +30,6 @@ along with Perlenspiel. If not, see <http://www.gnu.org/licenses/>.
 var G;
 
 (function(){
-
-	var AUDIO_PATH = "/"; //uncomment for placeholder audio
-	//var AUDIO PATH = "audio/"; //uncomment for custom audio
-	var ECHO_LURE_SOUND = "fx_squawk";
-	//var ECHO_LURE_SOUND = "echomumble";
-	var ECHO_FAIL_SOUND = "fx_silencer";
-	var LADY_SOUND = "fx_hoot";
-	var LURE_RADIUS = 9;
-	var MAX_LADIES = 6;
-	
-	var echoSprite = "", echoActive = false;
-	var echoGhostSprite = "", echoGhostActive = false;
-	var heraSprite = "", heraActive = false;
-	var zeusSprite = "", zeusActive = false;
-	var narcSprite = "", narcActive = false;
-	var ladiesActive = false;
-	
-	var spawnLadyTimer = 50;
-	var ladySprites = [];
-	var forDeletion = [];
-	
-	var echoX = 14, echoY = 6;
-	var heraX = 12, heraY = 15;
-	var zeusX = 10, zeusY = 2;
-	var narcX = 14, narcY = 9;
-	var narcMapRow = 0, narcMapCol = 0;
-	var narcPathPos = 0;
-	
-	var lure = 0, repel = 0, stop = 0;
-	var lureCooldown = 0;
-	var MAX_LURE_TIMER = 18;
-	var heraTime = 2, zeusTime = 4, ladyTime = 3, narcTime = 5;
-	
-	var idMoveTimer = "";
-	var path = [];
-	var step = 0;
-	
-	var statusTextTimer = null;
-	var curStatText = "";
-	var fullStatText = ""; 
-	
-	var girlsEaten = 0;
-	var timeRemaining = 0;
-	var curseFlag = false;
-	var CURSE1 = 0xBBBBBB;
-	var CURSE2 = 0x777777;
-	
-	var heraCaughtZeus = false;
-
-	var isPart2 = false, isPart3 = false;
-	var firstEnc = false;
-	var firstTalk = false;
-	var endGame = false;
-	
-	var T; //variable containing tutorial functions. 
-	T = {
-		index : 0,
-		numMoves : 0,
-		timer : null,
-		onMove : function(){}
-	};
-	
 	var tick = function () {
 		if (G.gameover) {
 			return;
@@ -459,7 +397,7 @@ var G;
 	};
 	
 	var zeusGameOver = function() {
-		PS.statusText("Zeus got caught... refresh");
+		PS.statusText("Zeus got caught... try again");
 		PS.timerStop(idMoveTimer);
 		clearTimeout(T.timer);
 		clearInterval(T.timer);
@@ -780,432 +718,12 @@ var G;
 			repeatable = PS.statusText();
 		}
 	}
-	
-	var customStatusText = function (statusText) {
-		var characterDelay = 20;
-		
-		if (statusTextTimer !== null) {
-			clearInterval(statusTextTimer);
-			statusTextTimer = null;
-		}
-		
-		curStatText = "";
-		fullStatText = statusText;
-		statusTextTimer = setInterval(incrementStatusText, characterDelay);
-	};
-	
-	var incrementStatusText = function() {
-		curStatText = fullStatText.slice(0,curStatText.length + 1);
-		PS.statusText(curStatText);
-		
-		if(curStatText.length === fullStatText.length) {
-			clearInterval(statusTextTimer);
-			statusTextTimer = null;
-		}
-	};
-	
-	var activateBeads = function(newWidth, newHeight) {
-		var x, y;
-		
-		//should only use even values
-		G.activeBoardWidth = newWidth;
-		G.activeBoardHeight = newHeight;
-		
-		if (G.activeBoardWidth > G.GRID_WIDTH) {
-			G.activeBoardWidth = G.GRID_WIDTH;
-		}
-		
-		if (G.activeBoardHeight > G.GRID_HEIGHT) {
-			G.activeBoardHeight = G.GRID_HEIGHT;
-		}
-
-		for (x = 0; x < G.GRID_WIDTH; x++) {
-			for (y = 0; y < G.GRID_HEIGHT; y++) {
-				var dw = (2*x) + 1;
-				var lowBound = G.GRID_WIDTH - (G.activeBoardWidth + 1);
-				var upBound = G.GRID_WIDTH + (G.activeBoardWidth + 1);
-				if (y < G.activeBoardHeight && dw > lowBound && dw < upBound) {
-					PS.active(x,y,true);
-					PS.visible(x,y,true);
-				} else {
-					PS.visible(x,y,false);
-					PS.active(x,y,false);
-				}
-			}
-		}
-	};
 
 	var clearTutorial = function() {
 		T.numMoves = 0;
 		clearTimeout(T.timer);
 		T.timer = null;
 		T.onMove = function(){};
-	};
-	
-	var incrementTutorial = function() {
-        if (T.index !== 0 && !endGame) {
-            PS.dbEvent(DB_NAME, "Index", T.index, "Clicks", G.localClicks);
-        }
-        G.localClicks = 0;
-		T.index += 1;
-		T.numMoves = 0;
-		clearTimeout(T.timer);
-		T.timer = null;
-		T.onMove = function(){};
-		
-		var SMALL_WAIT = 3000;
-		var MEDIUM_WAIT = 5000;
-		
-		switch(T.index) {
-			case 1:
-				customStatusText("You are Echo, a nymph.");
-				T.timer = setTimeout(function(){
-					incrementTutorial();
-				}, SMALL_WAIT);
-				break;
-			case 2:
-				customStatusText("Click to move.");
-				T.onMove = function(){
-					T.numMoves += 1;
-					if (T.timer === null && T.numMoves > 1) {
-						incrementTutorial();
-					}
-				};
-				T.timer = setTimeout(function(){
-					if (T.numMoves > 1) {
-						incrementTutorial();
-					} else {
-						clearTimeout(T.timer);
-						T.timer = null;
-					}
-				}, SMALL_WAIT);
-				break;
-			case 3:
-				customStatusText("This is Hera, a Goddess.");
-				activateBeads(30,30);
-				G.initHera();
-				T.timer = setTimeout(function(){
-					incrementTutorial();
-				}, SMALL_WAIT);
-				break;
-			case 4:
-				customStatusText("Talk to Hera with Spacebar.");
-				T.timer = setTimeout(function(){
-					incrementTutorial();
-				}, SMALL_WAIT);
-				break;
-			case 5:
-				customStatusText("Hera will approach to listen.");
-				T.timer = setTimeout(function(){
-					incrementTutorial();
-				}, MEDIUM_WAIT);
-				break;
-			case 6:
-				customStatusText("So will regular ladies.");
-				ladiesActive = true;
-				spawnLady();
-				T.timer = setTimeout(function(){
-					incrementTutorial();
-				}, MEDIUM_WAIT);
-				break;
-			case 7:
-				customStatusText("Hera's husband, Zeus, is cheating.");
-				T.timer = setTimeout(function(){
-					incrementTutorial();
-				}, MEDIUM_WAIT);
-				break;
-			case 8:
-				customStatusText("Don't let Hera find him.");
-				T.timer = setTimeout(function(){
-					incrementTutorial();
-				}, MEDIUM_WAIT);
-				break;
-			case 9:
-				customStatusText("There he is now!");
-				G.initZeus();
-				T.timer = setTimeout(function(){
-					T.index = 10;
-					incrementTutorial();
-				}, MEDIUM_WAIT);
-				break;
-//			case 10:
-//				customStatusText("Keep Hera distracted by chatting.");
-//				T.timer = setTimeout(function(){
-//					incrementTutorial();
-//				}, MEDIUM_WAIT);
-//				break;
-			case 11:
-				customStatusText("Time remaining: 0m 30s  Ladies Loved: " + girlsEaten);
-				T.timer = setTimeout(function(){
-					incrementTutorial();
-				}, 1000);
-				break;
-			case 12:
-				timeRemaining = 30;
-				T.timer = setInterval(function(){
-					timeRemaining -= 1;
-					if (timeRemaining >= 0) {
-						PS.statusText("Time: " + Math.floor(timeRemaining / 60) +"m " + ("00" + timeRemaining % 60).slice(-2) + "s  Ladies Loved: " + girlsEaten);
-					} else {
-						clearInterval(T.timer);
-						T.timer = null;
-						incrementTutorial();
-					}
-				}, 1000);
-				break;
-			case 13:
-				customStatusText("Zeus got away! Good job!");
-				PS.timerStop(idMoveTimer);
-
-				deleteAllLadies();
-				deleteZeus();
-
-				//G.lastDbSend(true);
-				PS.spriteSolidAlpha(echoSprite, 255);
-				PS.spriteSolidAlpha(heraSprite, 255);
-				PS.spriteMove(echoSprite, 10, 7);
-				PS.spriteMove(heraSprite, 17, 7);
-				activateBeads(17,17);
-
-				T.timer = setTimeout(function(){
-					incrementTutorial();
-				}, MEDIUM_WAIT);
-				break;
-			case 14:
-				customStatusText("But Hera caught on.");
-				PS.spriteMove(heraSprite, 15, 7);
-
-				T.timer = setTimeout(function(){
-					incrementTutorial();
-				}, SMALL_WAIT);
-				break;
-			case 15:
-				customStatusText("She knows you distracted her.");
-				PS.spriteMove(echoSprite, 9, 7);
-				PS.spriteMove(heraSprite, 13, 7);
-
-				T.timer = setTimeout(function(){
-					incrementTutorial();
-				}, SMALL_WAIT);
-				break;
-			case 16:
-				customStatusText("Hera is furious.");
-				PS.spriteMove(echoSprite, 8, 7);
-				PS.spriteMove(heraSprite, 11, 7);
-
-				T.timer = setTimeout(function(){
-					incrementTutorial();
-				}, SMALL_WAIT);
-				break;
-			case 17:
-				customStatusText("She has cursed you.");
-				PS.spriteMove(echoSprite, 8, 7);
-				PS.spriteMove(heraSprite, 11, 7);
-
-				timeRemaining = 10;
-				curseFlag = true;
-				T.timer = setInterval(function(){
-					timeRemaining -= 1;
-					if (timeRemaining >= 0) {
-						if (curseFlag) {
-							PS.gridColor(CURSE1);
-							curseFlag = false;
-						} else {
-							PS.gridColor(CURSE2);
-							curseFlag = true;
-						}
-					} else {
-						clearInterval(T.timer);
-						T.timer = null;
-						incrementTutorial();
-					}
-				}, 250);
-				break;
-			case 18:
-				PS.spriteDelete(echoSprite);
-				echoActive = false;
-				PS.spriteDelete(heraSprite);
-				heraActive = false;
-				ladiesActive = false;
-
-				activateBeads(0,0);
-
-				customStatusText("You can no longer speak.");
-
-				T.timer = setTimeout(function(){
-					incrementTutorial();
-				}, SMALL_WAIT);
-				break;
-			case 19:
-				customStatusText("You can only repeat others.");
-
-				T.timer = setTimeout(function(){
-				 incrementTutorial();
-				 }, MEDIUM_WAIT);
-				break;
-			case 20:
-				customStatusText("Some time later...");
-
-				isPart2 = true;
-
-				T.timer = setTimeout(function(){
-					incrementTutorial();
-				}, SMALL_WAIT);
-				break;
-			case 21:
-				customStatusText("You're wandering the forest.");
-
-				activateBeads(20,20);
-				echoX = 8;
-				echoY = 9;
-				G.initEcho();
-
-				T.timer = setTimeout(function(){
-					incrementTutorial();
-				}, SMALL_WAIT);
-				break;
-			case 22:
-			    path = [];
-				customStatusText("You encounter Narcissus.");
-
-				initNarcissus();
-				idMoveTimer = PS.timerStart(5, tick);
-
-				T.timer = setTimeout(function(){
-					incrementTutorial();
-				}, MEDIUM_WAIT);
-				break;
-			case 23:
-				customStatusText("Narcissus is a total hottie.");
-
-				T.timer = setTimeout(function(){
-					incrementTutorial();
-				}, SMALL_WAIT);
-				break;
-			case 24:
-				customStatusText("Go on. Approach him.");
-				break;
-			case 25:
-				PS.statusText("");
-				PS.statusColor(PS.DEFAULT);
-				customStatusText("Now try talking to him.");
-				break;
-			case 26:
-				PS.statusText("");
-				PS.statusColor(PS.COLOR_RED);
-				customStatusText("'You're weird. Leave me alone.'");
-				timeRemaining = 12;
-				T.timer = setInterval(function(){
-					timeRemaining -= 1;
-					if (timeRemaining >= 0) {
-						narcX += 1;
-						PS.spriteMove(narcSprite,narcX,narcY);
-					} else {
-						if (narcSprite !== "") {
-							PS.spriteShow(narcSprite, false);
-						}
-						clearInterval(T.timer);
-						T.timer = null;
-						incrementTutorial();
-					}
-				}, 200);
-				break;
-			case 27:
-				PS.statusText("");
-				PS.statusColor(PS.DEFAULT);
-				customStatusText("Oh no. You got rejected.");
-
-				T.timer = setTimeout(function(){
-					incrementTutorial();
-				}, SMALL_WAIT);
-				break;
-			case 28:
-				customStatusText("You die of sadness.");
-
-				activateBeads(0,0);
-
-				T.timer = setTimeout(function(){
-					incrementTutorial();
-				}, SMALL_WAIT);
-				break;
-			case 29:
-				customStatusText("You want him for yourself...");
-
-				T.timer = setTimeout(function(){
-					incrementTutorial();
-				}, SMALL_WAIT);
-				break;
-			case 30:
-				customStatusText("Keep those nymphs away!");
-				isPart3 = true;
-
-				activateBeads(30,30);
-				G.initPart2();
-				
-				break;
-			case 31:
-				PS.statusColor(PS.COLOR_BLACK);
-				customStatusText("Narcissus looks at himself...");
-
-				T.timer = setTimeout(function(){
-					incrementTutorial();
-				}, SMALL_WAIT);
-				break;
-			case 32:
-				customStatusText("Wow, he really is hot.");
-
-				T.timer = setTimeout(function(){
-					incrementTutorial();
-				}, SMALL_WAIT);
-				break;
-			case 33:
-				customStatusText("So hot he dies staring.");
-
-				T.timer = setTimeout(function(){
-					incrementTutorial();
-				}, SMALL_WAIT);
-				break;
-			case 34:
-				activateBeads(0, 0);
-				customStatusText("At least you're together now.");
-				break;
-		}
-	};
-
-	var initNarcissus = function() {
-		narcSprite = PS.spriteSolid(2, 2);
-		PS.spritePlane(narcSprite, NARC_PLANE);
-		PS.spriteCollide(narcSprite, narcCollide);
-		PS.spriteSolidColor(narcSprite, PS.COLOR_MAGENTA);
-		PS.spriteMove(narcSprite, narcX, narcY);
-	};
-
-	var deleteAllLadies = function() {
-		ladySprites.forEach(function(spr){
-			PS.spriteDelete(spr);
-		});
-		ladySprites = [];
-	};
-
-	var deleteZeus = function() {
-		if (zeusSprite !== "") {
-			PS.spriteDelete(zeusSprite);
-		}
-		zeusActive = false;
-	};
-
-	var deleteHera = function() {
-		if (heraSprite !== "") {
-			PS.spriteDelete(heraSprite);
-		}
-		heraActive = false;
-	};
-
-	var deleteEcho = function() {
-		if (echoSprite !== "") {
-			PS.spriteDelete(echoSprite);
-		}
-		echoActive = false;
 	};
 	
 	var drawNarc = function(row, col) {
@@ -1239,30 +757,32 @@ var G;
 			stop = 18;
 			lureCooldown = 30;
 		}
-	}
+	};
 	
-	var ladyReact = function(spr, phrase) {
-//		if(phrase.includes("come")) {
-//			PS.spriteMove(spr, )
-//		}
+	var dirMove = function(mapX, mapY) {
+		if(map[mapX][mapY] != null) {
+			loadMap(map[mapX][mapY]);
+			changeLadies(mapPos[0], mapPos[1], false);
+			mapPos = [mapX, mapY];
+			changeLadies(mapPos[0], mapPos[1], true);
+			drawNarc(mapPos[0], mapPos[1]);
+			return true;
+		}
+		return false;
 	};
 	
 	G = {
 		GRID_HEIGHT : 30,
 		GRID_WIDTH : 30,
-		
-		gameover: false,
 	
 		activeBoardWidth : null,
 		activeBoardHeight : null,
 		
+		gameover: false,
 		gameStarted : false,
-
 		isPart2 : false,
-
-        gameOverPart3 : false,
-
-        localClicks : 0,
+    gameOverPart3 : false,
+		localClicks : 0,
 		
 		init : function() {
 			PS.gridSize(G.GRID_WIDTH, G.GRID_HEIGHT);
@@ -1276,18 +796,17 @@ var G;
 			initLurePlane();
 			initGlyphPlace();
 			
-			idMoveTimer = PS.timerStart(5, tick); //uncomment for real game
+			G.restartTimer();
 			//PS.audioLoad(ECHO_LURE_SOUND, {path : AUDIO_PATH, fileTypes : ["ogg", "mp3", "wav"]});
-            PS.audioLoad(ECHO_LURE_SOUND);
+      PS.audioLoad(ECHO_LURE_SOUND);
 			PS.audioLoad(ECHO_FAIL_SOUND);
 			PS.audioLoad(LADY_SOUND);
 			ladiesActive = false;
-			G.initEcho(); //uncomment for real game
+			G.initEcho();
 			activateBeads(30,30);
 			
 			//incrementTutorial();
 			
-			//PS.statusText("Press spacebar to begin.");
 			PS.dbInit(DB_NAME, {login: G.finishInit});
 			//PS.dbInit(DB_NAME);
 			//G.finishInit();
@@ -1335,54 +854,33 @@ var G;
 			// RIGHT same row, +1 col
 			if(x==G.GRID_WIDTH-2) {
 				if(map[mapPos[0]].length > mapPos[1]+1) {
-					if(map[mapPos[0]][mapPos[1]+1] != null) {
-						loadMap(map[mapPos[0]][mapPos[1]+1]);
-						changeLadies(mapPos[0], mapPos[1], false);
-						mapPos = [mapPos[0], mapPos[1]+1];
+					if(dirMove(mapPos[0], mapPos[1]+1)) {
 						echoX = 1;
-						PS.spriteMove(echoGhostSprite, 1, y);
-						changeLadies(mapPos[0], mapPos[1], true);
-						drawNarc(mapPos[0], mapPos[1]);
+						PS.spriteMove(echoGhostSprite, echoX, y);
 					}
 				}
 				// LEFT same row, -1 col
 			} else if(x==0) {
 				if(mapPos[1]-1 >= 0) {
-					if(map[mapPos[0]][mapPos[1]-1] != null) {
-						loadMap(map[mapPos[0]][mapPos[1]-1]);
-						changeLadies(mapPos[0], mapPos[1], false);
-						mapPos = [mapPos[0], mapPos[1]-1];
+					if(dirMove(mapPos[0], mapPos[1]-1)) {
 						echoX = G.GRID_WIDTH-3;
-						PS.spriteMove(echoGhostSprite, G.GRID_WIDTH-3, y);
-						changeLadies(mapPos[0], mapPos[1], true);
-						drawNarc(mapPos[0], mapPos[1]);
+						PS.spriteMove(echoGhostSprite, echoX, y);
 					}
 				}
 				// DOWN +1 row, same col
 			} else if(y==G.GRID_HEIGHT-2) {
 				if(map.length > mapPos[0]+1) {
-					if(map[mapPos[0]+1][mapPos[1]] != null) {
-						loadMap(map[mapPos[0]+1][mapPos[1]]);
-						changeLadies(mapPos[0], mapPos[1], false);
-						mapPos = [mapPos[0]+1, mapPos[1]];
+					if(dirMove(mapPos[0]+1, mapPos[1])) {
 						echoY = 2;
-						PS.spriteMove(echoGhostSprite, x, 2);
-						changeLadies(mapPos[0], mapPos[1], true);
-						drawNarc(mapPos[0], mapPos[1]);
+						PS.spriteMove(echoGhostSprite, x, echoY);
 					}
 				}
 				// UP -1 row, same col
 			} else if(y==0) {
 				if(mapPos[0]-1 >= 0) {
-					if(map[mapPos[0]-1][mapPos[1]] != null) {
-						loadMap(map[mapPos[0]-1][mapPos[1]]);
-						changeLadies(mapPos[0], mapPos[1], false);
-						mapPos = [mapPos[0]-1, mapPos[1]];
+					if(dirMove(mapPos[0]-1, mapPos[1])) {
 						echoY = G.GRID_HEIGHT-3;
-						PS.spriteMove(echoGhostSprite, x, G.GRID_HEIGHT-3);
-						changeLadies(mapPos[0], mapPos[1], true);
-						drawNarc(mapPos[0], mapPos[1]);
-						
+						PS.spriteMove(echoGhostSprite, x, echoY);
 					}
 				}
 			}
@@ -1447,6 +945,14 @@ var G;
 			heraActive = true;
 		},
 		
+		initNarcissus : function() {
+			narcSprite = PS.spriteSolid(2, 2);
+			PS.spritePlane(narcSprite, NARC_PLANE);
+			PS.spriteCollide(narcSprite, narcCollide);
+			PS.spriteSolidColor(narcSprite, PS.COLOR_MAGENTA);
+			PS.spriteMove(narcSprite, narcX, narcY);
+		},
+		
 		move : function(x, y) {
 			step = 0;
 			path = PS.line(echoX, echoY, x, y);
@@ -1502,45 +1008,45 @@ var G;
 			heraCaughtZeus = false;
 			T.index = 10;
 			incrementTutorial();
-			idMoveTimer = PS.timerStart(5, tick);
+			G.restartTimer();
 		},
 
-        restartPart2 : function() {
-            G.gameOverPart3 = false;
+		restartPart2 : function() {
+			G.gameOverPart3 = false;
 
-            loadMap(map[mapPos[0]][mapPos[1]]);
+			loadMap(map[mapPos[0]][mapPos[1]]);
 
-            path = [];
-            echoX = 14;
-            echoY = 20;
-            PS.spriteMove(echoGhostSprite, echoX, echoY);
-            echoGhostActive = true;
+			path = [];
+			echoX = 14;
+			echoY = 20;
+			PS.spriteMove(echoGhostSprite, echoX, echoY);
+			echoGhostActive = true;
 
-					//change
-						var nPath = narcPaths[mapPos[0]][mapPos[1]];
-            narcX = nPath[0][0];
-            narcY = nPath[0][1];
-            PS.spriteMove(narcSprite, narcX, narcY);
-            PS.spriteShow(narcSprite, true);
+			//change
+			var nPath = narcPaths[mapPos[0]][mapPos[1]];
+			narcX = nPath[0][0];
+			narcY = nPath[0][1];
+			PS.spriteMove(narcSprite, narcX, narcY);
+			PS.spriteShow(narcSprite, true);
 
-            chattyLadies.forEach(function(maprow){
-                maprow.forEach(function(map){
-                    map.forEach(function(lady){
-                        PS.spriteMove(lady.sprite,lady.originX,lady.originY);
-                    });
-                });
-            });
-            narcLadies.forEach(function(maprow){
-                maprow.forEach(function(map){
-                    map.forEach(function(lady){
-                        PS.spriteMove(lady.sprite,lady.originX,lady.originY);
-                    });
-                });
-            });
-            echoActive = true;
+			chattyLadies.forEach(function(maprow){
+				maprow.forEach(function(map){
+					map.forEach(function(lady){
+						PS.spriteMove(lady.sprite,lady.originX,lady.originY);
+					});
+				});
+			});
+			narcLadies.forEach(function(maprow){
+				maprow.forEach(function(map){
+						map.forEach(function(lady){
+							PS.spriteMove(lady.sprite,lady.originX,lady.originY);
+						});
+				});
+			});
+			echoActive = true;
 
-            idMoveTimer = PS.timerStart(5, tick2);
-        },
+			idMoveTimer = PS.timerStart(5, tick2);
+		},
 		
 		lastDbSend : function(won) {
 			if(won)
@@ -1553,31 +1059,24 @@ var G;
 		
 		startTutorial : function() {
 			incrementTutorial();
+		},
+		
+		restartTimer : function() {
+			idMoveTimer = PS.timerStart(5, tick);
 		}
 	};
 }());
 
 
-// This is a template for creating new Perlenspiel games
-
 // All of the functions below MUST exist, or the engine will complain!
 /**********************************************************************************/
 
 PS.init = function( system, options ) {
-	// Use PS.gridSize( x, y ) to set the grid to
-	// the initial dimensions you want (32 x 32 maximum)
-	// Do this FIRST to avoid problems!
-	// Otherwise you will get the default 8x8 grid
-	
 	G.init();
-	// Add any other initialization code you need here
 };
 
 
 PS.touch = function( x, y, data, options ) {
-	// Uncomment the following line to inspect parameters
-	// PS.debug( "PS.touch() @ " + x + ", " + y + "\n" );
-
 	// Add code here for mouse clicks/touches over a bead
 //	if(!G.gameover){
 //		PS.dbEvent("echoesprototype", "mouseclick", "true");
@@ -1595,48 +1094,14 @@ PS.touch = function( x, y, data, options ) {
 	}
 };
 
-
-PS.release = function( x, y, data, options ) {
-	// Uncomment the following line to inspect parameters
-	// PS.debug( "PS.release() @ " + x + ", " + y + "\n" );
-
-	// Add code here for when the mouse button/touch is released over a bead
-};
-
-
 PS.enter = function( x, y, data, options ) {
-	// Uncomment the following line to inspect parameters
-	// PS.debug( "PS.enter() @ " + x + ", " + y + "\n" );
-
 	if (options.touching) {
 		//PS.dbEvent("echoesprototype", "mouseclick", "true");
 		G.move(x, y);
 	}
-	
-	// Add code here for when the mouse cursor/touch enters a bead
 };
-
-
-PS.exit = function( x, y, data, options ) {
-	// Uncomment the following line to inspect parameters
-	// PS.debug( "PS.exit() @ " + x + ", " + y + "\n" );
-
-	// Add code here for when the mouse cursor/touch exits a bead
-};
-
-
-PS.exitGrid = function( options ) {
-	// Uncomment the following line to verify operation
-	// PS.debug( "PS.exitGrid() called\n" );
-	// Add code here for when the mouse cursor/touch moves off the grid
-};
-
 
 PS.keyDown = function( key, shift, ctrl, options ) {
-	// Uncomment the following line to inspect parameters
-	//	PS.debug( "DOWN: key = " + key + ", shift = " + shift + "\n" );
-
-	// Add code here for when a key is pressed
 	if (key == 32) {
 		if (!G.isPart2) {
 			if(!G.gameover){
@@ -1657,33 +1122,23 @@ PS.keyDown = function( key, shift, ctrl, options ) {
 	}
 };
 
-
-PS.keyUp = function( key, shift, ctrl, options ) {
-	// Uncomment the following line to inspect parameters
-	// PS.debug( "PS.keyUp(): key = " + key + ", shift = " + shift + ", ctrl = " + ctrl + "\n" );
-
-	// Add code here for when a key is released
-};
-
-
-PS.input = function( sensors, options ) {
-	// Uncomment the following block to inspect parameters
-	/*
-	PS.debug( "PS.input() called\n" );
-	var device = sensors.wheel; // check for scroll wheel
-	if ( device )
-	{
-		PS.debug( "sensors.wheel = " + device + "\n" );
-	}
-	*/
-	
-	// Add code here for when an input event is detected
-};
-
-
 PS.shutdown = function( options ) {
-	// Add code here for when Perlenspiel is about to close
     PS.dbEvent(DB_NAME, "endgame", "closed");
     PS.dbSend(DB_NAME, ["nchaput", "bsheridan"], {discard: true});
     //PS.dbErase(DB_NAME);
+};
+
+PS.release = function( x, y, data, options ) {
+};
+
+PS.keyUp = function( key, shift, ctrl, options ) {
+};
+
+PS.input = function( sensors, options ) {
+};
+
+PS.exit = function( x, y, data, options ) {
+};
+
+PS.exitGrid = function( options ) {
 };
