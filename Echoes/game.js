@@ -609,13 +609,13 @@ var G;
 	
 	var setPhraseAbility = function(phrase) {
 		if(phrase.includes("Come")) {
-			lure = 18; //num ticks to be lured for
-			lureCooldown = 30; //num ticks of lure cooldown (includes lured time)
+			lure = MAX_LURE_TIMER;
+			lureCooldown = 30;
 		} else if(phrase.includes("Leave")) {
-			repel = 18;
+			repel = MAX_LURE_TIMER;
 			lureCooldown = 30;
 		} else if(phrase.includes("Stop")) {
-			stop = 18;
+			stop = MAX_LURE_TIMER;
 			lureCooldown = 30;
 		}
 	};
@@ -845,9 +845,6 @@ var G;
 					PS.spriteSolidAlpha(echoSprite, 125);
 				} else {
 					PS.audioPlay(ECHO_FAIL_SOUND);
-					//lure = 18; //num ticks to be lured for
-					//lureCooldown = 30; //num ticks of lure cooldown (includes lured time)
-					//PS.spriteSolidAlpha(echoSprite, 125);
 				}
 			}
 		},

@@ -22,6 +22,7 @@ var ECHO_LURE_SOUND = "fx_squawk";
 var ECHO_FAIL_SOUND = "fx_silencer";
 var LADY_SOUND = "fx_hoot";
 
+var MAX_LURE_TIMER = 18;
 var LURE_RADIUS = 9;
 var MAX_LADIES = 6;
 
@@ -47,7 +48,6 @@ var narcPathPos = 0;
 
 var lure = 0, repel = 0, stop = 0;
 var lureCooldown = 0;
-var MAX_LURE_TIMER = 18;
 var heraTime = 2, zeusTime = 4, ladyTime = 3, narcTime = 5;
 
 var idMoveTimer = "";
