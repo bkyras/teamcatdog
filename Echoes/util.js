@@ -8,6 +8,8 @@ var TREE_COLOR = PS.COLOR_GREEN; //4
 var WATER_COLOR = PS.COLOR_BLUE; //5
 var LURE_COLOR = 0xA6F776;
 var HEART_COLOR = 0xF775E1;
+var CURSE1 = 0xBBBBBB;
+var CURSE2 = 0x777777;
 
 var DB_NAME = "ECHOES_V2_db";
 
@@ -60,8 +62,6 @@ var repeatable = "";
 var girlsEaten = 0;
 var timeRemaining = 0;
 var curseFlag = false;
-var CURSE1 = 0xBBBBBB;
-var CURSE2 = 0x777777;
 
 var heraCaughtZeus = false;
 
@@ -70,7 +70,7 @@ var firstEnc = false;
 var firstTalk = false;
 var endGame = false;
 
-/**LEVELDATA*****************************************/
+/**LEVELDATA AND RELATED FUNCTIONS*****************************************/
 
 var road = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
 [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -241,7 +241,7 @@ var narcPaths = [[narcPath1, narcPath2, narcPath3],
 								 [null, null, narcPath4]];
 
 
-/**GENERAL UTILITY FUNCTIONS*****************************************/
+/**VISUAL UTILITY FUNCTIONS*****************************************/
 
 var activateBeads = function(newWidth, newHeight) {
 	var x, y;
@@ -297,6 +297,60 @@ var incrementStatusText = function() {
 	}
 };
 
+var initLurePlane = function() {
+	var plane = PS.gridPlane();
+	PS.gridPlane(LURE_PLANE);
+
+	PS.color(PS.ALL,PS.ALL,LURE_COLOR);
+	PS.alpha(PS.ALL,PS.ALL,0);
+
+	PS.gridPlane(plane);
+};
+
+var initGlyphPlace = function() {
+	var plane = PS.gridPlane();
+	PS.gridPlane(GLYPH_PLANE);
+
+	PS.glyph(PS.ALL,PS.ALL,10084);
+	PS.glyphColor(PS.ALL,PS.ALL,HEART_COLOR);
+	PS.glyphAlpha(PS.ALL,PS.ALL,0);
+
+	PS.gridPlane(plane);
+};
+
+var fadeGlyphs = function() {
+	var x,y;
+	var plane = PS.gridPlane();
+	PS.gridPlane(GLYPH_PLANE);
+	var RATE = 30;
+
+	for (x = 0; x < G.GRID_WIDTH; x++) {
+		for (y = 0; y < G.GRID_HEIGHT; y++) {
+			PS.glyphAlpha(x,y,PS.glyphAlpha(x,y) - RATE);
+		}
+	}
+
+	PS.gridPlane(plane);
+};
+
+var showGlyphs = function(x,y) {
+	var x,y;
+	var plane = PS.gridPlane();
+	PS.gridPlane(GLYPH_PLANE);
+
+	PS.glyphAlpha(x,y,255);
+
+	PS.gridPlane(plane);
+};
+
+var eraseLure = function() {
+	var plane = PS.gridPlane();
+	PS.gridPlane(LURE_PLANE);
+	PS.alpha(PS.ALL,PS.ALL,0);
+	PS.gridPlane(plane);
+};
+
+
 /**PART 2 UTILITY FUNCTIONS*****************************************/
 
 var chattyLadies = [[[], [], []],
@@ -344,6 +398,17 @@ var makeChattyLadies = function() {
 	addChatter(0, 1, 11, 6, "Leave me alone!");
 	addChatter(0, 2, 11, 8, "Stop right there!");
 	addChatter(0, 2, 15, 5, "Come over here!");
+};
+
+
+/**GENERAL UTILITY FUNCTIONS*****************************************/
+
+var hasCoord = function(pathArray, coord) {
+	for(var i = 0; i < pathArray.length; i++) {
+		if(pathArray[i][0] == coord[0] && pathArray[i][1] == coord[1])
+			return {found: true, coord: i};
+	}
+	return {found: false, coord: -1};
 };
 
 
