@@ -407,12 +407,8 @@ var G;
 					}
 					else {
 						endGame = true;
-                        if (PS.dbValid(DB_NAME)) {
-                            PS.dbEvent(DB_NAME, "Game Won", 1);
-                            PS.dbSend(DB_NAME, ["nchaput", "bsheridan"], {discard: true, message: "Thanks for playing!"});
-                        } else {
-                            console.log("I am cry");
-                        }
+                        PS.dbEvent(DB_NAME, "Game Won", 1);
+                        PS.dbSend(DB_NAME, ["nchaput", "bsheridan"], {discard: true, message: "Thanks for playing!"});
 						incrementTutorial();
 					}
 					narcPathPos = 0;
@@ -847,10 +843,8 @@ var G;
 	};
 	
 	var incrementTutorial = function() {
-        if (T.index !== 0) {
-            if (PS.dbValid(DB_NAME)) {
-                PS.dbEvent(DB_NAME, "Index", T.index, "Clicks", G.localClicks);
-            }
+        if (T.index !== 0 && !endGame) {
+            PS.dbEvent(DB_NAME, "Index", T.index, "Clicks", G.localClicks);
         }
         G.localClicks = 0;
 		T.index += 1;
@@ -1591,16 +1585,12 @@ PS.touch = function( x, y, data, options ) {
 //	}
     G.localClicks += 1;
     if (G.gameOverPart3) {
-        if (PS.dbValid(DB_NAME)) {
-            PS.dbEvent(DB_NAME, "restartPart2", 1);
-        }
+        PS.dbEvent(DB_NAME, "restartPart2", 1);
         G.restartPart2();
     } else if (!G.gameover) {
 		G.move(x, y);
 	} else {
-        if (PS.dbValid(DB_NAME)) {
-            PS.dbEvent(DB_NAME, "restartPart1", 1);
-        }
+        PS.dbEvent(DB_NAME, "restartPart1", 1);
 		G.restart();
 	}
 };
@@ -1650,9 +1640,7 @@ PS.keyDown = function( key, shift, ctrl, options ) {
 	if (key == 32) {
 		if (!G.isPart2) {
 			if(!G.gameover){
-                if (PS.dbValid(DB_NAME)) {
-                    PS.dbEvent(DB_NAME, "spacebar", "true");
-                }
+                PS.dbEvent(DB_NAME, "spacebar", "true");
 				G.lure();
 			} else {
 				G.restart();
@@ -1695,9 +1683,7 @@ PS.input = function( sensors, options ) {
 
 PS.shutdown = function( options ) {
 	// Add code here for when Perlenspiel is about to close
-    if (PS.dbValid(DB_NAME)) {
-        PS.dbEvent(DB_NAME, "endgame", "closed");
-        PS.dbSend(DB_NAME, ["nchaput", "bsheridan"], {discard: true});
-        //PS.dbErase(DB_NAME);
-    }
+    PS.dbEvent(DB_NAME, "endgame", "closed");
+    PS.dbSend(DB_NAME, ["nchaput", "bsheridan"], {discard: true});
+    //PS.dbErase(DB_NAME);
 };
