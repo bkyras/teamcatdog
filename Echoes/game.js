@@ -82,6 +82,7 @@ var G;
 	var isPart2 = false, isPart3 = false;
 	var firstEnc = false;
 	var firstTalk = false;
+	var endGame = false;
 	
 	var T; //variable containing tutorial functions. 
 	T = {
@@ -274,18 +275,20 @@ var G;
 	};
 	
 	var tick2 = function() {
-		moveEcho(echoGhostSprite);
-		if(lure > 0)
-			lure--;
-		if(repel > 0)
-			repel--;
-		if(stop > 0)
-			stop--;
-		if(lureCooldown > 0)
-			lureCooldown--;
-		moveNarc();
-		movePart2Ladies();
-		G.mapMove(echoX, echoY);
+		if(!endGame) {
+			moveEcho(echoGhostSprite);
+			if(lure > 0)
+				lure--;
+			if(repel > 0)
+				repel--;
+			if(stop > 0)
+				stop--;
+			if(lureCooldown > 0)
+				lureCooldown--;
+			moveNarc();
+			movePart2Ladies();
+			G.mapMove(echoX, echoY);
+		}
 	}
 
 	var hasCoord = function(pathArray, coord) {
@@ -377,9 +380,21 @@ var G;
 					}
 				}
 				if(endOfPath) {
-					PS.spriteShow(narcSprite, false);
-					narcMapCol += 1;
+					if(narcMapCol != 2) {
+						narcMapCol += 1;
+						PS.spriteShow(narcSprite, false);
+					}
+					else if(narcMapRow != 1) {
+						narcMapRow +=1;
+						PS.spriteShow(narcSprite, false);
+					}
+					else {
+						endGame = true;
+					}
 					narcPathPos = 0;
+					var newPos = narcPaths[narcMapRow][narcMapCol][narcPathPos];
+					narcX = newPos[0];
+					narcY = newPos[1];
 				}
 			}
 		}
