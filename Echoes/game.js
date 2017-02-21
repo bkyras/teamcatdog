@@ -82,6 +82,8 @@ var G;
 	var isPart2 = false, isPart3 = false;
 	var firstEnc = false;
 	var firstTalk = false;
+
+    var gameOverPart3 = false;
 	
 	var T; //variable containing tutorial functions. 
 	T = {
@@ -389,7 +391,26 @@ var G;
 	var narcCollide = function(s1, p1, s2, p2, type) {
 		if(isPart3) {
 			if(narcLadies[mapPos[0]][mapPos[1]].includes(s2)) {
-				//END, RESTART STAGE
+				gameOverPart3 = true;
+                if (idMoveTimer !== null) {
+                    PS.timerStop(idMoveTimer);
+                }
+                //idMoveTimer = PS.timerStart(5, tick2);
+                loadMap(map[mapPos[0]][mapPos[1]]);
+
+                echoX = 14;
+                echoY = 20;
+                PS.spriteMove(echoGhostSprite, echoX, echoY);
+                echoGhostActive = true;
+
+                narcX = 1;
+                narcY = 15;
+                PS.spriteMove(narcSprite, narcX, narcY);
+                PS.spriteShow(narcSprite, true);
+
+                makeChattyLadies();
+                changeLadies(mapPos[0], mapPos[1], true);
+                echoActive = true;
 			}
 		} else if(isPart2) {
 			if (!firstEnc) {
