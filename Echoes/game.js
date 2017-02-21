@@ -87,92 +87,6 @@ var G;
 		}
 	};
 
-	var initLurePlane = function() {
-		var plane = PS.gridPlane();
-		PS.gridPlane(LURE_PLANE);
-
-		PS.color(PS.ALL,PS.ALL,LURE_COLOR);
-		PS.alpha(PS.ALL,PS.ALL,0);
-
-		PS.gridPlane(plane);
-	};
-
-	var initGlyphPlace = function() {
-		var plane = PS.gridPlane();
-		PS.gridPlane(GLYPH_PLANE);
-
-		PS.glyph(PS.ALL,PS.ALL,10084);
-		PS.glyphColor(PS.ALL,PS.ALL,HEART_COLOR);
-		PS.glyphAlpha(PS.ALL,PS.ALL,0);
-
-		PS.gridPlane(plane);
-	};
-
-	var fadeGlyphs = function() {
-		var x,y;
-		var plane = PS.gridPlane();
-		PS.gridPlane(GLYPH_PLANE);
-		var RATE = 30;
-
-		for (x = 0; x < G.GRID_WIDTH; x++) {
-			for (y = 0; y < G.GRID_HEIGHT; y++) {
-				PS.glyphAlpha(x,y,PS.glyphAlpha(x,y) - RATE);
-			}
-		}
-
-		PS.gridPlane(plane);
-	};
-
-	var showGlyphs = function(x,y) {
-		var x,y;
-		var plane = PS.gridPlane();
-		PS.gridPlane(GLYPH_PLANE);
-
-		PS.glyphAlpha(x,y,255);
-
-		PS.gridPlane(plane);
-	};
-
-	//doesn't work, use drawLure2() instead
-	//this looks cool though
-	var drawLure = function() {
-		var x, y;
-
-		var colorDiff = LURE_COLOR - GROUND_COLOR;
-		var bDiff = colorDiff % 255;
-		var gDiff = ((colorDiff - bDiff) / 255) % 255;
-		var rDiff = (((colorDiff - bDiff) / 255) - gDiff) / 255;
-
-		var bTrans = Math.floor(bDiff * (lure / MAX_LURE_TIMER));
-		var gTrans = Math.floor(gDiff * (lure / MAX_LURE_TIMER));
-		var rTrans = Math.floor(rDiff * (lure / MAX_LURE_TIMER));
-
-		var colorTrans = bTrans + (gTrans * 255) + (rTrans * 255 * 255);
-
-		var lure_transition = GROUND_COLOR + colorTrans;
-
-		for (x = 0; x < LURE_RADIUS; x++) {
-			for (y = 0; y+x < LURE_RADIUS; y++) {
-				if (echoX - x >= 0) {
-					if (echoY - y >= 0) {
-						PS.color(echoX-x,echoY-y,lure_transition);
-					}
-					if (echoY + y < G.GRID_HEIGHT) {
-						PS.color(echoX-x,echoY+y,lure_transition);
-					}
-				}
-				if (echoX + x < G.GRID_WIDTH) {
-					if (echoY - y >= 0) {
-						PS.color(echoX+x,echoY-y,lure_transition);
-					}
-					if (echoY + y < G.GRID_HEIGHT) {
-						PS.color(echoX+x,echoY+y,lure_transition);
-					}
-				}
-			}
-		}
-	};
-
 	var drawLure2 = function(count) {
 		var x,y;
 		var plane = PS.gridPlane();
@@ -203,49 +117,35 @@ var G;
 
 		PS.gridPlane(plane);
 	};
-
-	var eraseLure = function() {
-		var plane = PS.gridPlane();
-		PS.gridPlane(LURE_PLANE);
-		PS.alpha(PS.ALL,PS.ALL,0);
-		PS.gridPlane(plane);
-	};
 	
 	var tick2 = function() {
 		if(!endGame) {
-            var drawLureInt = 0;
+			var drawLureInt = 0;
 			moveEcho(echoGhostSprite);
-            eraseLure();
+			eraseLure();
 			if(lure > 0) {
-                drawLureInt = lure;
-                lure--;
-            }
+				drawLureInt = lure;
+				lure--;
+			}
 			if(repel > 0) {
-                drawLureInt = repel;
-                repel--;
-            }
+				drawLureInt = repel;
+				repel--;
+			}
 			if(stop > 0) {
-                drawLureInt = stop;
-                stop--;
-            }
-            if (drawLureInt > 0) {
-                drawLure2(drawLureInt);
-            }
-			if(lureCooldown > 0)
+				drawLureInt = stop;
+				stop--;
+			}
+			if (drawLureInt > 0) {
+				drawLure2(drawLureInt);
+			}
+			if(lureCooldown > 0) {
 				lureCooldown--;
+			}
 			moveNarc();
 			movePart2Ladies();
 			G.mapMove(echoX, echoY);
 		}
 	}
-
-	var hasCoord = function(pathArray, coord) {
-		for(var i = 0; i < pathArray.length; i++) {
-			if(pathArray[i][0] == coord[0] && pathArray[i][1] == coord[1])
-				return {found: true, coord: i};
-		}
-		return {found: false, coord: -1};
-	};
 	
 	var movePart2Ladies = function() {
 		if(ladyTime > 0)
@@ -731,18 +631,6 @@ var G;
 			PS.spriteShow(narcSprite, true);
 		} else {
 			PS.spriteShow(narcSprite, false);
-		}
-	};
-	
-	var narcReact = function(phrase) {
-		if(phrase.includes("come")) {
-			PS.spriteMove(narcSprite, narcX-1, narcY-1);
-			narcX -= 1;
-			narcY -= 1;
-		} else if (phrase.includes("leave")) {
-			PS.spriteMove(narcSprite, narcX+1, narcY+1);
-			narcX += 1;
-			narcY += 1;
 		}
 	};
 	
