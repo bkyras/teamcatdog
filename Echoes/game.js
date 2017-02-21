@@ -403,6 +403,8 @@ var G;
                         if (PS.dbValid(DB_NAME)) {
                             PS.dbEvent(DB_NAME, "Game Won", 1);
                             PS.dbSend(DB_NAME, ["nchaput", "bsheridan"], {discard: true, message: "Thanks for playing!"});
+                        } else {
+                            console.log("I am cry");
                         }
 						incrementTutorial();
 					}
@@ -1270,7 +1272,8 @@ var G;
 			initGlyphPlace();
 			
 			idMoveTimer = PS.timerStart(5, tick); //uncomment for real game
-			PS.audioLoad(ECHO_LURE_SOUND, {path : AUDIO_PATH, fileTypes : ["ogg", "mp3", "wav"]});
+			//PS.audioLoad(ECHO_LURE_SOUND, {path : AUDIO_PATH, fileTypes : ["ogg", "mp3", "wav"]});
+            PS.audioLoad(ECHO_LURE_SOUND);
 			PS.audioLoad(ECHO_FAIL_SOUND);
 			PS.audioLoad(LADY_SOUND);
 			ladiesActive = false;
