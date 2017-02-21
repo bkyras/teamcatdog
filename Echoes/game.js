@@ -419,6 +419,7 @@ var G;
 			});
 			if(narcLadySprites.includes(s2)) {
 				G.gameOverPart3 = true;
+                repeatable = "";
         if (idMoveTimer !== null) {
           PS.timerStop(idMoveTimer);
 					idMoveTimer = null;
