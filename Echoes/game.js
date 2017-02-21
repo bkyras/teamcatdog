@@ -277,10 +277,14 @@ var G;
 		moveEcho(echoGhostSprite);
 		if(lure > 0)
 			lure--;
+		if(repel > 0)
+			repel--;
+		if(stop > 0)
+			stop--;
 		if(lureCooldown > 0)
 			lureCooldown--;
 		moveNarc();
-		//movePart2Ladies();
+		movePart2Ladies();
 		G.mapMove(echoX, echoY);
 	}
 
@@ -292,13 +296,38 @@ var G;
 		return false;
 	};
 	
+	var movePart2Ladies = function() {
+		if(ladyTime > 0)
+			ladyTime--;
+		else {
+			var curLadies = narcLadies[mapPos[0]][mapPos[1]]
+			for(var i = 0; i < curLadies.length; i++) {
+				if(lure > 0)
+					pathToEcho(curLadies[i], false);
+				else if(repel > 0)
+					pathFromEcho(curLadies[i]);
+				else if(stop > 0)
+					//do nothing
+			}
+			ladyTime = 3;
+		}
+	};
+	
 	var moveNarc = function() {
 		if(narcTime <= 0 && mapPos[0] == narcMapRow && mapPos[1] == narcMapCol) {
 			if(lure > 0) {
 				var nPos = pathToEcho(narcSprite, false, narcX, narcY).location;
 				narcX = nPos.x;
 				narcY = nPos.y;
-				console.log("x: " + narcX, "y: " + narcY);
+				narcTime = 5;
+			} else if(repel > 0) {
+				var nPos = pathFromEcho(narcSprite, narcX, narcY);
+				narcX = nPos.x;
+				narcY = nPos.y;
+				narcTime = 5;
+			} else if (stop > 0) {
+				//do nothing!
+				narcTime = 5;
 			} else {
 				if(!hasCoord(narcPaths[narcMapRow][narcMapCol], [narcX, narcY])) {
 					var p = narcPaths[narcMapRow][narcMapCol]
@@ -417,19 +446,32 @@ var G;
 	
 	var pathToEcho = function(spr, isPart1, sprX = PS.spriteMove(spr).x, sprY = PS.spriteMove(spr).y) {
 		var nPath = PS.line(sprX, sprY, echoX, echoY);
-		console.log(nPath);
 		var pathed = false;
 		if(nPath.length > 1 && nPath.length <= LURE_RADIUS) {
 			pathed = true;
-			PS.spriteSolidAlpha(spr, 180);
+			//PS.spriteSolidAlpha(spr, 180);
 			var nx = nPath[0][0];
 			var ny = nPath[0][1]
-			if(isPart1)
-				if(isMoveValidPart1(spr, nx, ny)) {PS.spriteMove(spr, nx, ny)}
-			else
+			if(isPart1) {
+				if(isMoveValidPart1(spr, nx, ny))
+					PS.spriteMove(spr, nx, ny)
+			} else {
 				PS.spriteMove(spr, nx, ny);
+			}
 		}
 		return {pathed: pathed, location: PS.spriteMove(spr)};
+	};
+	
+	var pathFromEcho = function(spr, sprX = PS.spriteMove(spr).x, sprY = PS.spriteMove(spr).y) {
+		var nPath = PS.line(sprX, sprY, echoX, echoY);
+		if(nPath.length > 1 && nPath.length <= LURE_RADIUS) {
+			var nx = nPath[0][0];
+			var ny = nPath[0][1];
+			var xdiff = (sprX - nx);
+			var ydiff = (sprY - ny);
+			PS.spriteMove(spr, sprX + xdiff, sprY + ydiff);
+		}
+		return PS.spriteMove(spr);
 	};
 	
 	var moveHera = function() {
@@ -1088,10 +1130,10 @@ var G;
 		if(phrase.includes("Come")) {
 			lure = 18; //num ticks to be lured for
 			lureCooldown = 30; //num ticks of lure cooldown (includes lured time)
-		} else if(phrase.includes("leave")) {
+		} else if(phrase.includes("Leave")) {
 			repel = 18;
 			lureCooldown = 30;
-		} else if(phrase.includes("stop")) {
+		} else if(phrase.includes("Stop")) {
 			stop = 18;
 			lureCooldown = 30;
 		}
@@ -1241,18 +1283,13 @@ var G;
 		},
 		
 		echo : function(phrase) {
-			PS.audioPlay(ECHO_LURE_SOUND);
-			PS.statusText("");
-			PS.statusColor(PS.COLOR_CYAN);
-			customStatusText(phrase);
-			setPhraseAbility(phrase);
-//			var curLadies = narcLadies[mapPos[0]][mapPos[1]]
-//			for(var i = 0; i < curLadies.length; i++) {
-//				var lPos = PS.spriteMove(curLadies[i]);
-//				if(PS.line(echoX, echoY, lPos.x, lPos.y).length <= LURE_RADIUS) {
-//					
-//				}
-//			}
+			if(lureCooldown == 0) {
+				PS.audioPlay(ECHO_LURE_SOUND);
+				PS.statusText("");
+				PS.statusColor(PS.COLOR_CYAN);
+				customStatusText(phrase);
+				setPhraseAbility(phrase);
+			}
 		},
 		
 		initEcho : function() {
