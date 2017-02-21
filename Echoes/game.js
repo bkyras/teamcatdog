@@ -303,17 +303,17 @@ var G;
 		if(ladyTime > 0)
 			ladyTime--;
 		else {
-			var curLadies = narcLadies[mapPos[0]][mapPos[1]]
+			var curLadies = narcLadies[mapPos[0]][mapPos[1]];
 			for(var i = 0; i < curLadies.length; i++) {
 				if(lure > 0)
-					pathToEcho(curLadies[i], false);
+					pathToEcho(curLadies[i].sprite, false);
 				else if(repel > 0)
-					pathFromEcho(curLadies[i]);
+					pathFromEcho(curLadies[i].sprite);
 				else if(stop > 0){
 					//do nothing
 				} else {
 					if(PS.spriteShow(narcSprite))
-						pathToNarc(curLadies[i]);
+						pathToNarc(curLadies[i].sprite);
 				}
 			}
 			ladyTime = 4;
@@ -403,8 +403,16 @@ var G;
 	
 	var narcCollide = function(s1, p1, s2, p2, type) {
 		if(isPart3) {
-			if(narcLadies[mapPos[0]][mapPos[1]].includes(s2)) {
-				console.log("hi");
+            var narcLadySprites = [];
+            narcLadies[mapPos[0]][mapPos[1]].forEach(function(spr){
+                narcLadySprites.push(spr.sprite);
+            });
+			if(narcLadySprites.includes(s2)) {
+				G.gameOverPart3 = true;
+                if (idMoveTimer !== null) {
+                    PS.timerStop(idMoveTimer);
+                }
+                customStatusText("You lost Narcissus to nymphs!");
 			}
 		} else if(isPart2) {
 			if (!firstEnc) {
@@ -680,10 +688,10 @@ var G;
         var spriteList = [];
 
         narcLadies[mapPos[0]][mapPos[1]].forEach(function(lSpr){
-            if (lSpr !== spr) {
+            if (lSpr.sprite !== spr) {
                 console.log("narcLady");
-                PS.spriteMove(lSpr);
-                spriteList.push(lSpr);
+                PS.spriteMove(lSpr.sprite);
+                spriteList.push(lSpr.sprite);
             }
         });
         chattyLadies[mapPos[0]][mapPos[1]].forEach(function(lSpr){
@@ -1221,6 +1229,8 @@ var G;
 		gameStarted : false,
 
 		isPart2 : false,
+
+        gameOverPart3 : false,
 		
 		init : function() {
 			PS.gridSize(G.GRID_WIDTH, G.GRID_HEIGHT);
@@ -1461,6 +1471,41 @@ var G;
 			incrementTutorial();
 			idMoveTimer = PS.timerStart(5, tick);
 		},
+
+        restartPart2 : function() {
+            G.gameOverPart3 = false;
+
+            loadMap(map[mapPos[0]][mapPos[1]]);
+
+            path = [];
+            echoX = 14;
+            echoY = 20;
+            PS.spriteMove(echoGhostSprite, echoX, echoY);
+            echoGhostActive = true;
+
+            narcX = 1;
+            narcY = 15;
+            PS.spriteMove(narcSprite, narcX, narcY);
+            PS.spriteShow(narcSprite, true);
+
+            chattyLadies.forEach(function(maprow){
+                maprow.forEach(function(map){
+                    map.forEach(function(lady){
+                        PS.spriteMove(lady.sprite,lady.originX,lady.originY);
+                    });
+                });
+            });
+            narcLadies.forEach(function(maprow){
+                maprow.forEach(function(map){
+                    map.forEach(function(lady){
+                        PS.spriteMove(lady.sprite,lady.originX,lady.originY);
+                    });
+                });
+            });
+            echoActive = true;
+
+            idMoveTimer = PS.timerStart(5, tick2);
+        },
 		
 		lastDbSend : function(won) {
 			if(won)
@@ -1503,7 +1548,9 @@ PS.touch = function( x, y, data, options ) {
 //		PS.dbEvent("echoesprototype", "mouseclick", "true");
 //		G.move(x, y);
 //	}
-	if (!G.gameover) {
+    if (G.gameOverPart3) {
+        G.restartPart2();
+    } else if (!G.gameover) {
 		G.move(x, y);
 	} else {
 		G.restart();
@@ -1560,7 +1607,9 @@ PS.keyDown = function( key, shift, ctrl, options ) {
 			} else {
 				G.restart();
 			}
-		} else {
+		} else if (G.gameOverPart3) {
+            G.restartPart2();
+        } else {
 			G.echo(repeatable);
 		}
 	} else if (key == 80 || key == 112) {

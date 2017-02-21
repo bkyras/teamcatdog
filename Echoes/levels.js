@@ -191,7 +191,7 @@ var addPart2Lady = function(row, col, x, y) {
 	PS.spriteSolidColor(a, PS.COLOR_BLUE);
 	PS.spriteMove(a, x, y);
 	PS.spriteShow(a, false);
-	narcLadies[row][col].push(a);
+	narcLadies[row][col].push({sprite: a, originX: x, originY: y});
 };
 
 var addChatter = function(row, col, x, y, phrase) {
@@ -200,8 +200,7 @@ var addChatter = function(row, col, x, y, phrase) {
 	PS.spritePlane(a, HERA_PLANE);
 	PS.spriteShow(a, false);
 	PS.spriteMove(a, x, y);
-	chattyLadies[row][col].push({sprite: a,
-															 phrase: phrase});
+	chattyLadies[row][col].push({sprite: a, phrase: phrase, originX: x, originY: y});
 };
 
 var changeLadies = function(row, col, appear) {
@@ -209,7 +208,7 @@ var changeLadies = function(row, col, appear) {
 		PS.spriteShow(chattyLadies[row][col][key].sprite, appear);
 	}
 	for(var spr in narcLadies[row][col]) {
-		PS.spriteShow(narcLadies[row][col][spr], appear);
+		PS.spriteShow(narcLadies[row][col][spr].sprite, appear);
 	}
 };
 
