@@ -173,6 +173,7 @@ var G;
 		return {xPos: pos.xPos, yPos: pos.yPos};
 	};
 	
+	//wrapper to check if moving a sprite is valid
 	var moveSprite = function(isPart1, spr, x, y) {
 		if(isPart1) {
 			if(isMoveValidPart1(spr, x, y)) {
@@ -524,6 +525,7 @@ var G;
 		return {pathed: pathed, location: PS.spriteMove(spr)};
 	};
 	
+	//wrapper functions to pathByEcho for readability's sake
 	var pathToEcho = function(spr, isPart1, sprX = PS.spriteMove(spr).x, sprY = PS.spriteMove(spr).y) {
 		return pathByEcho(spr, isPart1, true, sprX, sprY);
 	};
