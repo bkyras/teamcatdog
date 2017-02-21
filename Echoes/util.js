@@ -8,6 +8,17 @@ var TREE_COLOR = PS.COLOR_GREEN; //4
 var WATER_COLOR = PS.COLOR_BLUE; //5
 var LURE_COLOR = 0xA6F776;
 var HEART_COLOR = 0xF775E1;
+
+//character color constants
+var ECHO_COLOR = PS.COLOR_BLACK;
+var HERA_COLOR = PS.COLOR_CYAN;
+var ZEUS_COLOR = PS.COLOR_YELLOW;
+var NARC_COLOR = PS.COLOR_GREEN;
+var LADY_COLOR = PS.COLOR_BLUE;
+var CHATTY_LADY_COLOR = PS.COLOR_ORANGE;
+var NYMPH_COLOR = PS.COLOR_BLUE;
+
+
 var CURSE1 = 0xBBBBBB;
 var CURSE2 = 0x777777;
 
@@ -382,7 +393,7 @@ var drawLure = function(count) {
 
 var chattyLadies = [[[], [], []],
 									  [[], [], []]];
-var narcLadies = [[[], [], []],
+var nymphs = [[[], [], []],
 								  [[], [], []]];
 
 var drawNarc = function(row, col) {
@@ -399,7 +410,7 @@ var addPart2Lady = function(row, col, x, y) {
 	PS.spriteSolidColor(a, PS.COLOR_BLUE);
 	PS.spriteMove(a, x, y);
 	PS.spriteShow(a, false);
-	narcLadies[row][col].push({sprite: a, originX: x, originY: y});
+	nymphs[row][col].push({sprite: a, originX: x, originY: y});
 };
 
 var addChatter = function(row, col, x, y, phrase) {
@@ -415,8 +426,8 @@ var changeLadies = function(row, col, appear) {
 	for(var key in chattyLadies[row][col]) {
 		PS.spriteShow(chattyLadies[row][col][key].sprite, appear);
 	}
-	for(var spr in narcLadies[row][col]) {
-		PS.spriteShow(narcLadies[row][col][spr].sprite, appear);
+	for(var spr in nymphs[row][col]) {
+		PS.spriteShow(nymphs[row][col][spr].sprite, appear);
 	}
 };
 

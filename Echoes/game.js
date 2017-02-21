@@ -295,7 +295,7 @@ var G;
 			ladyTime--;
 		else {
 			var moveAhead = true;
-			var curLadies = narcLadies[mapPos[0]][mapPos[1]];
+			var curLadies = nymphs[mapPos[0]][mapPos[1]];
 			for(var i = 0; i < curLadies.length; i++) {
 				var ladyPos = PS.spriteMove(curLadies[i].sprite);
 				
@@ -418,7 +418,7 @@ var G;
 	var narcCollide = function(s1, p1, s2, p2, type) {
 		if(isPart3) {
       var narcLadySprites = [];
-      narcLadies[mapPos[0]][mapPos[1]].forEach(function(spr){
+      nymphs[mapPos[0]][mapPos[1]].forEach(function(spr){
 				narcLadySprites.push(spr.sprite);
 			});
 			if(narcLadySprites.includes(s2)) {
@@ -570,7 +570,7 @@ var G;
 		var collision = false;
 		var spriteList = [];
 
-		narcLadies[mapPos[0]][mapPos[1]].forEach(function(lSpr){
+		nymphs[mapPos[0]][mapPos[1]].forEach(function(lSpr){
 			if (lSpr.sprite !== spr) {
 				PS.spriteMove(lSpr.sprite);
 				spriteList.push(lSpr.sprite);
@@ -887,7 +887,7 @@ var G;
 					});
 				});
 			});
-			narcLadies.forEach(function(maprow){
+			nymphs.forEach(function(maprow){
 				maprow.forEach(function(map){
 						map.forEach(function(lady){
 							PS.spriteMove(lady.sprite,lady.originX,lady.originY);
