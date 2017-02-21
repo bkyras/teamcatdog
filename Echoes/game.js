@@ -259,6 +259,7 @@ var G;
 				var nPos = pathToEcho(narcSprite, false, narcX, narcY).location;
 				narcX = nPos.x;
 				narcY = nPos.y;
+				console.log("x: " + narcX, "y: " + narcY);
 			} else {
 				if(!hasCoord(narcPaths[narcMapRow][narcMapCol], [narcX, narcY])) {
 					var p = narcPaths[narcMapRow][narcMapCol]
@@ -377,6 +378,7 @@ var G;
 	
 	var pathToEcho = function(spr, isPart1, sprX = PS.spriteMove(spr).x, sprY = PS.spriteMove(spr).y) {
 		var nPath = PS.line(sprX, sprY, echoX, echoY);
+		console.log(nPath);
 		var pathed = false;
 		if(nPath.length > 1 && nPath.length <= LURE_RADIUS) {
 			pathed = true;
@@ -385,6 +387,8 @@ var G;
 			var ny = nPath[0][1]
 			if(isPart1)
 				if(isMoveValidPart1(spr, nx, ny)) {PS.spriteMove(spr, nx, ny)}
+			else
+				PS.spriteMove(spr, nx, ny);
 		}
 		return {pathed: pathed, location: PS.spriteMove(spr)};
 	};
@@ -1006,8 +1010,8 @@ var G;
 		}
 	};
 	
-	var setPhraseAbility = function() {
-		if(phrase.includes("come")) {
+	var setPhraseAbility = function(phrase) {
+		if(phrase.includes("Come")) {
 			lure = 18; //num ticks to be lured for
 			lureCooldown = 30; //num ticks of lure cooldown (includes lured time)
 		} else if(phrase.includes("leave")) {
@@ -1167,13 +1171,13 @@ var G;
 			PS.statusColor(PS.COLOR_CYAN);
 			customStatusText(phrase);
 			setPhraseAbility(phrase);
-			var curLadies = narcLadies[mapPos[0]][mapPos[1]]
-			for(var i = 0; i < curLadies.length; i++) {
-				var lPos = PS.spriteMove(curLadies[i]);
-				if(PS.line(echoX, echoY, lPos.x, lPos.y).length <= LURE_RADIUS) {
-					
-				}
-			}
+//			var curLadies = narcLadies[mapPos[0]][mapPos[1]]
+//			for(var i = 0; i < curLadies.length; i++) {
+//				var lPos = PS.spriteMove(curLadies[i]);
+//				if(PS.line(echoX, echoY, lPos.x, lPos.y).length <= LURE_RADIUS) {
+//					
+//				}
+//			}
 		},
 		
 		initEcho : function() {
