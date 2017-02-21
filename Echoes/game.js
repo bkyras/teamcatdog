@@ -173,6 +173,21 @@ var G;
 		return {xPos: pos.xPos, yPos: pos.yPos};
 	};
 	
+	var moveSprite = function(isPart1, spr, x, y) {
+		if(isPart1) {
+			if(isMoveValidPart1(spr, x, y)) {
+				PS.spriteMove(spr, x, y);
+				return true;
+			}
+		} else {
+			if(isMoveValidPart2(spr, x, y)) {
+				PS.spriteMove(spr, x, y);
+				return true;
+			}
+		}
+		return false;
+	};
+	
 	var moveHera = function() {
 		var rand = PS.random(4) - 1;
 		if(lure > 0) {
@@ -180,23 +195,20 @@ var G;
 			if(pathRet.pathed) {
 				heraX = pathRet.location.x;
 				heraY = pathRet.location.y;
-			}
-			 else {
-					var pos = moveRandom(heraSprite, heraX, heraY);
-					if (isMoveValidPart1(heraSprite, pos.xPos, pos.yPos)) {
-						PS.spriteMove(heraSprite, pos.xPos, pos.yPos);
-						heraX = pos.xPos;
-						heraY = pos.yPos;
-					}
+			} else {
+				var pos = moveRandom(heraSprite, heraX, heraY);
+				if(moveSprite(true, heraSprite, pos.xPos, pos.yPos)) {
+					heraX = pos.xPos;
+					heraY = pos.yPos;
 				}
+			}
 		} else {
 			PS.spriteSolidAlpha(heraSprite, 255);
 			var pos = moveRandomHera(heraSprite, heraX, heraY);
-			if (isMoveValidPart1(heraSprite, pos.xPos, pos.yPos)) {
-				PS.spriteMove(heraSprite, pos.xPos, pos.yPos);
-				heraX = pos.xPos;
-				heraY = pos.yPos;
-			}
+			if(moveSprite(true, heraSprite, pos.xPos, pos.yPos)) {
+					heraX = pos.xPos;
+					heraY = pos.yPos;
+				}
 		}
 	};
 	
@@ -225,19 +237,17 @@ var G;
 			if(zPath.length > 1) {
 				var zx = zPath[0][0];
 				var zy = zPath[0][1]
-				if (isMoveValidPart1(zeusSprite, zx, zy)) {
-					PS.spriteMove(zeusSprite, zx, zy)
+				if(moveSprite(true, zeusSprite, zx, zy)) {
 					zeusX = zx;
 					zeusY = zy;
 				}
 			}
 		} else {
 			var pos = moveRandom(zeusSprite, zeusX, zeusY);
-			if (isMoveValidPart1(zeusSprite, pos.xPos, pos.yPos)) {
-				PS.spriteMove(zeusSprite,pos.xPos, pos.yPos);
-				zeusX = pos.xPos;
-				zeusY = pos.yPos;
-			}
+			if(moveSprite(true, zeusSprite, pos.xPos, pos.yPos)) {
+					zeusX = pos.xPos;
+					zeusY = pos.yPos;
+				}
 		}
 	};
 	
@@ -266,8 +276,7 @@ var G;
 				echoY = ny;
 				step++;
 			} else {
-				if (isMoveValidPart1(spr, nx, ny)) {
-					PS.spriteMove(spr, nx, ny);
+				if(moveSprite(true, spr, nx, ny)) {
 					echoX = nx;
 					echoY = ny;
 					step++;
@@ -490,9 +499,7 @@ var G;
 		if(checkLure.isWithinDist) {
 			var nx = checkLure.nPath[0][0];
 			var ny = checkLure.nPath[0][1];
-			if(isMoveValidPart2(spr, nx, ny)) {
-				PS.spriteMove(spr, nx, ny);
-			}
+			moveSprite(false, spr, nx, ny);
 		}
 		return PS.spriteMove(spr);
 	};
@@ -505,25 +512,14 @@ var G;
 			//PS.spriteSolidAlpha(spr, 180);
 			var nx = checkLure.nPath[0][0];
 			var ny = checkLure.nPath[0][1]
-			//part 1 can only be attract
-			if(isPart1) {
-				if(isMoveValidPart1(spr, nx, ny)) {
-					PS.spriteMove(spr, nx, ny);
-				}
-			} else {
-				if(isAttract) {
-					if(isMoveValidPart2(spr, nx, ny)){
-						PS.spriteMove(spr, nx, ny);
-					}
-				} else {
-					//reverses direction for repel
-					var xdiff = (sprX - nx);
-					var ydiff = (sprY - ny);
-					if (isMoveValidPart2(spr, sprX + xdiff, sprY + ydiff)){
-						PS.spriteMove(spr, sprX + xdiff, sprY + ydiff);
-					}
-				}
+			//if repel, need to reverse direction of lure
+			if(!isAttract) {
+				var xdiff = (sprX - nx);
+				var ydiff = (sprY - ny);
+				nx = sprX + xdiff;
+				ny = sprY + ydiff;
 			}
+			moveSprite(isPart1, spr, nx, ny);
 		}
 		return {pathed: pathed, location: PS.spriteMove(spr)};
 	};
