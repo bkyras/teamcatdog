@@ -123,13 +123,16 @@ var G;
 			lureCooldown--;
 		}
 
+		fadeGlyphs();
 		eraseLure();
 		if(lure > 0) {
 			lure--;
-			drawLure2();
+			if (!isPart2) {
+				drawLure2();
+			}
 		}
 		
-		if(ladiesActive && ladySprites.length < MAX_LADIES && spawnLadyTimer == 0) {
+		if(ladiesActive && ladySprites.length < MAX_LADIES && spawnLadyTimer == 0 && !isPart2) {
 			spawnLady();
 			spawnLadyTimer = 50;
 		}
@@ -149,8 +152,46 @@ var G;
 	var initLurePlane = function() {
 		var plane = PS.gridPlane();
 		PS.gridPlane(LURE_PLANE);
+
 		PS.color(PS.ALL,PS.ALL,LURE_COLOR);
 		PS.alpha(PS.ALL,PS.ALL,0);
+
+		PS.gridPlane(plane);
+	};
+
+	var initGlyphPlace = function() {
+		var plane = PS.gridPlane();
+		PS.gridPlane(GLYPH_PLANE);
+
+		PS.glyph(PS.ALL,PS.ALL,10084);
+		PS.glyphColor(PS.ALL,PS.ALL,HEART_COLOR);
+		PS.glyphAlpha(PS.ALL,PS.ALL,0);
+
+		PS.gridPlane(plane);
+	};
+
+	var fadeGlyphs = function() {
+		var x,y;
+		var plane = PS.gridPlane();
+		PS.gridPlane(GLYPH_PLANE);
+		var RATE = 30;
+
+		for (x = 0; x < G.GRID_WIDTH; x++) {
+			for (y = 0; y < G.GRID_HEIGHT; y++) {
+				PS.glyphAlpha(x,y,PS.glyphAlpha(x,y) - RATE);
+			}
+		}
+
+		PS.gridPlane(plane);
+	};
+
+	var showGlyphs = function(x,y) {
+		var x,y;
+		var plane = PS.gridPlane();
+		PS.gridPlane(GLYPH_PLANE);
+
+		PS.glyphAlpha(x,y,255);
+
 		PS.gridPlane(plane);
 	};
 
@@ -593,6 +634,8 @@ var G;
 		var i = ladySprites.indexOf(s2);
 		if(i != -1) {
 			PS.audioPlay(LADY_SOUND);
+			var pos = PS.spriteMove(s2);
+			showGlyphs(pos.x, pos.y);
 			ladySprites.splice(i, 1);
 			forDeletion.push(s2);
 			girlsEaten += 1;
@@ -1092,6 +1135,7 @@ var G;
 			G.activeBoardWidth = G.GRID_WIDTH;
 
 			initLurePlane();
+			initGlyphPlace();
 			
 			idMoveTimer = PS.timerStart(5, tick); //uncomment for real game
 			PS.audioLoad(ECHO_LURE_SOUND, {path : AUDIO_PATH, fileTypes : ["ogg", "mp3", "wav"]});
@@ -1422,7 +1466,7 @@ PS.keyDown = function( key, shift, ctrl, options ) {
 		} else {
 			G.echo(repeatable);
 		}
-	} else if (key == PS.KEY_ARROW_DOWN) {
+	} else if (key == 80 || key == 112) {
 		if (!G.isPart2) {
 			G.skipToNarc();
 		}
