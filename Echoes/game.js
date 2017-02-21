@@ -534,6 +534,10 @@ var G;
 		PS.spriteSolidColor(a, PS.COLOR_BLUE);
 		var rx = PS.random(G.GRID_WIDTH - 1) - 1;
 		var ry = PS.random(G.GRID_HEIGHT - 1) - 1;
+		while (!isMoveValidPart1(null,rx,ry)) {
+			rx = PS.random(G.GRID_WIDTH - 1) - 1;
+			ry = PS.random(G.GRID_HEIGHT - 1) - 1;
+		}
 		PS.spriteMove(a, rx, ry);
 		ladySprites.push(a);
 	};
