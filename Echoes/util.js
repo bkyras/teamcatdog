@@ -375,6 +375,14 @@ var chattyLadies = [[[], [], []],
 var narcLadies = [[[], [], []],
 								  [[], [], []]];
 
+var drawNarc = function(row, col) {
+	if(row == narcMapRow && col == narcMapCol) {
+		PS.spriteShow(narcSprite, true);
+	} else {
+		PS.spriteShow(narcSprite, false);
+	}
+};
+
 var addPart2Lady = function(row, col, x, y) {
 	var a = PS.spriteSolid(2, 2);
 	PS.spritePlane(a, LADY_PLANE);
@@ -428,6 +436,17 @@ var hasCoord = function(pathArray, coord) {
 	return {found: false, coord: -1};
 };
 
+var dirMove = function(mapX, mapY) {
+	if(map[mapX][mapY] != null) {
+		loadMap(map[mapX][mapY]);
+		changeLadies(mapPos[0], mapPos[1], false);
+		mapPos = [mapX, mapY];
+		changeLadies(mapPos[0], mapPos[1], true);
+		drawNarc(mapPos[0], mapPos[1]);
+		return true;
+	}
+	return false;
+};
 
 /**WRAPPER UTILITY FUNCTIONS*****************************************/
 

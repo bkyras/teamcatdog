@@ -127,6 +127,159 @@ var G;
 		}
 	};
 	
+	/**MOVE FUNCTIONS*****************************************/
+	
+	var moveRandom = function(sprite, x, y) {
+		var rand = PS.random(4) - 1;
+			switch(rand){
+				case 0:
+					if(x != 0)
+						x -= 1;
+					break;
+				case 1:
+					if(x != G.GRID_WIDTH-2)
+						x += 1;
+					break;
+				case 2:
+					if(y != 0)
+						y -= 1;
+					break;
+				case 3:
+					if(y != G.GRID_HEIGHT-2)
+						y += 1;
+					break;
+			}
+		//PS.spriteMove(sprite, x, y)
+		return {xPos: x, yPos: y};
+	};
+
+	var moveRandomHera = function(sprite, x, y) {
+		var rand = PS.random(10);
+		var pos;
+
+		if (rand > 6 && zeusActive) {
+			var hPath = PS.line(heraX, heraY, zeusX, zeusY);
+			if (hPath.length > 0) {
+				var hx = hPath[0][0];
+				var hy = hPath[0][1]
+				pos = {xPos: hx, yPos: hy};
+			} else {
+					pos = moveRandom(sprite, x, y);
+			}
+		} else {
+				pos = moveRandom(sprite, x, y);
+		}
+
+		return {xPos: pos.xPos, yPos: pos.yPos};
+	};
+	
+	var moveHera = function() {
+		var rand = PS.random(4) - 1;
+		if(lure > 0) {
+			var pathRet = pathToEcho(heraSprite, true, heraX, heraY);
+			if(pathRet.pathed) {
+				heraX = pathRet.location.x;
+				heraY = pathRet.location.y;
+			}
+			 else {
+					var pos = moveRandom(heraSprite, heraX, heraY);
+					if (isMoveValidPart1(heraSprite, pos.xPos, pos.yPos)) {
+						PS.spriteMove(heraSprite, pos.xPos, pos.yPos);
+						heraX = pos.xPos;
+						heraY = pos.yPos;
+					}
+				}
+		} else {
+			PS.spriteSolidAlpha(heraSprite, 255);
+			var pos = moveRandomHera(heraSprite, heraX, heraY);
+			if (isMoveValidPart1(heraSprite, pos.xPos, pos.yPos)) {
+				PS.spriteMove(heraSprite, pos.xPos, pos.yPos);
+				heraX = pos.xPos;
+				heraY = pos.yPos;
+			}
+		}
+	};
+	
+	var moveLadies = function() {
+		for(let spr of ladySprites) {
+			if(lure > 0) {
+				pathToEcho(spr, true);
+			} else
+				PS.spriteSolidAlpha(spr, 255);
+		}
+	};
+	
+	var moveZeus = function() {
+		var rand = PS.random(4) - 1;
+		if(ladySprites.length > 0) {
+			var pos = PS.spriteMove(ladySprites[0]);
+      var pLength = PS.line(heraX, heraY, pos.x, pos.y).length;
+      ladySprites.forEach(function(spr){
+         var newPos =  PS.spriteMove(spr);
+         if (PS.line(heraX, heraY, newPos.x, newPos.y).length > pLength) {
+           pos = newPos;
+           pLength = PS.line(heraX, heraY, newPos.x, newPos.y).length;
+         }
+      });
+			var zPath = PS.line(zeusX, zeusY, pos.x, pos.y);
+			if(zPath.length > 1) {
+				var zx = zPath[0][0];
+				var zy = zPath[0][1]
+				if (isMoveValidPart1(zeusSprite, zx, zy)) {
+					PS.spriteMove(zeusSprite, zx, zy)
+					zeusX = zx;
+					zeusY = zy;
+				}
+			}
+		} else {
+			var pos = moveRandom(zeusSprite, zeusX, zeusY);
+			if (isMoveValidPart1(zeusSprite, pos.xPos, pos.yPos)) {
+				PS.spriteMove(zeusSprite,pos.xPos, pos.yPos);
+				zeusX = pos.xPos;
+				zeusY = pos.yPos;
+			}
+		}
+	};
+	
+	var moveEcho = function(spr) {
+		var p, nx, ny, ptr, val;
+
+		if (path.length === 0) {
+			return;
+		}
+
+		p = path[ step ];
+		nx = p[ 0 ]; // next x-pos
+		ny = p[ 1 ]; // next y-pos
+
+		if ((echoX === nx) && (echoY === ny)) {
+			path = [];
+			return;
+		}
+
+		if(nx == G.GRID_WIDTH-1 || ny == G.GRID_HEIGHT-1)
+			path = [];
+		else {
+			if(echoGhostActive) {
+				PS.spriteMove(spr, nx, ny)
+				echoX = nx;
+				echoY = ny;
+				step++;
+			} else {
+				if (isMoveValidPart1(spr, nx, ny)) {
+					PS.spriteMove(spr, nx, ny);
+					echoX = nx;
+					echoY = ny;
+					step++;
+				}
+			}
+		}
+		
+		if(step >= path.length) {
+			path = [];
+		}
+	};
+	
 	var movePart2Ladies = function() {
 		if(ladyTime > 0)
 			ladyTime--;
@@ -241,6 +394,10 @@ var G;
 		narcTime--;
 	};
 	
+	
+	/**COLLISION FUNCTIONS*****************************************/
+	
+	//Narcissus collision
 	var narcCollide = function(s1, p1, s2, p2, type) {
 		if(isPart3) {
       var narcLadySprites = [];
@@ -272,9 +429,40 @@ var G;
 		}
 	};
 	
+	//Hera collision with Echo
 	var heraCollide = function(s1, p1, s2, p2, type) {
 		if(s2 == zeusSprite) {
 			heraCaughtZeus = true;
+		}
+	};
+	
+	//Zeus collision with girls
+	var wooLady = function(s1, p1, s2, p2, type) {
+		var i = ladySprites.indexOf(s2);
+		if(i != -1) {
+			PS.audioPlay(LADY_SOUND);
+			var pos = PS.spriteMove(s2);
+			showGlyphs(pos.x, pos.y);
+			ladySprites.splice(i, 1);
+			forDeletion.push(s2);
+			girlsEaten += 1;
+		}
+	};
+	
+	//Ghost Echo collision with chatters, prompting text
+	var hearLady = function(s1, p1, s2, p2, type) {
+		var lads = chattyLadies[mapPos[0]][mapPos[1]];
+		var i = -1;
+		for(var j = 0; j < lads.length; j++) {
+			if(lads[j].sprite == s2)
+				i = j;
+		}
+		if(i != -1) {
+			var phrase = lads[i].phrase;
+			PS.statusText("");
+			PS.statusColor(PS.COLOR_BLACK);
+			PS.statusText(phrase);
+			repeatable = PS.statusText();
 		}
 	};
 	
@@ -288,50 +476,6 @@ var G;
 		T.index = 999;
 		//G.lastDbSend(false);
 	};
-	
-	var moveRandom = function(sprite, x, y) {
-		var rand = PS.random(4) - 1;
-			switch(rand){
-				case 0:
-					if(x != 0)
-						x -= 1;
-					break;
-				case 1:
-					if(x != G.GRID_WIDTH-2)
-						x += 1;
-					break;
-				case 2:
-					if(y != 0)
-						y -= 1;
-					break;
-				case 3:
-					if(y != G.GRID_HEIGHT-2)
-						y += 1;
-					break;
-			}
-		//PS.spriteMove(sprite, x, y)
-		return {xPos: x, yPos: y};
-	};
-
-	var moveRandomHera = function(sprite, x, y) {
-        var rand = PS.random(10);
-        var pos;
-
-        if (rand > 6 && zeusActive) {
-					var hPath = PS.line(heraX, heraY, zeusX, zeusY);
-					if (hPath.length > 0) {
-						var hx = hPath[0][0];
-						var hy = hPath[0][1]
-						pos = {xPos: hx, yPos: hy};
-					} else {
-							pos = moveRandom(sprite, x, y);
-					}
-        } else {
-          	pos = moveRandom(sprite, x, y);
-        }
-
-        return {xPos: pos.xPos, yPos: pos.yPos};
-    };
 	
 	var pathToNarc = function(spr) {
 		var sprLoc = PS.spriteMove(spr);
@@ -382,113 +526,6 @@ var G;
       }
 		}
 		return {pathed: pathed, location: PS.spriteMove(spr)};
-	};
-	
-	var moveHera = function() {
-		var rand = PS.random(4) - 1;
-		if(lure > 0) {
-			var pathRet = pathToEcho(heraSprite, true, heraX, heraY);
-			if(pathRet.pathed) {
-				heraX = pathRet.location.x;
-				heraY = pathRet.location.y;
-			}
-			 else {
-					var pos = moveRandom(heraSprite, heraX, heraY);
-					if (isMoveValidPart1(heraSprite, pos.xPos, pos.yPos)) {
-						PS.spriteMove(heraSprite, pos.xPos, pos.yPos);
-						heraX = pos.xPos;
-						heraY = pos.yPos;
-					}
-				}
-		} else {
-			PS.spriteSolidAlpha(heraSprite, 255);
-			var pos = moveRandomHera(heraSprite, heraX, heraY);
-			if (isMoveValidPart1(heraSprite, pos.xPos, pos.yPos)) {
-				PS.spriteMove(heraSprite, pos.xPos, pos.yPos);
-				heraX = pos.xPos;
-				heraY = pos.yPos;
-			}
-		}
-	};
-	
-	var moveLadies = function() {
-		for(let spr of ladySprites) {
-			if(lure > 0) {
-				pathToEcho(spr, true);
-			} else
-				PS.spriteSolidAlpha(spr, 255);
-		}
-	};
-	
-	var moveZeus = function() {
-		var rand = PS.random(4) - 1;
-		if(ladySprites.length > 0) {
-			var pos = PS.spriteMove(ladySprites[0]);
-      var pLength = PS.line(heraX, heraY, pos.x, pos.y).length;
-      ladySprites.forEach(function(spr){
-         var newPos =  PS.spriteMove(spr);
-         if (PS.line(heraX, heraY, newPos.x, newPos.y).length > pLength) {
-           pos = newPos;
-           pLength = PS.line(heraX, heraY, newPos.x, newPos.y).length;
-         }
-      });
-			var zPath = PS.line(zeusX, zeusY, pos.x, pos.y);
-			if(zPath.length > 1) {
-				var zx = zPath[0][0];
-				var zy = zPath[0][1]
-				if (isMoveValidPart1(zeusSprite, zx, zy)) {
-					PS.spriteMove(zeusSprite, zx, zy)
-					zeusX = zx;
-					zeusY = zy;
-				}
-			}
-		} else {
-			var pos = moveRandom(zeusSprite, zeusX, zeusY);
-			if (isMoveValidPart1(zeusSprite, pos.xPos, pos.yPos)) {
-				PS.spriteMove(zeusSprite,pos.xPos, pos.yPos);
-				zeusX = pos.xPos;
-				zeusY = pos.yPos;
-			}
-		}
-	};
-	
-	var moveEcho = function(spr) {
-		var p, nx, ny, ptr, val;
-
-		if (path.length === 0) {
-			return;
-		}
-
-		p = path[ step ];
-		nx = p[ 0 ]; // next x-pos
-		ny = p[ 1 ]; // next y-pos
-
-		if ((echoX === nx) && (echoY === ny)) {
-			path = [];
-			return;
-		}
-
-		if(nx == G.GRID_WIDTH-1 || ny == G.GRID_HEIGHT-1)
-			path = [];
-		else {
-			if(echoGhostActive) {
-				PS.spriteMove(spr, nx, ny)
-				echoX = nx;
-				echoY = ny;
-				step++;
-			} else {
-				if (isMoveValidPart1(spr, nx, ny)) {
-					PS.spriteMove(spr, nx, ny);
-					echoX = nx;
-					echoY = ny;
-					step++;
-				}
-			}
-		}
-		
-		if(step >= path.length) {
-			path = [];
-		}
 	};
 
 	//returns true if a move will not cause sprites to be overlapped
@@ -561,50 +598,12 @@ var G;
 		PS.spriteSolidColor(a, PS.COLOR_BLUE);
 		var rx = PS.random(G.GRID_WIDTH - 1) - 1;
 		var ry = PS.random(G.GRID_HEIGHT - 1) - 1;
-		while (!isMoveValidPart1(null,rx,ry)) {
+		while (!isMoveValidPart1(null, rx, ry)) {
 			rx = PS.random(G.GRID_WIDTH - 1) - 1;
 			ry = PS.random(G.GRID_HEIGHT - 1) - 1;
 		}
 		PS.spriteMove(a, rx, ry);
 		ladySprites.push(a);
-	};
-	
-	//Zeus collision with girls
-	var wooLady = function(s1, p1, s2, p2, type) {
-		var i = ladySprites.indexOf(s2);
-		if(i != -1) {
-			PS.audioPlay(LADY_SOUND);
-			var pos = PS.spriteMove(s2);
-			showGlyphs(pos.x, pos.y);
-			ladySprites.splice(i, 1);
-			forDeletion.push(s2);
-			girlsEaten += 1;
-		}
-	};
-	
-	//Ghost Echo collision with ladies
-	var hearLady = function(s1, p1, s2, p2, type) {
-		var lads = chattyLadies[mapPos[0]][mapPos[1]];
-		var i = -1;
-		for(var j = 0; j < lads.length; j++) {
-			if(lads[j].sprite == s2)
-				i = j;
-		}
-		if(i != -1) {
-			var phrase = lads[i].phrase;
-			PS.statusText("");
-			PS.statusColor(PS.COLOR_BLACK);
-			PS.statusText(phrase);
-			repeatable = PS.statusText();
-		}
-	}
-	
-	var drawNarc = function(row, col) {
-		if(row == narcMapRow && col == narcMapCol) {
-			PS.spriteShow(narcSprite, true);
-		} else {
-			PS.spriteShow(narcSprite, false);
-		}
 	};
 	
 	var setPhraseAbility = function(phrase) {
@@ -618,18 +617,6 @@ var G;
 			stop = MAX_LURE_TIMER;
 			lureCooldown = 30;
 		}
-	};
-	
-	var dirMove = function(mapX, mapY) {
-		if(map[mapX][mapY] != null) {
-			loadMap(map[mapX][mapY]);
-			changeLadies(mapPos[0], mapPos[1], false);
-			mapPos = [mapX, mapY];
-			changeLadies(mapPos[0], mapPos[1], true);
-			drawNarc(mapPos[0], mapPos[1]);
-			return true;
-		}
-		return false;
 	};
 	
 	G = {
