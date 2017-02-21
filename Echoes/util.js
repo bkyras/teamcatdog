@@ -23,7 +23,7 @@ var ECHO_FAIL_SOUND = "fx_silencer";
 var LADY_SOUND = "fx_hoot";
 
 var MAX_LURE_TIMER = 18;
-var LURE_RADIUS = 9;
+var LURE_RADIUS = 7;
 var MAX_LADIES = 6;
 
 /**VARIABLES*****************************************/
@@ -359,7 +359,8 @@ var drawLure = function(count) {
 
 	for (x = 0; x < G.GRID_WIDTH; x++) {
 		for (y = 0; y < G.GRID_HEIGHT; y++) {
-			if ((x-echoX)*(x-echoX) + (y-echoY)*(y-echoY) < LURE_RADIUS * LURE_RADIUS) {
+			var closePos = getClosePos(x,y,echoX,echoY);
+			if ((x-closePos.x)*(x-closePos.x) + (y-closePos.y)*(y-closePos.y) < LURE_RADIUS * LURE_RADIUS) {
 				PS.alpha(x,y,lure_transition);
 			}
 		}
@@ -446,6 +447,22 @@ var dirMove = function(mapX, mapY) {
 		return true;
 	}
 	return false;
+};
+
+//pass in x,y location and the x,y, location of a 2x2 sprite, return an object with the position
+//of the closest tile of the sprite to the give location
+var getClosePos = function(x,y,sprX,sprY) {
+	var closeX = sprX;
+	var closeY = sprY;
+
+	if (Math.abs(sprX - x) < Math.abs((sprX + 1) - x)) {
+		closeX = sprX + 1;
+	}
+	if (Math.abs(sprY - y) < Math.abs((sprY + 1) - y)) {
+		closeY = sprY + 1;
+	}
+
+	return {x : closeX, y : closeY};
 };
 
 /**WRAPPER UTILITY FUNCTIONS*****************************************/

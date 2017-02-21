@@ -157,7 +157,7 @@ var G;
 		var rand = PS.random(10);
 		var pos;
 
-		if (rand > 6 && zeusActive) {
+		if (rand < 7 && zeusActive) {
 			var hPath = PS.line(heraX, heraY, zeusX, zeusY);
 			if (hPath.length > 0) {
 				var hx = hPath[0][0];
