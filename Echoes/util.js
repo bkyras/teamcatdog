@@ -455,14 +455,23 @@ var getClosePos = function(x,y,sprX,sprY) {
 	var closeX = sprX;
 	var closeY = sprY;
 
-	if (Math.abs(sprX - x) < Math.abs((sprX + 1) - x)) {
+	if (Math.abs((sprX + 1) - x) < Math.abs(sprX - x)) {
 		closeX = sprX + 1;
 	}
-	if (Math.abs(sprY - y) < Math.abs((sprY + 1) - y)) {
+	if (Math.abs((sprY + 1) - y) < Math.abs(sprY - y)) {
 		closeY = sprY + 1;
 	}
 
 	return {x : closeX, y : closeY};
+};
+
+var checkWithinLure = function(x1, y1, x2, y2) {
+	var thePath = PS.line(x1, y1, x2, y2);
+	var closePos1 = getClosePos(x2,y2,x1,y1);
+	var closePos2 = getClosePos(x1,y1,x2,y2);
+	var distance = (closePos1.x-closePos2.x)*(closePos1.x-closePos2.x) + (closePos1.y-closePos2.y)*(closePos1.y-closePos2.y);
+	var isWithinDist = thePath.length > 1 && distance <= LURE_RADIUS * LURE_RADIUS;
+	return {nPath: thePath, isWithinDist: isWithinDist};
 };
 
 /**WRAPPER UTILITY FUNCTIONS*****************************************/

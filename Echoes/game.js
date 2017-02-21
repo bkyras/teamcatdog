@@ -280,13 +280,6 @@ var G;
 		}
 	};
 	
-	var checkWithinLure = function(x1, y1, x2, y2) {
-		var thePath = PS.line(x1, y1, x2, y2);
-		var distance = (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2);
-		var isWithinDist = thePath.length > 1 && distance < LURE_RADIUS * LURE_RADIUS;
-		return {nPath: thePath, isWithinDist: isWithinDist};
-	};
-	
 	var movePart2Ladies = function() {
 		if(ladyTime > 0)
 			ladyTime--;
