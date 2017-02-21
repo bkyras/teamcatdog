@@ -34,7 +34,6 @@ var G;
 	var ECHO_LURE_SOUND = "fx_squawk";
 	var ECHO_FAIL_SOUND = "fx_silencer";
 	var LADY_SOUND = "fx_hoot";
-	var LADY_PLANE = 1, ZEUS_PLANE = 2, HERA_PLANE = 3, ECHO_PLANE = 4, NARC_PLANE = 5;
 	var LURE_RADIUS = 9;
 	var MAX_LADIES = 6;
 	
@@ -56,7 +55,7 @@ var G;
 	var narcMapRow = 0, narcMapCol = 0;
 	var narcPathPos = 0;
 	
-	var lure = 0;
+	var lure = 0, repel = 0, stop = 0;
 	var lureCooldown = 0;
 	var heraTime = 2, zeusTime = 4, ladyTime = 3, narcTime = 5;
 	
@@ -141,15 +140,14 @@ var G;
 	
 	var tick2 = function() {
 		moveEcho(echoGhostSprite);
+		if(lure > 0)
+			lure--;
+		if(lureCooldown > 0)
+			lureCooldown--;
 		moveNarc();
+		//movePart2Ladies();
 		G.mapMove(echoX, echoY);
 	}
-	
-	var heraCollide = function(s1, p1, s2, p2, type) {
-		if(s2 == zeusSprite) {
-			heraCaughtZeus = true;
-		}
-	};
 
 	var hasCoord = function(pathArray, coord) {
 		for(var i = 0; i < pathArray.length; i++) {
@@ -157,37 +155,44 @@ var G;
 				return true;
 		}
 		return false;
-	}
+	};
+	
 	var moveNarc = function() {
 		if(narcTime <= 0 && mapPos[0] == narcMapRow && mapPos[1] == narcMapCol) {
-			if(!hasCoord(narcPaths[narcMapRow][narcMapCol], [narcX, narcY])) {
-				var p = narcPaths[narcMapRow][narcMapCol]
-				var path = PS.line(narcX, narcY, p[0][0], p[0][1])
-				for(var i = 0; i < p.length; i++) {
-					var newPath = PS.line(narcX, narcY, p[i][0], p[i][1]);
-					if(newPath.length <= path.length) {
-						narcPathPos = i;
-						path = newPath;
-					}
-				}
-				if(path.length > 0) {
-					narcX = path[0][0];
-					narcY = path[0][1];
-					PS.spriteMove(narcSprite, narcX, narcY);
-				}
-				narcTime = 5;
-			}
-			else if(narcPaths[narcMapRow][narcMapCol].length > narcPathPos) {
-				var p = narcPaths[narcMapRow][narcMapCol][narcPathPos];
-				narcX = p[0];
-				narcY = p[1];
-				PS.spriteMove(narcSprite, narcX, narcY);
-				narcPathPos++;
-				narcTime = 5;
+			if(lure > 0) {
+				var nPos = pathToEcho(narcSprite, false, narcX, narcY).location;
+				narcX = nPos.x;
+				narcY = nPos.y;
 			} else {
-				PS.spriteShow(narcSprite, false);
-				narcMapCol+=1;
-				narcPathPos = 0;
+				if(!hasCoord(narcPaths[narcMapRow][narcMapCol], [narcX, narcY])) {
+					var p = narcPaths[narcMapRow][narcMapCol]
+					var path = PS.line(narcX, narcY, p[0][0], p[0][1])
+					for(var i = 0; i < p.length; i++) {
+						var newPath = PS.line(narcX, narcY, p[i][0], p[i][1]);
+						if(newPath.length <= path.length) {
+							narcPathPos = i;
+							path = newPath;
+						}
+					}
+					if(path.length > 0) {
+						narcX = path[0][0];
+						narcY = path[0][1];
+						PS.spriteMove(narcSprite, narcX, narcY);
+					}
+					narcTime = 5;
+				}
+				else if(narcPaths[narcMapRow][narcMapCol].length > narcPathPos) {
+					var p = narcPaths[narcMapRow][narcMapCol][narcPathPos];
+					narcX = p[0];
+					narcY = p[1];
+					PS.spriteMove(narcSprite, narcX, narcY);
+					narcPathPos++;
+					narcTime = 5;
+				} else {
+					PS.spriteShow(narcSprite, false);
+					narcMapCol+=1;
+					narcPathPos = 0;
+				}
 			}
 		}
 		narcTime--;
@@ -209,6 +214,12 @@ var G;
 			}
 		} else {
 
+		}
+	};
+	
+	var heraCollide = function(s1, p1, s2, p2, type) {
+		if(s2 == zeusSprite) {
+			heraCaughtZeus = true;
 		}
 	};
 	
@@ -268,20 +279,29 @@ var G;
         return {xPos: pos.xPos, yPos: pos.yPos};
     };
 	
+	var pathToEcho = function(spr, isPart1, sprX = PS.spriteMove(spr).x, sprY = PS.spriteMove(spr).y) {
+		var nPath = PS.line(sprX, sprY, echoX, echoY);
+		var pathed = false;
+		if(nPath.length > 1 && nPath.length <= LURE_RADIUS) {
+			pathed = true;
+			PS.spriteSolidAlpha(spr, 180);
+			var nx = nPath[0][0];
+			var ny = nPath[0][1]
+			if(isPart1)
+				if(isMoveValidPart1(spr, nx, ny)) {PS.spriteMove(spr, nx, ny)}
+		}
+		return {pathed: pathed, location: PS.spriteMove(spr)};
+	};
+	
 	var moveHera = function() {
 		var rand = PS.random(4) - 1;
 		if(lure > 0) {
-			var hPath = PS.line(heraX, heraY, echoX, echoY);
-			if(hPath.length > 1 && hPath.length <= LURE_RADIUS) {
-				PS.spriteSolidAlpha(heraSprite, 180);
-				var hx = hPath[0][0];
-				var hy = hPath[0][1]
-				if (isMoveValidPart1(heraSprite, hx, hy)) {
-					PS.spriteMove(heraSprite, hx, hy)
-					heraX = hx;
-					heraY = hy;
-				}
-				} else {
+			var pathRet = pathToEcho(heraSprite, true, heraX, heraY);
+			if(pathRet.pathed) {
+				heraX = pathRet.location.x;
+				heraY = pathRet.location.y;
+			}
+			 else {
 					var pos = moveRandom(heraSprite, heraX, heraY);
 					if (isMoveValidPart1(heraSprite, pos.xPos, pos.yPos)) {
 						PS.spriteMove(heraSprite, pos.xPos, pos.yPos);
@@ -303,16 +323,7 @@ var G;
 	var moveLadies = function() {
 		for(let spr of ladySprites) {
 			if(lure > 0) {
-				var pos = PS.spriteMove(spr);
-				var lPath = PS.line(pos.x, pos.y, echoX, echoY);
-				if(lPath.length > 1 && lPath.length <= LURE_RADIUS) {
-					PS.spriteSolidAlpha(spr, 180);
-					var lx = lPath[0][0];
-					var ly = lPath[0][1]
-					if (isMoveValidPart1(spr, lx, ly)) {
-						PS.spriteMove(spr, lx, ly)
-					}
-				}
+				pathToEcho(spr, true);
 			} else
 				PS.spriteSolidAlpha(spr, 255);
 		}
@@ -322,14 +333,14 @@ var G;
 		var rand = PS.random(4) - 1;
 		if(ladySprites.length > 0) {
 			var pos = PS.spriteMove(ladySprites[0]);
-            var pLength = PS.line(heraX, heraY, pos.x, pos.y).length;
-            ladySprites.forEach(function(spr){
-               var newPos =  PS.spriteMove(spr);
-                if (PS.line(heraX, heraY, newPos.x, newPos.y).length > pLength) {
-                    pos = newPos;
-                    pLength = PS.line(heraX, heraY, newPos.x, newPos.y).length;
-                }
-            });
+      var pLength = PS.line(heraX, heraY, pos.x, pos.y).length;
+      ladySprites.forEach(function(spr){
+         var newPos =  PS.spriteMove(spr);
+         if (PS.line(heraX, heraY, newPos.x, newPos.y).length > pLength) {
+           pos = newPos;
+           pLength = PS.line(heraX, heraY, newPos.x, newPos.y).length;
+         }
+      });
 			var zPath = PS.line(zeusX, zeusY, pos.x, pos.y);
 			if(zPath.length > 1) {
 				var zx = zPath[0][0];
@@ -358,7 +369,6 @@ var G;
 		}
 
 		p = path[ step ];
-		
 		nx = p[ 0 ]; // next x-pos
 		ny = p[ 1 ]; // next y-pos
 
@@ -458,6 +468,7 @@ var G;
 		ladySprites.push(a);
 	};
 	
+	//Zeus collision with girls
 	var wooLady = function(s1, p1, s2, p2, type) {
 		var i = ladySprites.indexOf(s2);
 		if(i != -1) {
@@ -468,6 +479,7 @@ var G;
 		}
 	};
 	
+	//Ghost Echo collision with ladies
 	var hearLady = function(s1, p1, s2, p2, type) {
 		var lads = chattyLadies[mapPos[0]][mapPos[1]];
 		var i = -1;
@@ -898,73 +910,6 @@ var G;
 		echoActive = false;
 	};
 	
-	//DEFAULT_COLOR = PS.COLOR_WHITE; //0
-	//GROUND_COLOR = 0x579532; //1
-	//PATH_COLOR = 0x222222; //2
-	//DIRT_COLOR = 0xAF623B; //3
-	//TREE_COLOR = PS.COLOR_GREEN; //4
-	//WATER_COLOR = PS.COLOR_BLUE; //5
-	var loadMap = function(mapData) {
-		for(var row = 0; row < mapData.length; row++) {
-			for(var col = 0; col < mapData[row].length; col++) {
-				switch(mapData[row][col]) {
-					case 0:
-						PS.color(col, row, DEFAULT_COLOR);
-						break;
-					case 1:
-						PS.color(col, row, GROUND_COLOR);
-						break;
-					case 2:
-						PS.color(col, row, PATH_COLOR);
-						break;
-					case 3:
-						PS.color(col, row, DIRT_COLOR);
-						break;
-					case 4:
-						PS.color(col, row, TREE_COLOR);
-						break;
-					case 5:
-						PS.color(col, row, WATER_COLOR);
-						break;
-					default:
-						PS.color(col, row, DEFAULT_COLOR);
-				}
-			}
-		}
-	};
-	
-	var makeChattyLadies = function() {
-		var l1 = PS.spriteSolid(2, 2);
-		PS.spriteSolidColor(l1, PS.COLOR_YELLOW);
-		PS.spritePlane(l1, HERA_PLANE);
-		PS.spriteShow(l1, false);
-		PS.spriteMove(l1, 5, 15);
-		chattyLadies[0][0].push({sprite: l1,
-														 phrase: "I like trees"});
-		
-		var l2 = PS.spriteSolid(2, 2);
-		PS.spriteSolidColor(l2, PS.COLOR_YELLOW);
-		PS.spritePlane(l2, HERA_PLANE);
-		PS.spriteShow(l2, false);
-		PS.spriteMove(l2, 7, 17);
-		chattyLadies[0][0].push({sprite: l2,
-											 phrase: "Let's eat rocks"});
-//		
-//		var l3 = PS.spriteSolid(2, 2);
-//		PS.spriteSolidColor(l3, PS.COLOR_YELLOW);
-//		PS.spritePlane(l3, HERA_PLANE);
-//		PS.spriteShow(l3, false);
-//		PS.spriteMove(l3, 10, 8);
-//		chattyLadies[l3] = {mapPos: [0, 0],
-//											 phrase: "Follow me!"};
-	};
-	
-	var changeLadies = function(row, col, appear) {
-		for(var key in chattyLadies[row][col]) {
-			PS.spriteShow(chattyLadies[row][col][key].sprite, appear);
-		}
-	};
-	
 	var drawNarc = function(row, col) {
 		if(row == narcMapRow && col == narcMapCol) {
 			PS.spriteShow(narcSprite, true);
@@ -974,15 +919,34 @@ var G;
 	};
 	
 	var narcReact = function(phrase) {
-		if(phrase.includes("rock")) {
+		if(phrase.includes("come")) {
 			PS.spriteMove(narcSprite, narcX-1, narcY-1);
 			narcX -= 1;
 			narcY -= 1;
-		} else if (phrase.includes("tree")) {
+		} else if (phrase.includes("leave")) {
 			PS.spriteMove(narcSprite, narcX+1, narcY+1);
 			narcX += 1;
 			narcY += 1;
 		}
+	};
+	
+	var setPhraseAbility = function() {
+		if(phrase.includes("come")) {
+			lure = 18; //num ticks to be lured for
+			lureCooldown = 30; //num ticks of lure cooldown (includes lured time)
+		} else if(phrase.includes("leave")) {
+			repel = 18;
+			lureCooldown = 30;
+		} else if(phrase.includes("stop")) {
+			stop = 18;
+			lureCooldown = 30;
+		}
+	}
+	
+	var ladyReact = function(spr, phrase) {
+//		if(phrase.includes("come")) {
+//			PS.spriteMove(spr, )
+//		}
 	};
 	
 	G = {
@@ -1124,8 +1088,14 @@ var G;
 			PS.statusText("");
 			PS.statusColor(PS.COLOR_CYAN);
 			customStatusText(phrase);
-			if(mapPos[0] == narcMapRow && mapPos[1] == narcMapCol)
-				narcReact(phrase);
+			setPhraseAbility(phrase);
+			var curLadies = narcLadies[mapPos[0]][mapPos[1]]
+			for(var i = 0; i < curLadies.length; i++) {
+				var lPos = PS.spriteMove(curLadies[i]);
+				if(PS.line(echoX, echoY, lPos.x, lPos.y).length <= LURE_RADIUS) {
+					
+				}
+			}
 		},
 		
 		initEcho : function() {
