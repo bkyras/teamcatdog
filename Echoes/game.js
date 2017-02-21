@@ -1286,7 +1286,9 @@ var G;
 		},
 		
 		restart : function() {
+			//TODO: LOG ATTEMPT TO DATABASE
 			deleteAllLadies();
+			girlsEaten = 0;
 			PS.spriteMove(zeusSprite, 2, 2);
 			zeusX = 2;
 			zeusY = 2;
