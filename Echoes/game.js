@@ -141,7 +141,6 @@ var G;
 			spawnLadyTimer--;
 		while(forDeletion.length > 0) {
 			var spr = forDeletion.pop();
-			console.log(spr);
 			PS.spriteDelete(spr);
 		}
 		
@@ -679,30 +678,23 @@ var G;
 
     //returns true if a move will not cause sprites to be overlapped
     var isMoveValidPart2 = function(spr, x, y) {
-        console.log(narcLadies);
-        console.log(chattyLadies);
-        console.log(narcSprite);
-
         var collision = false;
 
         var spriteList = [];
 
         narcLadies[mapPos[0]][mapPos[1]].forEach(function(lSpr){
             if (lSpr.sprite !== spr) {
-                console.log("narcLady");
                 PS.spriteMove(lSpr.sprite);
                 spriteList.push(lSpr.sprite);
             }
         });
         chattyLadies[mapPos[0]][mapPos[1]].forEach(function(lSpr){
             if (lSpr.sprite !== spr) {
-                console.log("chattyLady");
                 PS.spriteMove(lSpr.sprite);
                 spriteList.push(lSpr.sprite);
             }
         });
         if (narcSprite !== spr) {
-            console.log("narcBoy");
             PS.spriteMove(narcSprite);
             spriteList.push(narcSprite);
         }
@@ -824,7 +816,6 @@ var G;
 	};
 	
 	var incrementTutorial = function() {
-		//console.log("function called from: " + incrementTutorial.caller);
 		T.index += 1;
 		T.numMoves = 0;
 		clearTimeout(T.timer);
@@ -1075,7 +1066,6 @@ var G;
 				timeRemaining = 12;
 				T.timer = setInterval(function(){
 					timeRemaining -= 1;
-					console.log(timeRemaining);
 					if (timeRemaining >= 0) {
 						narcX += 1;
 						PS.spriteMove(narcSprite,narcX,narcY);
