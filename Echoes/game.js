@@ -350,7 +350,7 @@ var G;
 			} else if (stop > 0) {
 				//do nothing!
 				var nPath = PS.line(narcX, narcY, echoX, echoY);
-				if(nPath.length > 1 && nPath.length <= LURE_RADIUS)
+				if(nPath.length > 1 && nPath.length < LURE_RADIUS)
 					moveAhead = false;
 				narcTime = 5;
 			}
@@ -404,6 +404,7 @@ var G;
                             PS.dbEvent(DB_NAME, "Game Won", 1);
                             PS.dbSend(DB_NAME, ["nchaput", "bsheridan"], {discard: true, message: "Thanks for playing!"});
                         }
+						incrementTutorial();
 					}
 					narcPathPos = 0;
 					var newPos = narcPaths[narcMapRow][narcMapCol][narcPathPos];
@@ -511,7 +512,7 @@ var G;
 	var pathToNarc = function(spr) {
 		var sprLoc = PS.spriteMove(spr);
 		var nPath = PS.line(sprLoc.x, sprLoc.y, narcX, narcY);
-		if(nPath.length > 1 && nPath.length <= LURE_RADIUS) {
+		if(nPath.length > 1 && nPath.length < LURE_RADIUS) {
 			var nx = nPath[0][0];
 			var ny = nPath[0][1];
 			PS.spriteMove(spr, nx, ny);
@@ -522,7 +523,7 @@ var G;
 	var pathToEcho = function(spr, isPart1, sprX = PS.spriteMove(spr).x, sprY = PS.spriteMove(spr).y) {
 		var nPath = PS.line(sprX, sprY, echoX, echoY);
 		var pathed = false;
-		if(nPath.length > 1 && nPath.length <= LURE_RADIUS) {
+		if(nPath.length > 1 && nPath.length < LURE_RADIUS) {
 			pathed = true;
 			//PS.spriteSolidAlpha(spr, 180);
 			var nx = nPath[0][0];
@@ -540,7 +541,7 @@ var G;
 	
 	var pathFromEcho = function(spr, sprX = PS.spriteMove(spr).x, sprY = PS.spriteMove(spr).y) {
 		var nPath = PS.line(sprX, sprY, echoX, echoY);
-		if(nPath.length > 1 && nPath.length <= LURE_RADIUS) {
+		if(nPath.length > 1 && nPath.length < LURE_RADIUS) {
 			var nx = nPath[0][0];
 			var ny = nPath[0][1];
 			var xdiff = (sprX - nx);
@@ -1136,6 +1137,7 @@ var G;
 				
 				break;
 			case 31:
+				PS.statusColor(PS.COLOR_BLACK);
 				customStatusText("Narcissus looks at himself...");
 
 				T.timer = setTimeout(function(){
@@ -1156,7 +1158,8 @@ var G;
 					incrementTutorial();
 				}, SMALL_WAIT);
 				break;
-			case 33:
+			case 34:
+				activateBeads(0, 0);
 				customStatusText("At least you're together now.");
 				break;
 		}

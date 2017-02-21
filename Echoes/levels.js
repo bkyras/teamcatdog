@@ -217,10 +217,14 @@ var changeLadies = function(row, col, appear) {
 var makeChattyLadies = function() {
 	addPart2Lady(0, 0, 10, 4);
 	addPart2Lady(0, 0, 18, 8);
-	addPart2Lady(0, 1, 15, 18);
+	addPart2Lady(0, 1, 16, 19);
 	addPart2Lady(0, 1, 20, 22);
+	addPart2Lady(0, 2, 18, 5);
+	addPart2Lady(0, 2, 5, 22);
 	addChatter(0, 0, 5, 23, "Come over here.");
 	addChatter(0, 0, 9, 23, "Leave me alone!");
 	addChatter(0, 1, 8, 8, "Stop right there!");
 	addChatter(0, 1, 11, 6, "Leave me alone!");
+	addChatter(0, 2, 11, 8, "Stop right there!");
+	addChatter(0, 2, 15, 5, "Come over here!");
 };
