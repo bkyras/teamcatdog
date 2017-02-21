@@ -218,10 +218,13 @@ var addPart2Lady = function(row, col, x, y) {
 };
 
 var changeLadies = function(row, col, appear) {
-		for(var key in chattyLadies[row][col]) {
-			PS.spriteShow(chattyLadies[row][col][key].sprite, appear);
-		}
-	};
+	for(var key in chattyLadies[row][col]) {
+		PS.spriteShow(chattyLadies[row][col][key].sprite, appear);
+	}
+	for(var spr in narcLadies[row][col]) {
+		PS.spriteShow(narcLadies[row][col][spr], appear);
+	}
+};
 
 var makeChattyLadies = function() {
 	addPart2Lady(0, 0, 10, 4);
@@ -248,5 +251,5 @@ var makeChattyLadies = function() {
 	PS.spriteShow(l3, false);
 	PS.spriteMove(l3, 10, 8);
 	chattyLadies[l3] = {mapPos: [0, 0],
-										 phrase: "Stop!"};
+										 phrase: "Stop right there!"};
 };
