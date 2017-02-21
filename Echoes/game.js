@@ -280,6 +280,13 @@ var G;
 		}
 	};
 	
+	var checkWithinLure = function(x1, y1, x2, y2) {
+		var thePath = PS.line(x1, y1, x2, y2);
+		var distance = (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2);
+		var isWithinDist = thePath.length > 1 && distance < LURE_RADIUS * LURE_RADIUS;
+		return {nPath: thePath, isWithinDist: isWithinDist};
+	};
+	
 	var movePart2Ladies = function() {
 		if(ladyTime > 0)
 			ladyTime--;
@@ -288,8 +295,8 @@ var G;
 			var curLadies = narcLadies[mapPos[0]][mapPos[1]];
 			for(var i = 0; i < curLadies.length; i++) {
 				var ladyPos = PS.spriteMove(curLadies[i].sprite);
-				var nPath = PS.line(ladyPos.x, ladyPos.y, narcX, narcY);
-				var distance = (ladyPos.x-echoX)*(ladyPos.x-echoX) + (ladyPos.y-echoY)*(ladyPos.y-echoY);
+				
+				//check for lure/repel/stop effects
 				if(lure > 0) {
 					if(pathToEcho(curLadies[i].sprite, false).pathed)
 						moveAhead = false;
@@ -297,7 +304,7 @@ var G;
 					if(pathFromEcho(curLadies[i].sprite).pathed)
 						moveAhead = false;
 				} else if(stop > 0){
-					if(nPath.length > 1 && distance < LURE_RADIUS * LURE_RADIUS)
+					if(checkWithinLure(ladyPos.x, ladyPos.y, narcX, narcY).isWithinDist)
 						moveAhead = false;
 				}
 				if(moveAhead) {
@@ -310,8 +317,11 @@ var G;
 	};
 	
 	var moveNarc = function() {
+		//if Narcissus can move and is on your map
 		if(narcTime <= 0 && mapPos[0] == narcMapRow && mapPos[1] == narcMapCol) {
 			var moveAhead = true;
+			
+			//checks for lure/repel/stop effects
 			if(lure > 0) {
 				var nPos = pathToEcho(narcSprite, false, narcX, narcY).location;
 				if(narcX != nPos.x || narcY != nPos.y)
@@ -328,14 +338,15 @@ var G;
 				narcTime = 5;
 			} else if (stop > 0) {
 				//do nothing!
-				var nPath = PS.line(narcX, narcY, echoX, echoY);
-				var distance = (narcX-echoX)*(narcX-echoX) + (narcY-echoY)*(narcY-echoY);
-				if(nPath.length > 1 && distance < LURE_RADIUS * LURE_RADIUS)
+				if(checkWithinLure(narcX, narcY, echoX, echoY).isWithinDist)
 					moveAhead = false;
 				narcTime = 5;
 			}
+			
+			//if not in distance of echo's lure/no lure was used
 			if(moveAhead) {
 				var endOfPath = true;
+				//Narcissus is on a tile that is not on his destined path
 				if(!hasCoord(narcPaths[narcMapRow][narcMapCol], [narcX, narcY]).found) {
 					var p = narcPaths[narcMapRow][narcMapCol]
 					var path = PS.line(narcX, narcY, p[0][0], p[0][1])
@@ -354,6 +365,7 @@ var G;
 					narcTime = 5;
 					endOfPath = false;
 				}
+				//He is on the path, and is not on the last tile on the path
 				else if(narcPaths[narcMapRow][narcMapCol].length > narcPathPos) {
 					var coordInfo = hasCoord(narcPaths[narcMapRow][narcMapCol], [narcX, narcY]);
 					if(coordInfo.found) {
@@ -369,6 +381,7 @@ var G;
 						endOfPath = false;
 					}
 				}
+				//If the end of the path is reached
 				if(endOfPath) {
 					if(narcMapCol != 2) {
 						narcMapCol += 1;
@@ -378,6 +391,7 @@ var G;
 						narcMapRow +=1;
 						PS.spriteShow(narcSprite, false);
 					}
+					//Got to the last tile of the last map
 					else {
 						endGame = true;
 						PS.dbEvent(DB_NAME, "Game Won", 1);
@@ -479,11 +493,10 @@ var G;
 	
 	var pathToNarc = function(spr) {
 		var sprLoc = PS.spriteMove(spr);
-		var nPath = PS.line(sprLoc.x, sprLoc.y, narcX, narcY);
-		var distance = (sprLoc.x-narcX)*(sprLoc.x-narcX) + (sprLoc.y-narcY)*(sprLoc.y-narcY);
-		if(nPath.length > 1 && distance < LURE_RADIUS * LURE_RADIUS) {
-			var nx = nPath[0][0];
-			var ny = nPath[0][1];
+		var checkLure = checkWithinLure(sprLoc.x, sprLoc.y, narcX, narcY);
+		if(checkLure.isWithinDist) {
+			var nx = checkLure.nPath[0][0];
+			var ny = checkLure.nPath[0][1];
 			if(isMoveValidPart2(spr, nx, ny)) {
 				PS.spriteMove(spr, nx, ny);
 			}
@@ -492,18 +505,17 @@ var G;
 	};
 	
 	var pathToEcho = function(spr, isPart1, sprX = PS.spriteMove(spr).x, sprY = PS.spriteMove(spr).y) {
-		var nPath = PS.line(sprX, sprY, echoX, echoY);
-		var distance = (sprX-echoX)*(sprX-echoX) + (sprY-echoY)*(sprY-echoY);
+		var checkLure = checkWithinLure(sprX, sprY, echoX, echoY);
 		var pathed = false;
-		if(nPath.length > 1 && distance < LURE_RADIUS * LURE_RADIUS) {
+		if(checkLure.isWithinDist) {
 			pathed = true;
 			//PS.spriteSolidAlpha(spr, 180);
-			var nx = nPath[0][0];
-			var ny = nPath[0][1]
+			var nx = checkLure.nPath[0][0];
+			var ny = checkLure.nPath[0][1]
 			if(isPart1) {
 				if(isMoveValidPart1(spr, nx, ny)) {
-                    PS.spriteMove(spr, nx, ny);
-                }
+					PS.spriteMove(spr, nx, ny);
+				}
 			} else if (isMoveValidPart2(spr, nx, ny)){
 				PS.spriteMove(spr, nx, ny);
 			}
@@ -512,13 +524,12 @@ var G;
 	};
 	
 	var pathFromEcho = function(spr, sprX = PS.spriteMove(spr).x, sprY = PS.spriteMove(spr).y) {
-		var nPath = PS.line(sprX, sprY, echoX, echoY);
-		var distance = (sprX-echoX)*(sprX-echoX) + (sprY-echoY)*(sprY-echoY);
+		var checkLure = checkWithinLure(sprX, sprY, echoX, echoY);
 		var pathed = false;
-		if(nPath.length > 1 && distance < LURE_RADIUS * LURE_RADIUS) {
+		if(checkLure.isWithinDist) {
 			pathed = true;
-			var nx = nPath[0][0];
-			var ny = nPath[0][1];
+			var nx = checkLure.nPath[0][0];
+			var ny = checkLure.nPath[0][1];
 			var xdiff = (sprX - nx);
 			var ydiff = (sprY - ny);
       if (isMoveValidPart2(spr, sprX + xdiff, sprY + ydiff)){
