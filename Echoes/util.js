@@ -272,6 +272,8 @@ var activateBeads = function(newWidth, newHeight) {
 			}
 		}
 	}
+
+	PS.gridRefresh();
 };
 
 var customStatusText = function (statusText) {
@@ -315,6 +317,13 @@ var initGlyphPlace = function() {
 	PS.glyphColor(PS.ALL,PS.ALL,HEART_COLOR);
 	PS.glyphAlpha(PS.ALL,PS.ALL,0);
 
+	PS.gridPlane(plane);
+};
+
+var eraseGlyphs = function() {
+	var plane = PS.gridPlane();
+	PS.gridPlane(GLYPH_PLANE);
+	PS.alpha(PS.ALL,PS.ALL,0);
 	PS.gridPlane(plane);
 };
 
