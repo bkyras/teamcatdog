@@ -291,9 +291,9 @@ var G;
 	var hasCoord = function(pathArray, coord) {
 		for(var i = 0; i < pathArray.length; i++) {
 			if(pathArray[i][0] == coord[0] && pathArray[i][1] == coord[1])
-				return true;
+				return {found: true, coord: i};
 		}
-		return false;
+		return {found: false, coord: -1};
 	};
 	
 	var movePart2Ladies = function() {
@@ -306,8 +306,11 @@ var G;
 					pathToEcho(curLadies[i], false);
 				else if(repel > 0)
 					pathFromEcho(curLadies[i]);
-				else if(stop > 0)
+				else if(stop > 0){
 					//do nothing
+				} else {
+					pathToNarc(curLadies[i]);
+				}
 			}
 			ladyTime = 3;
 		}
@@ -329,7 +332,7 @@ var G;
 				//do nothing!
 				narcTime = 5;
 			} else {
-				if(!hasCoord(narcPaths[narcMapRow][narcMapCol], [narcX, narcY])) {
+				if(!hasCoord(narcPaths[narcMapRow][narcMapCol], [narcX, narcY]).found) {
 					var p = narcPaths[narcMapRow][narcMapCol]
 					var path = PS.line(narcX, narcY, p[0][0], p[0][1])
 					for(var i = 0; i < p.length; i++) {
@@ -347,6 +350,10 @@ var G;
 					narcTime = 5;
 				}
 				else if(narcPaths[narcMapRow][narcMapCol].length > narcPathPos) {
+					var coordInfo = hasCoord(narcPaths[narcMapRow][narcMapCol], [narcX, narcY]);
+					if(coordInfo.found) {
+						narcPathPos = coordInfo.coord + 1;
+					}
 					var p = narcPaths[narcMapRow][narcMapCol][narcPathPos];
 					narcX = p[0];
 					narcY = p[1];
@@ -443,6 +450,17 @@ var G;
         //PS.spriteMove(sprite, pos.xPos, pos.yPos)
         return {xPos: pos.xPos, yPos: pos.yPos};
     };
+	
+	var pathToNarc = function(spr) {
+		var sprLoc = PS.spriteMove(spr);
+		var nPath = PS.line(sprLoc.x, sprLoc.y, narcX, narcY);
+		if(nPath.length > 1 && nPath.length <= LURE_RADIUS) {
+			var nx = nPath[0][0];
+			var ny = nPath[0][1];
+			PS.spriteMove(spr, nx, ny);
+		}
+		return PS.spriteMove(spr);
+	};
 	
 	var pathToEcho = function(spr, isPart1, sprX = PS.spriteMove(spr).x, sprY = PS.spriteMove(spr).y) {
 		var nPath = PS.line(sprX, sprY, echoX, echoY);
