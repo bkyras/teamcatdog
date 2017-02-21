@@ -489,9 +489,10 @@ var G;
 			var nx = nPath[0][0];
 			var ny = nPath[0][1]
 			if(isPart1) {
-				if(isMoveValidPart1(spr, nx, ny))
-					PS.spriteMove(spr, nx, ny)
-			} else {
+				if(isMoveValidPart1(spr, nx, ny)) {
+                    PS.spriteMove(spr, nx, ny);
+                }
+			} else if (isMoveValidPart2(spr, nx, ny)){
 				PS.spriteMove(spr, nx, ny);
 			}
 		}
@@ -505,7 +506,9 @@ var G;
 			var ny = nPath[0][1];
 			var xdiff = (sprX - nx);
 			var ydiff = (sprY - ny);
-			PS.spriteMove(spr, sprX + xdiff, sprY + ydiff);
+            if (isMoveValidPart2(spr, sprX + xdiff, sprY + ydiff)){
+                PS.spriteMove(spr, sprX + xdiff, sprY + ydiff);
+            }
 		}
 		return PS.spriteMove(spr);
 	};
@@ -653,6 +656,9 @@ var G;
 
     //returns true if a move will not cause sprites to be overlapped
     var isMoveValidPart2 = function(spr, x, y) {
+        console.log(narcLadies);
+        console.log(chattyLadies);
+        console.log(narcSprite);
 
         var collision = false;
 
@@ -660,15 +666,21 @@ var G;
 
         narcLadies[mapPos[0]][mapPos[1]].forEach(function(lSpr){
             if (lSpr !== spr) {
+                console.log("narcLady");
+                PS.spriteMove(lSpr);
                 spriteList.push(lSpr);
             }
         });
         chattyLadies[mapPos[0]][mapPos[1]].forEach(function(lSpr){
-            if (lSpr !== spr) {
-                spriteList.push(lSpr);
+            if (lSpr.sprite !== spr) {
+                console.log("chattyLady");
+                PS.spriteMove(lSpr.sprite);
+                spriteList.push(lSpr.sprite);
             }
         });
         if (narcSprite !== spr) {
+            console.log("narcBoy");
+            PS.spriteMove(narcSprite);
             spriteList.push(narcSprite);
         }
 
