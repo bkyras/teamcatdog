@@ -403,16 +403,17 @@ var G;
 	
 	var narcCollide = function(s1, p1, s2, p2, type) {
 		if(isPart3) {
-            var narcLadySprites = [];
-            narcLadies[mapPos[0]][mapPos[1]].forEach(function(spr){
-                narcLadySprites.push(spr.sprite);
-            });
+      var narcLadySprites = [];
+      narcLadies[mapPos[0]][mapPos[1]].forEach(function(spr){
+				narcLadySprites.push(spr.sprite);
+			});
 			if(narcLadySprites.includes(s2)) {
 				G.gameOverPart3 = true;
-                if (idMoveTimer !== null) {
-                    PS.timerStop(idMoveTimer);
-                }
-                customStatusText("You lost Narcissus to nymphs!");
+        if (idMoveTimer !== null) {
+          PS.timerStop(idMoveTimer);
+					idMoveTimer = null;
+        }
+      customStatusText("You lost Narcissus to nymphs!");
 			}
 		} else if(isPart2) {
 			if (!firstEnc) {
@@ -1108,37 +1109,48 @@ var G;
 				}, SMALL_WAIT);
 				break;
 			case 29:
-				customStatusText("Some time later...");
-				isPart3 = true;
-
-				activateBeads(30,30);
-				G.initPart2();
+				customStatusText("You want him for yourself...");
 
 				T.timer = setTimeout(function(){
 					incrementTutorial();
 				}, SMALL_WAIT);
 				break;
-//			case 30:
-//				customStatusText("You are now a ghost.");
-//
-//				T.timer = setTimeout(function(){
-//					incrementTutorial();
-//				}, SMALL_WAIT);
-//				break;
-//			case 31:
-//				customStatusText("That pond looked nice.");
-//
-//				T.timer = setTimeout(function(){
-//					incrementTutorial();
-//				}, SMALL_WAIT);
-//				break;
-//			case 32:
-//				customStatusText("Find Narcissus, bring him there.");
-//
-//				T.timer = setTimeout(function(){
-//					incrementTutorial();
-//				}, SMALL_WAIT);
-//				break;
+			case 30:
+				customStatusText("Keep those nymphs away!");
+				isPart3 = true;
+
+				activateBeads(30,30);
+				G.initPart2();
+				
+				break;
+			case 31:
+				customStatusText("Narcissus looks at himself...");
+
+				T.timer = setTimeout(function(){
+					incrementTutorial();
+				}, SMALL_WAIT);
+				break;
+			case 32:
+				customStatusText("Wow, he really is hot.");
+
+				T.timer = setTimeout(function(){
+					incrementTutorial();
+				}, SMALL_WAIT);
+				break;
+			case 33:
+				customStatusText("So hot he dies staring.");
+
+				T.timer = setTimeout(function(){
+					incrementTutorial();
+				}, SMALL_WAIT);
+				break;
+			case 33:
+				customStatusText("At least you're together now.");
+
+				T.timer = setTimeout(function(){
+					incrementTutorial();
+				}, SMALL_WAIT);
+				break;
 		}
 	};
 
@@ -1483,8 +1495,10 @@ var G;
             PS.spriteMove(echoGhostSprite, echoX, echoY);
             echoGhostActive = true;
 
-            narcX = 1;
-            narcY = 15;
+					//change
+						var nPath = narcPaths[mapPos[0]][mapPos[1]];
+            narcX = nPath[0][0];
+            narcY = nPath[0][1];
             PS.spriteMove(narcSprite, narcX, narcY);
             PS.spriteShow(narcSprite, true);
 
