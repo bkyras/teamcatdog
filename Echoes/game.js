@@ -148,6 +148,24 @@ var G;
 		}
 
 		PS.gridPlane(plane);
+	};*/
+
+	var drawLure2 = function(count) {
+		var x,y;
+		var plane = PS.gridPlane();
+		PS.gridPlane(LURE_PLANE);
+
+		var lure_transition = Math.floor(255 * (count / MAX_LURE_TIMER));
+
+		for (x = 0; x < G.GRID_WIDTH; x++) {
+			for (y = 0; y < G.GRID_HEIGHT; y++) {
+				if ((x-echoX)*(x-echoX) + (y-echoY)*(y-echoY) < LURE_RADIUS * LURE_RADIUS) {
+					PS.alpha(x,y,lure_transition);
+				}
+			}
+		}
+
+		PS.gridPlane(plane);
 	};
 	
 	var movePart2Ladies = function() {
@@ -159,6 +177,7 @@ var G;
 			for(var i = 0; i < curLadies.length; i++) {
 				var ladyPos = PS.spriteMove(curLadies[i].sprite);
 				var nPath = PS.line(ladyPos.x, ladyPos.y, narcX, narcY);
+				var distance = (ladyPos.x-echoX)*(ladyPos.x-echoX) + (ladyPos.y-echoY)*(ladyPos.y-echoY);
 				if(lure > 0) {
 					if(pathToEcho(curLadies[i].sprite, false).pathed)
 						moveAhead = false;
@@ -166,7 +185,7 @@ var G;
 					if(pathFromEcho(curLadies[i].sprite).pathed)
 						moveAhead = false;
 				} else if(stop > 0){
-					if(nPath.length > 1 && nPath.length < LURE_RADIUS)
+					if(nPath.length > 1 && distance < LURE_RADIUS * LURE_RADIUS)
 						moveAhead = false;
 				}
 				if(moveAhead) {
@@ -198,7 +217,8 @@ var G;
 			} else if (stop > 0) {
 				//do nothing!
 				var nPath = PS.line(narcX, narcY, echoX, echoY);
-				if(nPath.length > 1 && nPath.length < LURE_RADIUS)
+				var distance = (narcX-echoX)*(narcX-echoX) + (narcY-echoY)*(narcY-echoY);
+				if(nPath.length > 1 && distance < LURE_RADIUS * LURE_RADIUS)
 					moveAhead = false;
 				narcTime = 5;
 			}
@@ -358,7 +378,8 @@ var G;
 	var pathToNarc = function(spr) {
 		var sprLoc = PS.spriteMove(spr);
 		var nPath = PS.line(sprLoc.x, sprLoc.y, narcX, narcY);
-		if(nPath.length > 1 && nPath.length < LURE_RADIUS) {
+		var distance = (sprLoc.x-narcX)*(sprLoc.x-narcX) + (sprLoc.y-narcY)*(sprLoc.y-narcY);
+		if(nPath.length > 1 && distance < LURE_RADIUS * LURE_RADIUS) {
 			var nx = nPath[0][0];
 			var ny = nPath[0][1];
 			if(isMoveValidPart2(spr, nx, ny)) {
@@ -370,8 +391,9 @@ var G;
 	
 	var pathToEcho = function(spr, isPart1, sprX = PS.spriteMove(spr).x, sprY = PS.spriteMove(spr).y) {
 		var nPath = PS.line(sprX, sprY, echoX, echoY);
+		var distance = (sprX-echoX)*(sprX-echoX) + (sprY-echoY)*(sprY-echoY);
 		var pathed = false;
-		if(nPath.length > 1 && nPath.length < LURE_RADIUS) {
+		if(nPath.length > 1 && distance < LURE_RADIUS * LURE_RADIUS) {
 			pathed = true;
 			//PS.spriteSolidAlpha(spr, 180);
 			var nx = nPath[0][0];
@@ -389,8 +411,9 @@ var G;
 	
 	var pathFromEcho = function(spr, sprX = PS.spriteMove(spr).x, sprY = PS.spriteMove(spr).y) {
 		var nPath = PS.line(sprX, sprY, echoX, echoY);
+		var distance = (sprX-echoX)*(sprX-echoX) + (sprY-echoY)*(sprY-echoY);
 		var pathed = false;
-		if(nPath.length > 1 && nPath.length < LURE_RADIUS) {
+		if(nPath.length > 1 && distance < LURE_RADIUS * LURE_RADIUS) {
 			pathed = true;
 			var nx = nPath[0][0];
 			var ny = nPath[0][1];
