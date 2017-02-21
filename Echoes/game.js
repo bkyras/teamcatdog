@@ -79,7 +79,7 @@ var G;
 	
 	var heraCaughtZeus = false;
 
-	var isPart2 = false;
+	var isPart2 = false, isPart3 = false;
 	var firstEnc = false;
 	var firstTalk = false;
 	
@@ -309,29 +309,40 @@ var G;
 				else if(stop > 0){
 					//do nothing
 				} else {
-					pathToNarc(curLadies[i]);
+					if(PS.spriteShow(narcSprite))
+						pathToNarc(curLadies[i]);
 				}
 			}
-			ladyTime = 3;
+			ladyTime = 4;
 		}
 	};
 	
 	var moveNarc = function() {
 		if(narcTime <= 0 && mapPos[0] == narcMapRow && mapPos[1] == narcMapCol) {
+			var moveAhead = true;
 			if(lure > 0) {
 				var nPos = pathToEcho(narcSprite, false, narcX, narcY).location;
+				if(narcX != nPos.x || narcY != nPos.y)
+					moveAhead = false;
 				narcX = nPos.x;
 				narcY = nPos.y;
 				narcTime = 5;
 			} else if(repel > 0) {
 				var nPos = pathFromEcho(narcSprite, narcX, narcY);
+				if(narcX != nPos.x || narcY != nPos.y)
+					moveAhead = false;
 				narcX = nPos.x;
 				narcY = nPos.y;
 				narcTime = 5;
 			} else if (stop > 0) {
 				//do nothing!
+				var nPath = PS.line(narcX, narcY, echoX, echoY);
+				if(nPath.length > 1 && nPath.length <= LURE_RADIUS)
+					moveAhead = false;
 				narcTime = 5;
-			} else {
+			}
+			if(moveAhead) {
+				var endOfPath = true;
 				if(!hasCoord(narcPaths[narcMapRow][narcMapCol], [narcX, narcY]).found) {
 					var p = narcPaths[narcMapRow][narcMapCol]
 					var path = PS.line(narcX, narcY, p[0][0], p[0][1])
@@ -348,21 +359,26 @@ var G;
 						PS.spriteMove(narcSprite, narcX, narcY);
 					}
 					narcTime = 5;
+					endOfPath = false;
 				}
 				else if(narcPaths[narcMapRow][narcMapCol].length > narcPathPos) {
 					var coordInfo = hasCoord(narcPaths[narcMapRow][narcMapCol], [narcX, narcY]);
 					if(coordInfo.found) {
 						narcPathPos = coordInfo.coord + 1;
 					}
-					var p = narcPaths[narcMapRow][narcMapCol][narcPathPos];
-					narcX = p[0];
-					narcY = p[1];
-					PS.spriteMove(narcSprite, narcX, narcY);
-					narcPathPos++;
-					narcTime = 5;
-				} else {
+					if(narcPathPos < narcPaths[narcMapRow][narcMapCol].length) {
+						var p = narcPaths[narcMapRow][narcMapCol][narcPathPos];
+						narcX = p[0];
+						narcY = p[1];
+						PS.spriteMove(narcSprite, narcX, narcY);
+						narcPathPos++;
+						narcTime = 5;
+						endOfPath = false;
+					}
+				}
+				if(endOfPath) {
 					PS.spriteShow(narcSprite, false);
-					narcMapCol+=1;
+					narcMapCol += 1;
 					narcPathPos = 0;
 				}
 			}
@@ -370,8 +386,12 @@ var G;
 		narcTime--;
 	};
 	
-	var narcCollide = function() {
-		if (isPart2) {
+	var narcCollide = function(s1, p1, s2, p2, type) {
+		if(isPart3) {
+			if(narcLadies[mapPos[0]][mapPos[1]].includes(s2)) {
+				//END, RESTART STAGE
+			}
+		} else if(isPart2) {
 			if (!firstEnc) {
 				clearTutorial();
 				PS.statusText("");
@@ -384,8 +404,6 @@ var G;
 					incrementTutorial();
 				}, 3000);
 			}
-		} else {
-
 		}
 	};
 	
@@ -1056,6 +1074,7 @@ var G;
 				break;
 			case 29:
 				customStatusText("Some time later...");
+				isPart3 = true;
 
 				activateBeads(30,30);
 				G.initPart2();
