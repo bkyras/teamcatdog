@@ -218,6 +218,16 @@ var addPart2Lady = function(row, col, x, y) {
 	narcLadies[row][col].push(a);
 };
 
+var addChatter = function(row, col, x, y, phrase) {
+	var a = PS.spriteSolid(2, 2);
+	PS.spriteSolidColor(a, PS.COLOR_YELLOW);
+	PS.spritePlane(a, HERA_PLANE);
+	PS.spriteShow(a, false);
+	PS.spriteMove(a, x, y);
+	chattyLadies[row][col].push({sprite: a,
+															 phrase: phrase});
+};
+
 var changeLadies = function(row, col, appear) {
 	for(var key in chattyLadies[row][col]) {
 		PS.spriteShow(chattyLadies[row][col][key].sprite, appear);
@@ -230,27 +240,8 @@ var changeLadies = function(row, col, appear) {
 var makeChattyLadies = function() {
 	addPart2Lady(0, 0, 10, 4);
 	addPart2Lady(0, 0, 18, 8);
-	var l1 = PS.spriteSolid(2, 2);
-	PS.spriteSolidColor(l1, PS.COLOR_YELLOW);
-	PS.spritePlane(l1, HERA_PLANE);
-	PS.spriteShow(l1, false);
-	PS.spriteMove(l1, 5, 15);
-	chattyLadies[0][0].push({sprite: l1,
-													 phrase: "Come over here."});
-
-	var l2 = PS.spriteSolid(2, 2);
-	PS.spriteSolidColor(l2, PS.COLOR_YELLOW);
-	PS.spritePlane(l2, HERA_PLANE);
-	PS.spriteShow(l2, false);
-	PS.spriteMove(l2, 7, 17);
-	chattyLadies[0][0].push({sprite: l2,
-										 phrase: "Leave me alone!"});
-
-	var l3 = PS.spriteSolid(2, 2);
-	PS.spriteSolidColor(l3, PS.COLOR_YELLOW);
-	PS.spritePlane(l3, HERA_PLANE);
-	PS.spriteShow(l3, false);
-	PS.spriteMove(l3, 10, 8);
-	chattyLadies[l3] = {mapPos: [0, 0],
-										 phrase: "Stop right there!"};
+	addPart2Lady(0, 1, 15, 18);
+	addChatter(0, 0, 5, 23, "Come over here.");
+	addChatter(0, 0, 9, 23, "Leave me alone!");
+	addChatter(0, 1, 7, 17, "Stop right there!");
 };

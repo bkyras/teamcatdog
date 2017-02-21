@@ -389,7 +389,7 @@ var G;
 	var narcCollide = function(s1, p1, s2, p2, type) {
 		if(isPart3) {
 			if(narcLadies[mapPos[0]][mapPos[1]].includes(s2)) {
-				//END, RESTART STAGE
+				console.log("hi");
 			}
 		} else if(isPart2) {
 			if (!firstEnc) {
