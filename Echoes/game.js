@@ -389,6 +389,7 @@ var G;
 					}
 					else {
 						endGame = true;
+						incrementTutorial();
 					}
 					narcPathPos = 0;
 					var newPos = narcPaths[narcMapRow][narcMapCol][narcPathPos];
@@ -1114,6 +1115,7 @@ var G;
 				
 				break;
 			case 31:
+				PS.statusColor(PS.COLOR_BLACK);
 				customStatusText("Narcissus looks at himself...");
 
 				T.timer = setTimeout(function(){
@@ -1134,12 +1136,9 @@ var G;
 					incrementTutorial();
 				}, SMALL_WAIT);
 				break;
-			case 33:
+			case 34:
+				activateBeads(0, 0);
 				customStatusText("At least you're together now.");
-
-				T.timer = setTimeout(function(){
-					incrementTutorial();
-				}, SMALL_WAIT);
 				break;
 		}
 	};
