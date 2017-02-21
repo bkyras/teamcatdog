@@ -313,15 +313,22 @@ var G;
 		if(ladyTime > 0)
 			ladyTime--;
 		else {
+			var moveAhead = true;
 			var curLadies = narcLadies[mapPos[0]][mapPos[1]];
 			for(var i = 0; i < curLadies.length; i++) {
-				if(lure > 0)
-					pathToEcho(curLadies[i].sprite, false);
-				else if(repel > 0)
-					pathFromEcho(curLadies[i].sprite);
-				else if(stop > 0){
-					//do nothing
-				} else {
+				var ladyPos = PS.spriteMove(curLadies[i].sprite);
+				var nPath = PS.line(ladyPos.x, ladyPos.y, narcX, narcY);
+				if(lure > 0) {
+					if(pathToEcho(curLadies[i].sprite, false).pathed)
+						moveAhead = false;
+				} else if(repel > 0) {
+					if(pathFromEcho(curLadies[i].sprite).pathed)
+						moveAhead = false;
+				} else if(stop > 0){
+					if(nPath.length > 1 && nPath.length < LURE_RADIUS)
+						moveAhead = false;
+				}
+				if(moveAhead) {
 					if(PS.spriteShow(narcSprite))
 						pathToNarc(curLadies[i].sprite);
 				}
@@ -341,7 +348,7 @@ var G;
 				narcY = nPos.y;
 				narcTime = 5;
 			} else if(repel > 0) {
-				var nPos = pathFromEcho(narcSprite, narcX, narcY);
+				var nPos = pathFromEcho(narcSprite, narcX, narcY).location;
 				if(narcX != nPos.x || narcY != nPos.y)
 					moveAhead = false;
 				narcX = nPos.x;
@@ -511,7 +518,9 @@ var G;
 		if(nPath.length > 1 && nPath.length < LURE_RADIUS) {
 			var nx = nPath[0][0];
 			var ny = nPath[0][1];
-			PS.spriteMove(spr, nx, ny);
+			if(isMoveValidPart2(spr, nx, ny)) {
+				PS.spriteMove(spr, nx, ny);
+			}
 		}
 		return PS.spriteMove(spr);
 	};
@@ -537,16 +546,18 @@ var G;
 	
 	var pathFromEcho = function(spr, sprX = PS.spriteMove(spr).x, sprY = PS.spriteMove(spr).y) {
 		var nPath = PS.line(sprX, sprY, echoX, echoY);
+		var pathed = false;
 		if(nPath.length > 1 && nPath.length < LURE_RADIUS) {
+			pathed = true;
 			var nx = nPath[0][0];
 			var ny = nPath[0][1];
 			var xdiff = (sprX - nx);
 			var ydiff = (sprY - ny);
-            if (isMoveValidPart2(spr, sprX + xdiff, sprY + ydiff)){
-                PS.spriteMove(spr, sprX + xdiff, sprY + ydiff);
-            }
+      if (isMoveValidPart2(spr, sprX + xdiff, sprY + ydiff)){
+        PS.spriteMove(spr, sprX + xdiff, sprY + ydiff);
+      }
 		}
-		return PS.spriteMove(spr);
+		return {pathed: pathed, location: PS.spriteMove(spr)};
 	};
 	
 	var moveHera = function() {
