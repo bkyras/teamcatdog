@@ -350,6 +350,23 @@ var eraseLure = function() {
 	PS.gridPlane(plane);
 };
 
+var drawLure = function(count) {
+	var x,y;
+	var plane = PS.gridPlane();
+	PS.gridPlane(LURE_PLANE);
+
+	var lure_transition = Math.floor(255 * (count / MAX_LURE_TIMER));
+
+	for (x = 0; x < G.GRID_WIDTH; x++) {
+		for (y = 0; y < G.GRID_HEIGHT; y++) {
+			if ((x-echoX)*(x-echoX) + (y-echoY)*(y-echoY) < LURE_RADIUS * LURE_RADIUS) {
+				PS.alpha(x,y,lure_transition);
+			}
+		}
+	}
+
+	PS.gridPlane(plane);
+};
 
 /**PART 2 UTILITY FUNCTIONS*****************************************/
 

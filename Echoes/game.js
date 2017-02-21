@@ -37,13 +37,14 @@ var G;
 			return;
 		}
 		
-		if (echoActive) {
-			moveEcho(echoSprite);
-		}
 		heraTime--;
 		zeusTime--;
 		ladyTime--;
 		
+		//moves actors of part 1
+		if(echoActive) {
+			moveEcho(echoSprite);
+		}
 		if(heraActive && heraTime <= 0) {
 			moveHera();
 			heraTime = 2;
@@ -56,35 +57,42 @@ var G;
 			moveLadies();
 			ladyTime = 3;
 		}
-		if(lureCooldown == 0)
+		
+		//sets echo's transparency for cooldown
+		if(lureCooldown == 0) {
 			PS.spriteSolidAlpha(echoSprite, 255);
+		}
 		if(lureCooldown > 0) {
 			var a = PS.spriteSolidAlpha(echoSprite);
 			PS.spriteSolidAlpha(echoSprite, a+((255-a)/lureCooldown));
 			lureCooldown--;
 		}
 
+		//draws lure visual effect
 		fadeGlyphs();
 		eraseLure();
 		if(lure > 0) {
 			lure--;
 			if (!isPart2) {
-				drawLure2(lure);
+				drawLure(lure);
 			}
 		}
 		
+		//spawns a lady occasionally
 		if(ladiesActive && ladySprites.length < MAX_LADIES && spawnLadyTimer == 0 && !isPart2) {
 			spawnLady();
 			spawnLadyTimer = 50;
 		}
-		if(spawnLadyTimer > 0)
+		if(spawnLadyTimer > 0) {
 			spawnLadyTimer--;
+		}
+		
 		while(forDeletion.length > 0) {
 			var spr = forDeletion.pop();
 			PS.spriteDelete(spr);
 		}
 		
-		if (heraCaughtZeus) {
+		if(heraCaughtZeus) {
 			zeusGameOver();
 		}
 	};
@@ -108,7 +116,7 @@ var G;
 				stop--;
 			}
 			if (drawLureInt > 0) {
-				drawLure2(drawLureInt);
+				drawLure(drawLureInt);
 			}
 			if(lureCooldown > 0) {
 				lureCooldown--;
@@ -117,24 +125,6 @@ var G;
 			movePart2Ladies();
 			G.mapMove(echoX, echoY);
 		}
-	};
-
-	var drawLure2 = function(count) {
-		var x,y;
-		var plane = PS.gridPlane();
-		PS.gridPlane(LURE_PLANE);
-
-		var lure_transition = Math.floor(255 * (count / MAX_LURE_TIMER));
-
-		for (x = 0; x < G.GRID_WIDTH; x++) {
-			for (y = 0; y < G.GRID_HEIGHT; y++) {
-				if ((x-echoX)*(x-echoX) + (y-echoY)*(y-echoY) < LURE_RADIUS * LURE_RADIUS) {
-					PS.alpha(x,y,lure_transition);
-				}
-			}
-		}
-
-		PS.gridPlane(plane);
 	};
 	
 	var movePart2Ladies = function() {
@@ -237,8 +227,8 @@ var G;
 					}
 					else {
 						endGame = true;
-                        PS.dbEvent(DB_NAME, "Game Won", 1);
-                        PS.dbSend(DB_NAME, ["nchaput", "bsheridan"], {discard: true, message: "Thanks for playing!"});
+						PS.dbEvent(DB_NAME, "Game Won", 1);
+						PS.dbSend(DB_NAME, ["nchaput", "bsheridan"], {discard: true, message: "Thanks for playing!"});
 						incrementTutorial();
 					}
 					narcPathPos = 0;
@@ -328,19 +318,18 @@ var G;
         var pos;
 
         if (rand > 6 && zeusActive) {
-            var hPath = PS.line(heraX, heraY, zeusX, zeusY);
-            if (hPath.length > 0) {
-                var hx = hPath[0][0];
-                var hy = hPath[0][1]
-                pos = {xPos: hx, yPos: hy};
-            } else {
-                pos = moveRandom(sprite, x, y);
-            }
+					var hPath = PS.line(heraX, heraY, zeusX, zeusY);
+					if (hPath.length > 0) {
+						var hx = hPath[0][0];
+						var hy = hPath[0][1]
+						pos = {xPos: hx, yPos: hy};
+					} else {
+							pos = moveRandom(sprite, x, y);
+					}
         } else {
-            pos = moveRandom(sprite, x, y);
+          	pos = moveRandom(sprite, x, y);
         }
 
-        //PS.spriteMove(sprite, pos.xPos, pos.yPos)
         return {xPos: pos.xPos, yPos: pos.yPos};
     };
 	
@@ -492,14 +481,12 @@ var G;
 					PS.spriteMove(spr, nx, ny);
 					echoX = nx;
 					echoY = ny;
-					step++;  // uncomment here to get blocked normally
+					step++;
 				}
 			}
 		}
-
-		//step++;  uncomment here for telepotting
 		
-		if ( step >= path.length ) {
+		if(step >= path.length) {
 			path = [];
 		}
 	};
