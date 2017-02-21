@@ -131,6 +131,8 @@ var incrementTutorial = function() {
 
 				deleteAllLadies();
 				deleteZeus();
+				eraseLure();
+				eraseGlyphs();
 
 				//G.lastDbSend(true);
 				PS.spriteSolidAlpha(echoSprite, 255);
