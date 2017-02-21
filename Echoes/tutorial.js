@@ -8,6 +8,13 @@ var T; //variable containing tutorial functions.
 		onMove : function(){}
 	};
 
+var clearTutorial = function() {
+	T.numMoves = 0;
+	clearTimeout(T.timer);
+	T.timer = null;
+	T.onMove = function(){};
+};
+
 var incrementTutorial = function() {
     if (T.index !== 0 && !endGame) {
 			PS.dbEvent(DB_NAME, "Index", T.index, "Clicks", G.localClicks);

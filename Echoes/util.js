@@ -31,7 +31,7 @@ var echoSprite = "", echoActive = false;
 var echoGhostSprite = "", echoGhostActive = false;
 var heraSprite = "", heraActive = false;
 var zeusSprite = "", zeusActive = false;
-var narcSprite = "", narcActive = false;
+var narcSprite = "";
 var ladiesActive = false;
 
 var spawnLadyTimer = 50;

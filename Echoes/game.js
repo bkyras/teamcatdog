@@ -30,6 +30,8 @@ along with Perlenspiel. If not, see <http://www.gnu.org/licenses/>.
 var G;
 
 (function(){
+	
+	//timer function for the first half of the game
 	var tick = function () {
 		if (G.gameover) {
 			return;
@@ -86,6 +88,36 @@ var G;
 			zeusGameOver();
 		}
 	};
+	
+	//timer function for the second half of the game
+	var tick2 = function() {
+		if(!endGame) {
+			var drawLureInt = 0;
+			moveEcho(echoGhostSprite);
+			eraseLure();
+			if(lure > 0) {
+				drawLureInt = lure;
+				lure--;
+			}
+			if(repel > 0) {
+				drawLureInt = repel;
+				repel--;
+			}
+			if(stop > 0) {
+				drawLureInt = stop;
+				stop--;
+			}
+			if (drawLureInt > 0) {
+				drawLure2(drawLureInt);
+			}
+			if(lureCooldown > 0) {
+				lureCooldown--;
+			}
+			moveNarc();
+			movePart2Ladies();
+			G.mapMove(echoX, echoY);
+		}
+	};
 
 	var drawLure2 = function(count) {
 		var x,y;
@@ -117,35 +149,6 @@ var G;
 
 		PS.gridPlane(plane);
 	};
-	
-	var tick2 = function() {
-		if(!endGame) {
-			var drawLureInt = 0;
-			moveEcho(echoGhostSprite);
-			eraseLure();
-			if(lure > 0) {
-				drawLureInt = lure;
-				lure--;
-			}
-			if(repel > 0) {
-				drawLureInt = repel;
-				repel--;
-			}
-			if(stop > 0) {
-				drawLureInt = stop;
-				stop--;
-			}
-			if (drawLureInt > 0) {
-				drawLure2(drawLureInt);
-			}
-			if(lureCooldown > 0) {
-				lureCooldown--;
-			}
-			moveNarc();
-			movePart2Ladies();
-			G.mapMove(echoX, echoY);
-		}
-	}
 	
 	var movePart2Ladies = function() {
 		if(ladyTime > 0)
@@ -511,10 +514,9 @@ var G;
 
 	//returns true if a move will not cause sprites to be overlapped
 	var isMoveValidPart1 = function(spr, x, y) {
-
 		var collision = false;
-
 		var spriteList = [];
+		
 		ladySprites.forEach(function(lSpr){
 			if (lSpr !== spr) {
 				spriteList.push(lSpr);
@@ -541,39 +543,38 @@ var G;
 		return !collision;
 	};
 
-    //returns true if a move will not cause sprites to be overlapped
-    var isMoveValidPart2 = function(spr, x, y) {
-        var collision = false;
+	//returns true if a move will not cause sprites to be overlapped
+	var isMoveValidPart2 = function(spr, x, y) {
+		var collision = false;
+		var spriteList = [];
 
-        var spriteList = [];
+		narcLadies[mapPos[0]][mapPos[1]].forEach(function(lSpr){
+			if (lSpr.sprite !== spr) {
+				PS.spriteMove(lSpr.sprite);
+				spriteList.push(lSpr.sprite);
+			}
+		});
+		chattyLadies[mapPos[0]][mapPos[1]].forEach(function(lSpr){
+			if (lSpr.sprite !== spr) {
+				PS.spriteMove(lSpr.sprite);
+				spriteList.push(lSpr.sprite);
+			}
+		});
+		if (narcSprite !== spr) {
+			PS.spriteMove(narcSprite);
+			spriteList.push(narcSprite);
+		}
 
-        narcLadies[mapPos[0]][mapPos[1]].forEach(function(lSpr){
-            if (lSpr.sprite !== spr) {
-                PS.spriteMove(lSpr.sprite);
-                spriteList.push(lSpr.sprite);
-            }
-        });
-        chattyLadies[mapPos[0]][mapPos[1]].forEach(function(lSpr){
-            if (lSpr.sprite !== spr) {
-                PS.spriteMove(lSpr.sprite);
-                spriteList.push(lSpr.sprite);
-            }
-        });
-        if (narcSprite !== spr) {
-            PS.spriteMove(narcSprite);
-            spriteList.push(narcSprite);
-        }
+		spriteList.forEach(function(cSpr){
+			var cPos = PS.spriteMove(cSpr);
+			if (cPos.x >= x - 1 && cPos.x <= x + 1
+				&& cPos.y >= y - 1 && cPos.y <= y + 1) {
+				collision = true;
+			}
+		});
 
-        spriteList.forEach(function(cSpr){
-            var cPos = PS.spriteMove(cSpr);
-            if (cPos.x >= x - 1 && cPos.x <= x + 1
-                && cPos.y >= y - 1 && cPos.y <= y + 1) {
-                collision = true;
-            }
-        });
-
-        return !collision;
-    };
+		return !collision;
+	};
 	
 	var spawnLady = function() {
 		var a = PS.spriteSolid(2, 2);
@@ -618,13 +619,6 @@ var G;
 			repeatable = PS.statusText();
 		}
 	}
-
-	var clearTutorial = function() {
-		T.numMoves = 0;
-		clearTimeout(T.timer);
-		T.timer = null;
-		T.onMove = function(){};
-	};
 	
 	var drawNarc = function(row, col) {
 		if(row == narcMapRow && col == narcMapCol) {
