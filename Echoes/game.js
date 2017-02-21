@@ -572,6 +572,38 @@ var G;
 
 		return !collision;
 	};
+
+    //returns true if a move will not cause sprites to be overlapped
+    var isMoveValidPart2 = function(spr, x, y) {
+
+        var collision = false;
+
+        var spriteList = [];
+
+        narcLadies[mapPos[0]][mapPos[1]].forEach(function(lSpr){
+            if (lSpr !== spr) {
+                spriteList.push(lSpr);
+            }
+        });
+        chattyLadies[mapPos[0]][mapPos[1]].forEach(function(lSpr){
+            if (lSpr !== spr) {
+                spriteList.push(lSpr);
+            }
+        });
+        if (narcSprite !== spr) {
+            spriteList.push(narcSprite);
+        }
+
+        spriteList.forEach(function(cSpr){
+            var cPos = PS.spriteMove(cSpr);
+            if (cPos.x >= x - 1 && cPos.x <= x + 1
+                && cPos.y >= y - 1 && cPos.y <= y + 1) {
+                collision = true;
+            }
+        });
+
+        return !collision;
+    };
 	
 	var spawnLady = function() {
 		var a = PS.spriteSolid(2, 2);
@@ -898,6 +930,7 @@ var G;
 				}, SMALL_WAIT);
 				break;
 			case 22:
+			    path = [];
 				customStatusText("You encounter Narcissus.");
 
 				initNarcissus();
