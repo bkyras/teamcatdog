@@ -126,7 +126,9 @@ var G;
 		eraseLure();
 		if(lure > 0) {
 			lure--;
-			drawLure2();
+			if (!isPart2) {
+				drawLure2();
+			}
 		}
 		
 		if(ladiesActive && ladySprites.length < MAX_LADIES && spawnLadyTimer == 0) {
@@ -1381,7 +1383,7 @@ PS.keyDown = function( key, shift, ctrl, options ) {
 		} else {
 			G.echo(repeatable);
 		}
-	} else if (key == PS.KEY_ARROW_DOWN) {
+	} else if (key == 80 || key == 112) {
 		if (!G.isPart2) {
 			G.skipToNarc();
 		}
