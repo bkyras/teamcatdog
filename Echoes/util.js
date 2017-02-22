@@ -64,6 +64,7 @@ var heraTime = 2, zeusTime = 4, ladyTime = 3, narcTime = 5;
 var idMoveTimer = "";
 var path = [];
 var step = 0;
+var mapMoveDelay = 0;
 
 var statusTextTimer = null;
 var curStatText = "";

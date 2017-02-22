@@ -272,11 +272,16 @@ var G;
 			path = [];
 		else {
 			if(echoGhostActive) {
-				PS.spriteMove(spr, nx, ny)
-				echoX = nx;
-				echoY = ny;
-				step++;
-			} else {
+				if (mapMoveDelay > 0) {
+					mapMoveDelay -= 1;
+					path = [];
+				} else {
+					PS.spriteMove(spr, nx, ny)
+					echoX = nx;
+					echoY = ny;
+					step++;
+				}
+			} else if (echoActive) {
 				if(moveSprite(true, spr, nx, ny)) {
 					echoX = nx;
 					echoY = ny;
@@ -706,11 +711,13 @@ var G;
 		
 		mapMove: function(x, y) {
 			// RIGHT same row, +1 col
+			var DELAY = 3;
 			if(x==G.GRID_WIDTH-2) {
 				if(map[mapPos[0]].length > mapPos[1]+1) {
 					if(dirMove(mapPos[0], mapPos[1]+1)) {
 						echoX = 1;
 						PS.spriteMove(echoGhostSprite, echoX, y);
+						mapMoveDelay = DELAY;
 					}
 				}
 				// LEFT same row, -1 col
@@ -719,6 +726,7 @@ var G;
 					if(dirMove(mapPos[0], mapPos[1]-1)) {
 						echoX = G.GRID_WIDTH-3;
 						PS.spriteMove(echoGhostSprite, echoX, y);
+						mapMoveDelay = DELAY;
 					}
 				}
 				// DOWN +1 row, same col
@@ -727,6 +735,7 @@ var G;
 					if(dirMove(mapPos[0]+1, mapPos[1])) {
 						echoY = 2;
 						PS.spriteMove(echoGhostSprite, x, echoY);
+						mapMoveDelay = DELAY;
 					}
 				}
 				// UP -1 row, same col
@@ -735,10 +744,10 @@ var G;
 					if(dirMove(mapPos[0]-1, mapPos[1])) {
 						echoY = G.GRID_HEIGHT-3;
 						PS.spriteMove(echoGhostSprite, x, echoY);
+						mapMoveDelay = DELAY;
 					}
 				}
 			}
-			
 		},
 		
 		echo : function(phrase) {
