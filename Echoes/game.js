@@ -867,6 +867,10 @@ var G;
 			G.gameover = false;
 			heraCaughtZeus = false;
 			T.index = 10;
+			var x;
+			for (x = 0; x < 3; x++) {
+				spawnLady();
+			}
 			incrementTutorial();
 			G.restartTimer();
 		},
