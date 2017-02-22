@@ -439,7 +439,7 @@ var G;
 			if (!firstEnc) {
 				clearTutorial();
 				PS.statusText("");
-				PS.statusColor(PS.COLOR_RED);
+				PS.statusColor(NARC_COLOR);
 				customStatusText("'Who are you?'");
 				firstEnc = true
 				T.index = 24;
@@ -482,7 +482,7 @@ var G;
 		if(i != -1) {
 			var phrase = lads[i].phrase;
 			PS.statusText("");
-			PS.statusColor(PS.COLOR_BLACK);
+			PS.statusColor(REPEATABLE_COLOR);
 			PS.statusText(phrase);
 			repeatable = PS.statusText();
 		}
@@ -606,7 +606,7 @@ var G;
 	var spawnLady = function() {
 		var a = PS.spriteSolid(2, 2);
 		PS.spritePlane(a, LADY_PLANE);
-		PS.spriteSolidColor(a, PS.COLOR_BLUE);
+		PS.spriteSolidColor(a, LADY_COLOR);
 		var rx = PS.random(G.GRID_WIDTH - 1) - 1;
 		var ry = PS.random(G.GRID_HEIGHT - 1) - 1;
 		while (!isMoveValidPart1(null, rx, ry)) {
@@ -647,7 +647,7 @@ var G;
 			PS.gridSize(G.GRID_WIDTH, G.GRID_HEIGHT);
 			PS.border(PS.ALL, PS.ALL, 0);
 			PS.color(PS.ALL, PS.ALL, GROUND_COLOR);
-			PS.gridColor(0xDDDDDD);
+			PS.gridColor(BG_COLOR_1);
 			
 			G.activeBoardHeight = G.GRID_HEIGHT;
 			G.activeBoardWidth = G.GRID_WIDTH;
@@ -657,7 +657,7 @@ var G;
 			
 			G.restartTimer();
 			//PS.audioLoad(ECHO_LURE_SOUND, {path : AUDIO_PATH, fileTypes : ["ogg", "mp3", "wav"]});
-      PS.audioLoad(ECHO_LURE_SOUND);
+      		PS.audioLoad(ECHO_LURE_SOUND);
 			PS.audioLoad(ECHO_FAIL_SOUND);
 			PS.audioLoad(LADY_SOUND);
 			ladiesActive = false;
@@ -754,7 +754,7 @@ var G;
 			if(lureCooldown == 0) {
 				PS.audioPlay(ECHO_LURE_SOUND);
 				PS.statusText("");
-				PS.statusColor(PS.COLOR_CYAN);
+				PS.statusColor(ECHO_COLOR);
 				customStatusText(phrase);
 				setPhraseAbility(phrase);
 			}
@@ -772,7 +772,7 @@ var G;
 			PS.spritePlane(echoGhostSprite, ECHO_PLANE);
 			echoX = 14;
 			echoY = 20;
-			PS.spriteSolidColor(echoGhostSprite, 0xAAAAAA);
+			PS.spriteSolidColor(echoGhostSprite, ECHO_GHOST_COLOR);
 			PS.spriteSolidAlpha(echoGhostSprite, 165);
 			PS.spriteCollide(echoGhostSprite, hearLady);
 			PS.spriteMove(echoGhostSprite, echoX, echoY);
@@ -794,7 +794,7 @@ var G;
 			zeusSprite = PS.spriteSolid(2, 2);
 			PS.spritePlane(zeusSprite, ZEUS_PLANE);
 			PS.spriteCollide(zeusSprite, wooLady);
-			PS.spriteSolidColor(zeusSprite, 0xFFCC22);
+			PS.spriteSolidColor(zeusSprite, ZEUS_COLOR);
 			PS.spriteMove(zeusSprite, zeusX, zeusY);
 			zeusActive = true;
 		},
@@ -803,7 +803,7 @@ var G;
 			heraSprite = PS.spriteSolid(2, 2);
 			PS.spritePlane(heraSprite, HERA_PLANE);
 			PS.spriteCollide(heraSprite, heraCollide);
-			PS.spriteSolidColor(heraSprite, PS.COLOR_CYAN);
+			PS.spriteSolidColor(heraSprite, HERA_COLOR);
 			PS.spriteMove(heraSprite, heraX, heraY);
 			heraActive = true;
 		},
@@ -812,7 +812,7 @@ var G;
 			narcSprite = PS.spriteSolid(2, 2);
 			PS.spritePlane(narcSprite, NARC_PLANE);
 			PS.spriteCollide(narcSprite, narcCollide);
-			PS.spriteSolidColor(narcSprite, PS.COLOR_MAGENTA);
+			PS.spriteSolidColor(narcSprite, NARC_COLOR);
 			PS.spriteMove(narcSprite, narcX, narcY);
 		},
 		
@@ -829,7 +829,7 @@ var G;
 					if (firstEnc) {
 						clearTutorial();
 						PS.statusText("");
-						PS.statusColor(PS.COLOR_CYAN);
+						PS.statusColor(ECHO_TEXT_COLOR);
 						customStatusText("'Who are you?'");
 						firstTalk = true;
 						T.index = 25;

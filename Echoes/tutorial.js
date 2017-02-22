@@ -259,12 +259,12 @@ var incrementTutorial = function() {
 				break;
 			case 25:
 				PS.statusText("");
-				PS.statusColor(PS.DEFAULT);
+				PS.statusColor(TUTORAL_TEXT_COLOR);
 				customStatusText("Now try talking to him.");
 				break;
 			case 26:
 				PS.statusText("");
-				PS.statusColor(PS.COLOR_RED);
+				PS.statusColor(NARC_COLOR);
 				customStatusText("'You're weird. Leave me alone.'");
 				timeRemaining = 12;
 				T.timer = setInterval(function(){
@@ -284,7 +284,7 @@ var incrementTutorial = function() {
 				break;
 			case 27:
 				PS.statusText("");
-				PS.statusColor(PS.DEFAULT);
+				PS.statusColor(TUTORAL_TEXT_COLOR);
 				customStatusText("Oh no. You got rejected.");
 
 				T.timer = setTimeout(function(){
@@ -316,7 +316,7 @@ var incrementTutorial = function() {
 				
 				break;
 			case 31:
-				PS.statusColor(PS.COLOR_BLACK);
+				PS.statusColor(TUTORAL_TEXT_COLOR);
 				customStatusText("Narcissus looks at himself...");
 
 				T.timer = setTimeout(function(){

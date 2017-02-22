@@ -11,14 +11,18 @@ var HEART_COLOR = 0xF775E1;
 
 //character color constants
 var ECHO_COLOR = PS.COLOR_BLACK;
+var ECHO_GHOST_COLOR = 0xAAAAAA;
+var ECHO_TEXT_COLOR = PS.COLOR_CYAN;
 var HERA_COLOR = PS.COLOR_CYAN;
-var ZEUS_COLOR = PS.COLOR_YELLOW;
-var NARC_COLOR = PS.COLOR_GREEN;
+var ZEUS_COLOR = 0xFFCC22;
+var NARC_COLOR = PS.COLOR_MAGENTA;
 var LADY_COLOR = PS.COLOR_BLUE;
 var CHATTY_LADY_COLOR = PS.COLOR_ORANGE;
 var NYMPH_COLOR = PS.COLOR_BLUE;
+var REPEATABLE_COLOR = PS.COLOR_BLACK;
+var TUTORAL_TEXT_COLOR = PS.DEFAULT;
 
-
+var BG_COLOR_1 = 0xDDDDDD;
 var CURSE1 = 0xBBBBBB;
 var CURSE2 = 0x777777;
 
@@ -408,7 +412,7 @@ var drawNarc = function(row, col) {
 var addPart2Lady = function(row, col, x, y) {
 	var a = PS.spriteSolid(2, 2);
 	PS.spritePlane(a, LADY_PLANE);
-	PS.spriteSolidColor(a, PS.COLOR_BLUE);
+	PS.spriteSolidColor(a, NYMPH_COLOR);
 	PS.spriteMove(a, x, y);
 	PS.spriteShow(a, false);
 	nymphs[row][col].push({sprite: a, originX: x, originY: y});
@@ -416,7 +420,7 @@ var addPart2Lady = function(row, col, x, y) {
 
 var addChatter = function(row, col, x, y, phrase) {
 	var a = PS.spriteSolid(2, 2);
-	PS.spriteSolidColor(a, PS.COLOR_YELLOW);
+	PS.spriteSolidColor(a, CHATTY_LADY_COLOR);
 	PS.spritePlane(a, HERA_PLANE);
 	PS.spriteShow(a, false);
 	PS.spriteMove(a, x, y);
