@@ -53,6 +53,7 @@ var ladiesActive = false;
 var spawnLadyTimer = 50;
 var ladySprites = [];
 var forDeletion = [];
+var zeusTarget = "";
 
 var echoX = 14, echoY = 6;
 var heraX = 12, heraY = 15;
@@ -89,161 +90,161 @@ var endGame = false;
 /**LEVELDATA AND RELATED FUNCTIONS*****************************************/
 
 var road = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[2,2,2,2,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[2,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[2,2,2,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[2,2,2,2,2,2,2,2,2,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,3,3,3,2,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,3,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,3,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,2,2,2,2,2,2,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,3,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,3,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,3,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,2,2,2,2,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,2,2,2,2,3,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,2,2,2,2,2,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,2,2,2,2,2,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,2,2,2,2,2,2,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,3,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,2,2,2,2,2,2,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,3,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,3,1]];
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [2,2,2,2,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [2,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [2,2,2,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [2,2,2,2,2,2,2,2,2,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,3,3,3,2,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,3,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,3,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,2,2,2,2,2,2,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,3,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,3,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,3,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,2,2,2,2,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,2,2,2,2,3,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,2,2,2,2,2,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,2,2,2,2,2,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,2,2,2,2,2,2,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,3,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,2,2,2,2,2,2,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,3,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,3,1]];
 
 var plains = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,2],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,2,2],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,2,2,2],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,2,2,2,2,2],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,2,2,2,2,2,2],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,2,2,2,2,2,2,2,2],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,2,2,2,2,2,2,2,2,2,3],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,2,2,2,2,2,2,2,2,2,2,3,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,2,2,2,2,2,2,2,2,2,2,3,3,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,3,3,3,2,2,2,2,2,2,2,2,2,2,3,3,1,1,1,1,1],
-[1,3,3,3,3,3,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,1,1,1,1,1,1],
-[3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,1,1,1,1,1,1,1,1],
-[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,1,1,1,1,1,1,1,1,1,1],
-[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,1,1,1,1,1,1,1,1,1,1,1,1],
-[2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[2,2,2,2,2,2,2,2,2,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]];
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,2],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,2,2],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,2,2,2],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,2,2,2,2,2],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,2,2,2,2,2,2],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,2,2,2,2,2,2,2,2],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,2,2,2,2,2,2,2,2,2,3],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,2,2,2,2,2,2,2,2,2,2,3,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,2,2,2,2,2,2,2,2,2,2,3,3,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,3,3,3,2,2,2,2,2,2,2,2,2,2,3,3,1,1,1,1,1],
+    [1,3,3,3,3,3,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,1,1,1,1,1,1],
+    [3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,1,1,1,1,1,1,1,1],
+    [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,1,1,1,1,1,1,1,1,1,1],
+    [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,1,1,1,1,1,1,1,1,1,1,1,1],
+    [2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [2,2,2,2,2,2,2,2,2,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]];
 
 var pond = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,2,2,2,2,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,2,2,2,2,3,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,2,2,2,2,3,3,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,2,2,2,2,2,3,3,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,1,2,2,2,2,2,2,2,2,3,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,2,2,2,2,2,2,2,2,2,3,3,1,1],
-[1,1,1,1,1,1,1,1,1,1,3,3,3,2,2,2,2,2,2,2,2,2,2,2,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,3,3,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,2,2,2,2,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,3,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,3,3,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,5,5,5,5,5,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,5,5,5,5,5,5,5,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,5,5,5,5,5,5,5,5,5,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,5,5,5,5,5,5,5,5,5,5,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,5,5,5,5,5,5,5,5,5,5,5,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,5,5,5,5,5,5,5,5,5,5,5,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,5,5,5,5,5,5,5,5,5,5,5,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,5,5,5,5,5,5,5,5,5,5,5,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,5,5,5,5,5,5,5,5,5,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,5,5,5,5,5,5,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]];
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,2,2,2,2,3,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,2,2,2,2,3,3,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,2,2,2,2,2,3,3,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,1,2,2,2,2,2,2,2,2,3,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,2,2,2,2,2,2,2,2,2,3,3,1,1],
+    [1,1,1,1,1,1,1,1,1,1,3,3,3,2,2,2,2,2,2,2,2,2,2,2,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,3,3,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,2,2,2,2,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,3,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,3,3,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,5,5,5,5,5,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,5,5,5,5,5,5,5,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,5,5,5,5,5,5,5,5,5,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,5,5,5,5,5,5,5,5,5,5,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,5,5,5,5,5,5,5,5,5,5,5,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,5,5,5,5,5,5,5,5,5,5,5,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,5,5,5,5,5,5,5,5,5,5,5,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,5,5,5,5,5,5,5,5,5,5,5,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,5,5,5,5,5,5,5,5,5,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,5,5,5,5,5,5,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]];
 
 var horizontalPath = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[3,3,3,3,3,3,3,1,1,1,1,3,3,1,3,3,3,3,3,3,1,3,3,3,3,3,1,1,1,1],
-[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
-[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
-[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
-[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
-[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
-[1,1,3,3,3,1,1,3,3,3,3,3,3,3,3,3,1,1,1,1,1,3,3,3,3,3,3,3,3,3],
-[1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,1,1,1,1,1,1,1,1,1,3,3,3,3,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]];
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [3,3,3,3,3,3,3,1,1,1,1,3,3,1,3,3,3,3,3,3,1,3,3,3,3,3,1,1,1,1],
+    [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
+    [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
+    [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
+    [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
+    [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
+    [1,1,3,3,3,1,1,3,3,3,3,3,3,3,3,3,1,1,1,1,1,3,3,3,3,3,3,3,3,3],
+    [1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,1,1,1,1,1,1,1,1,1,3,3,3,3,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]];
 
 var mapPos = [0, 0]; //row, col
 var map = [[horizontalPath, plains, road],
-					 [null, null, pond]];
+    [null, null, pond]];
 
 var loadMap = function(mapData) {
-		for(var row = 0; row < mapData.length; row++) {
-			for(var col = 0; col < mapData[row].length; col++) {
-				switch(mapData[row][col]) {
-					case 0:
-						PS.color(col, row, DEFAULT_COLOR);
-						break;
-					case 1:
-						PS.color(col, row, GROUND_COLOR);
-						break;
-					case 2:
-						PS.color(col, row, PATH_COLOR);
-						break;
-					case 3:
-						PS.color(col, row, DIRT_COLOR);
-						break;
-					case 4:
-						PS.color(col, row, TREE_COLOR);
-						break;
-					case 5:
-						PS.color(col, row, WATER_COLOR);
-						break;
-					default:
-						PS.color(col, row, DEFAULT_COLOR);
-				}
-			}
-		}
-	};
+    for(var row = 0; row < mapData.length; row++) {
+        for(var col = 0; col < mapData[row].length; col++) {
+            switch(mapData[row][col]) {
+                case 0:
+                    PS.color(col, row, DEFAULT_COLOR);
+                    break;
+                case 1:
+                    PS.color(col, row, GROUND_COLOR);
+                    break;
+                case 2:
+                    PS.color(col, row, PATH_COLOR);
+                    break;
+                case 3:
+                    PS.color(col, row, DIRT_COLOR);
+                    break;
+                case 4:
+                    PS.color(col, row, TREE_COLOR);
+                    break;
+                case 5:
+                    PS.color(col, row, WATER_COLOR);
+                    break;
+                default:
+                    PS.color(col, row, DEFAULT_COLOR);
+            }
+        }
+    }
+};
 
 var narcPath1 = [[1,15],[2,15],[3,15],[4,15],[5,15],[6,15],[7,15],[8,15],[9,15],[10,15],[11,15],[12,15],[13,15],[14,15],[15,15],[16,15],[17,15],[18,15],[19,15],[20,15],[21,15],[22,15],[23,15],[24,15],[25,15],[26,15],[27,15],[28,15],[29,15]];
 
@@ -254,277 +255,277 @@ var narcPath3 = [[0,7],[0,8],[1,8],[2,8],[3,8],[4,8],[5,8],[5,9],[6,9],[7,9],[8,
 var narcPath4 = [[25,0],[25,1],[24,1],[24,2],[24,3],[23,3],[23,4],[22,4],[21,4],[21,5],[20,5],[19,5],[19,6],[18,6],[17,6],[16,6],[15,6],[15,7],[14,7],[13,7],[12,7],[11,7],[10,7],[9,7],[8,7],[8,8],[8,9],[7,9],[8,10],[8,11]];
 
 var narcPaths = [[narcPath1, narcPath2, narcPath3],
-								 [null, null, narcPath4]];
+    [null, null, narcPath4]];
 
 
 /**VISUAL UTILITY FUNCTIONS*****************************************/
 
 var activateBeads = function(newWidth, newHeight) {
-	var x, y;
-		
-	//should only use even values
-	G.activeBoardWidth = newWidth;
-	G.activeBoardHeight = newHeight;
+    var x, y;
 
-	if (G.activeBoardWidth > G.GRID_WIDTH) {
-		G.activeBoardWidth = G.GRID_WIDTH;
-	}
+    //should only use even values
+    G.activeBoardWidth = newWidth;
+    G.activeBoardHeight = newHeight;
 
-	if (G.activeBoardHeight > G.GRID_HEIGHT) {
-		G.activeBoardHeight = G.GRID_HEIGHT;
-	}
+    if (G.activeBoardWidth > G.GRID_WIDTH) {
+        G.activeBoardWidth = G.GRID_WIDTH;
+    }
 
-	for (x = 0; x < G.GRID_WIDTH; x++) {
-		for (y = 0; y < G.GRID_HEIGHT; y++) {
-			var dw = (2*x) + 1;
-			var lowBound = G.GRID_WIDTH - (G.activeBoardWidth + 1);
-			var upBound = G.GRID_WIDTH + (G.activeBoardWidth + 1);
-			if (y < G.activeBoardHeight && dw > lowBound && dw < upBound) {
-				PS.active(x,y,true);
-				PS.visible(x,y,true);
-			} else {
-				PS.visible(x,y,false);
-				PS.active(x,y,false);
-			}
-		}
-	}
+    if (G.activeBoardHeight > G.GRID_HEIGHT) {
+        G.activeBoardHeight = G.GRID_HEIGHT;
+    }
 
-	PS.gridRefresh();
+    for (x = 0; x < G.GRID_WIDTH; x++) {
+        for (y = 0; y < G.GRID_HEIGHT; y++) {
+            var dw = (2*x) + 1;
+            var lowBound = G.GRID_WIDTH - (G.activeBoardWidth + 1);
+            var upBound = G.GRID_WIDTH + (G.activeBoardWidth + 1);
+            if (y < G.activeBoardHeight && dw > lowBound && dw < upBound) {
+                PS.active(x,y,true);
+                PS.visible(x,y,true);
+            } else {
+                PS.visible(x,y,false);
+                PS.active(x,y,false);
+            }
+        }
+    }
+
+    PS.gridRefresh();
 };
 
 var customStatusText = function (statusText) {
-	var characterDelay = 20;
+    var characterDelay = 20;
 
-	if (statusTextTimer !== null) {
-		clearInterval(statusTextTimer);
-		statusTextTimer = null;
-	}
+    if (statusTextTimer !== null) {
+        clearInterval(statusTextTimer);
+        statusTextTimer = null;
+    }
 
-	curStatText = "";
-	fullStatText = statusText;
-	statusTextTimer = setInterval(incrementStatusText, characterDelay);
+    curStatText = "";
+    fullStatText = statusText;
+    statusTextTimer = setInterval(incrementStatusText, characterDelay);
 };
 
 var incrementStatusText = function() {
-	curStatText = fullStatText.slice(0,curStatText.length + 1);
-	PS.statusText(curStatText);
+    curStatText = fullStatText.slice(0,curStatText.length + 1);
+    PS.statusText(curStatText);
 
-	if(curStatText.length === fullStatText.length) {
-		clearInterval(statusTextTimer);
-		statusTextTimer = null;
-	}
+    if(curStatText.length === fullStatText.length) {
+        clearInterval(statusTextTimer);
+        statusTextTimer = null;
+    }
 };
 
 var initLurePlane = function() {
-	var plane = PS.gridPlane();
-	PS.gridPlane(LURE_PLANE);
+    var plane = PS.gridPlane();
+    PS.gridPlane(LURE_PLANE);
 
-	PS.color(PS.ALL,PS.ALL,LURE_COLOR);
-	PS.alpha(PS.ALL,PS.ALL,0);
+    PS.color(PS.ALL,PS.ALL,LURE_COLOR);
+    PS.alpha(PS.ALL,PS.ALL,0);
 
-	PS.gridPlane(plane);
+    PS.gridPlane(plane);
 };
 
 var initGlyphPlace = function() {
-	var plane = PS.gridPlane();
-	PS.gridPlane(GLYPH_PLANE);
+    var plane = PS.gridPlane();
+    PS.gridPlane(GLYPH_PLANE);
 
-	PS.glyph(PS.ALL,PS.ALL,10084);
-	PS.glyphColor(PS.ALL,PS.ALL,HEART_COLOR);
-	PS.glyphAlpha(PS.ALL,PS.ALL,0);
+    PS.glyph(PS.ALL,PS.ALL,10084);
+    PS.glyphColor(PS.ALL,PS.ALL,HEART_COLOR);
+    PS.glyphAlpha(PS.ALL,PS.ALL,0);
 
-	PS.gridPlane(plane);
+    PS.gridPlane(plane);
 };
 
 var eraseGlyphs = function() {
-	var plane = PS.gridPlane();
-	PS.gridPlane(GLYPH_PLANE);
-	PS.alpha(PS.ALL,PS.ALL,0);
-	PS.gridPlane(plane);
+    var plane = PS.gridPlane();
+    PS.gridPlane(GLYPH_PLANE);
+    PS.alpha(PS.ALL,PS.ALL,0);
+    PS.gridPlane(plane);
 };
 
 var fadeGlyphs = function() {
-	var x,y;
-	var plane = PS.gridPlane();
-	PS.gridPlane(GLYPH_PLANE);
-	var RATE = 30;
+    var x,y;
+    var plane = PS.gridPlane();
+    PS.gridPlane(GLYPH_PLANE);
+    var RATE = 30;
 
-	for (x = 0; x < G.GRID_WIDTH; x++) {
-		for (y = 0; y < G.GRID_HEIGHT; y++) {
-			PS.glyphAlpha(x,y,PS.glyphAlpha(x,y) - RATE);
-		}
-	}
+    for (x = 0; x < G.GRID_WIDTH; x++) {
+        for (y = 0; y < G.GRID_HEIGHT; y++) {
+            PS.glyphAlpha(x,y,PS.glyphAlpha(x,y) - RATE);
+        }
+    }
 
-	PS.gridPlane(plane);
+    PS.gridPlane(plane);
 };
 
 var showGlyphs = function(x,y) {
-	var x,y;
-	var plane = PS.gridPlane();
-	PS.gridPlane(GLYPH_PLANE);
+    var x,y;
+    var plane = PS.gridPlane();
+    PS.gridPlane(GLYPH_PLANE);
 
-	PS.glyphAlpha(x,y,255);
+    PS.glyphAlpha(x,y,255);
 
-	PS.gridPlane(plane);
+    PS.gridPlane(plane);
 };
 
 var eraseLure = function() {
-	var plane = PS.gridPlane();
-	PS.gridPlane(LURE_PLANE);
-	PS.alpha(PS.ALL,PS.ALL,0);
-	PS.gridPlane(plane);
+    var plane = PS.gridPlane();
+    PS.gridPlane(LURE_PLANE);
+    PS.alpha(PS.ALL,PS.ALL,0);
+    PS.gridPlane(plane);
 };
 
 var drawLure = function(count) {
-	var x,y;
-	var plane = PS.gridPlane();
-	PS.gridPlane(LURE_PLANE);
+    var x,y;
+    var plane = PS.gridPlane();
+    PS.gridPlane(LURE_PLANE);
 
-	var lure_transition = Math.floor(255 * (count / MAX_LURE_TIMER));
+    var lure_transition = Math.floor(255 * (count / MAX_LURE_TIMER));
 
-	for (x = 0; x < G.GRID_WIDTH; x++) {
-		for (y = 0; y < G.GRID_HEIGHT; y++) {
-			var closePos = getClosePos(x,y,echoX,echoY);
-			if ((x-closePos.x)*(x-closePos.x) + (y-closePos.y)*(y-closePos.y) < LURE_RADIUS * LURE_RADIUS) {
-				PS.alpha(x,y,lure_transition);
-			}
-		}
-	}
+    for (x = 0; x < G.GRID_WIDTH; x++) {
+        for (y = 0; y < G.GRID_HEIGHT; y++) {
+            var closePos = getClosePos(x,y,echoX,echoY);
+            if ((x-closePos.x)*(x-closePos.x) + (y-closePos.y)*(y-closePos.y) < LURE_RADIUS * LURE_RADIUS) {
+                PS.alpha(x,y,lure_transition);
+            }
+        }
+    }
 
-	PS.gridPlane(plane);
+    PS.gridPlane(plane);
 };
 
 /**PART 2 UTILITY FUNCTIONS*****************************************/
 
 var chattyLadies = [[[], [], []],
-									  [[], [], []]];
+    [[], [], []]];
 var nymphs = [[[], [], []],
-								  [[], [], []]];
+    [[], [], []]];
 
 var drawNarc = function(row, col) {
-	if(row == narcMapRow && col == narcMapCol) {
-		PS.spriteShow(narcSprite, true);
-	} else {
-		PS.spriteShow(narcSprite, false);
-	}
+    if(row == narcMapRow && col == narcMapCol) {
+        PS.spriteShow(narcSprite, true);
+    } else {
+        PS.spriteShow(narcSprite, false);
+    }
 };
 
 var addPart2Lady = function(row, col, x, y) {
-	var a = PS.spriteSolid(2, 2);
-	PS.spritePlane(a, LADY_PLANE);
-	PS.spriteSolidColor(a, NYMPH_COLOR);
-	PS.spriteMove(a, x, y);
-	PS.spriteShow(a, false);
-	nymphs[row][col].push({sprite: a, originX: x, originY: y});
+    var a = PS.spriteSolid(2, 2);
+    PS.spritePlane(a, LADY_PLANE);
+    PS.spriteSolidColor(a, NYMPH_COLOR);
+    PS.spriteMove(a, x, y);
+    PS.spriteShow(a, false);
+    nymphs[row][col].push({sprite: a, originX: x, originY: y});
 };
 
 var addChatter = function(row, col, x, y, phrase) {
-	var a = PS.spriteSolid(2, 2);
-	PS.spriteSolidColor(a, CHATTY_LADY_COLOR);
-	PS.spritePlane(a, HERA_PLANE);
-	PS.spriteShow(a, false);
-	PS.spriteMove(a, x, y);
-	chattyLadies[row][col].push({sprite: a, phrase: phrase, originX: x, originY: y});
+    var a = PS.spriteSolid(2, 2);
+    PS.spriteSolidColor(a, CHATTY_LADY_COLOR);
+    PS.spritePlane(a, HERA_PLANE);
+    PS.spriteShow(a, false);
+    PS.spriteMove(a, x, y);
+    chattyLadies[row][col].push({sprite: a, phrase: phrase, originX: x, originY: y});
 };
 
 var changeLadies = function(row, col, appear) {
-	for(var key in chattyLadies[row][col]) {
-		PS.spriteShow(chattyLadies[row][col][key].sprite, appear);
-	}
-	for(var spr in nymphs[row][col]) {
-		PS.spriteShow(nymphs[row][col][spr].sprite, appear);
-	}
+    for(var key in chattyLadies[row][col]) {
+        PS.spriteShow(chattyLadies[row][col][key].sprite, appear);
+    }
+    for(var spr in nymphs[row][col]) {
+        PS.spriteShow(nymphs[row][col][spr].sprite, appear);
+    }
 };
 
 var makeChattyLadies = function() {
-	addPart2Lady(0, 0, 10, 4);
-	addPart2Lady(0, 0, 18, 8);
-	addPart2Lady(0, 1, 16, 19);
-	addPart2Lady(0, 1, 20, 22);
-	addPart2Lady(0, 2, 18, 5);
-	addPart2Lady(0, 2, 5, 22);
-	addChatter(0, 0, 5, 23, "Come over here.");
-	addChatter(0, 0, 9, 23, "Leave me alone!");
-	addChatter(0, 1, 8, 8, "Stop right there!");
-	addChatter(0, 1, 11, 6, "Leave me alone!");
-	addChatter(0, 2, 11, 8, "Stop right there!");
-	addChatter(0, 2, 15, 5, "Come over here!");
+    addPart2Lady(0, 0, 10, 4);
+    addPart2Lady(0, 0, 18, 8);
+    addPart2Lady(0, 1, 16, 19);
+    addPart2Lady(0, 1, 20, 22);
+    addPart2Lady(0, 2, 18, 5);
+    addPart2Lady(0, 2, 5, 22);
+    addChatter(0, 0, 5, 23, "Come over here.");
+    addChatter(0, 0, 9, 23, "Leave me alone!");
+    addChatter(0, 1, 8, 8, "Stop right there!");
+    addChatter(0, 1, 11, 6, "Leave me alone!");
+    addChatter(0, 2, 11, 8, "Stop right there!");
+    addChatter(0, 2, 15, 5, "Come over here!");
 };
 
 
 /**GENERAL UTILITY FUNCTIONS*****************************************/
 
 var hasCoord = function(pathArray, coord) {
-	for(var i = 0; i < pathArray.length; i++) {
-		if(pathArray[i][0] == coord[0] && pathArray[i][1] == coord[1])
-			return {found: true, coord: i};
-	}
-	return {found: false, coord: -1};
+    for(var i = 0; i < pathArray.length; i++) {
+        if(pathArray[i][0] == coord[0] && pathArray[i][1] == coord[1])
+            return {found: true, coord: i};
+    }
+    return {found: false, coord: -1};
 };
 
 var dirMove = function(mapX, mapY) {
-	if(map[mapX][mapY] != null) {
-		loadMap(map[mapX][mapY]);
-		changeLadies(mapPos[0], mapPos[1], false);
-		mapPos = [mapX, mapY];
-		changeLadies(mapPos[0], mapPos[1], true);
-		drawNarc(mapPos[0], mapPos[1]);
-		return true;
-	}
-	return false;
+    if(map[mapX][mapY] != null) {
+        loadMap(map[mapX][mapY]);
+        changeLadies(mapPos[0], mapPos[1], false);
+        mapPos = [mapX, mapY];
+        changeLadies(mapPos[0], mapPos[1], true);
+        drawNarc(mapPos[0], mapPos[1]);
+        return true;
+    }
+    return false;
 };
 
 //pass in x,y location and the x,y, location of a 2x2 sprite, return an object with the position
 //of the closest tile of the sprite to the give location
 var getClosePos = function(x,y,sprX,sprY) {
-	var closeX = sprX;
-	var closeY = sprY;
+    var closeX = sprX;
+    var closeY = sprY;
 
-	if (Math.abs((sprX + 1) - x) < Math.abs(sprX - x)) {
-		closeX = sprX + 1;
-	}
-	if (Math.abs((sprY + 1) - y) < Math.abs(sprY - y)) {
-		closeY = sprY + 1;
-	}
+    if (Math.abs((sprX + 1) - x) < Math.abs(sprX - x)) {
+        closeX = sprX + 1;
+    }
+    if (Math.abs((sprY + 1) - y) < Math.abs(sprY - y)) {
+        closeY = sprY + 1;
+    }
 
-	return {x : closeX, y : closeY};
+    return {x : closeX, y : closeY};
 };
 
 var checkWithinLure = function(x1, y1, x2, y2) {
-	var thePath = PS.line(x1, y1, x2, y2);
-	var closePos1 = getClosePos(x2,y2,x1,y1);
-	var closePos2 = getClosePos(x1,y1,x2,y2);
-	var distance = (closePos1.x-closePos2.x)*(closePos1.x-closePos2.x) + (closePos1.y-closePos2.y)*(closePos1.y-closePos2.y);
-	var isWithinDist = thePath.length > 1 && distance <= LURE_RADIUS * LURE_RADIUS;
-	return {nPath: thePath, isWithinDist: isWithinDist};
+    var thePath = PS.line(x1, y1, x2, y2);
+    var closePos1 = getClosePos(x2,y2,x1,y1);
+    var closePos2 = getClosePos(x1,y1,x2,y2);
+    var distance = (closePos1.x-closePos2.x)*(closePos1.x-closePos2.x) + (closePos1.y-closePos2.y)*(closePos1.y-closePos2.y);
+    var isWithinDist = thePath.length > 1 && distance <= LURE_RADIUS * LURE_RADIUS;
+    return {nPath: thePath, isWithinDist: isWithinDist};
 };
 
 /**WRAPPER UTILITY FUNCTIONS*****************************************/
 
 var deleteAllLadies = function() {
-	ladySprites.forEach(function(spr){
-		PS.spriteDelete(spr);
-	});
-	ladySprites = [];
+    ladySprites.forEach(function(spr){
+        PS.spriteDelete(spr);
+    });
+    ladySprites = [];
 };
 
 var deleteZeus = function() {
-	if (zeusSprite !== "") {
-		PS.spriteDelete(zeusSprite);
-	}
-	zeusActive = false;
+    if (zeusSprite !== "") {
+        PS.spriteDelete(zeusSprite);
+    }
+    zeusActive = false;
 };
 
 var deleteHera = function() {
-	if (heraSprite !== "") {
-		PS.spriteDelete(heraSprite);
-	}
-	heraActive = false;
+    if (heraSprite !== "") {
+        PS.spriteDelete(heraSprite);
+    }
+    heraActive = false;
 };
 
 var deleteEcho = function() {
-	if (echoSprite !== "") {
-		PS.spriteDelete(echoSprite);
-	}
-	echoActive = false;
+    if (echoSprite !== "") {
+        PS.spriteDelete(echoSprite);
+    }
+    echoActive = false;
 };
