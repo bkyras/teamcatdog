@@ -675,8 +675,8 @@ var G;
             G.restartTimer();
             PS.audioLoad(ECHO_LURE_SOUND, {path : AUDIO_PATH, fileTypes : ["mp3", "ogg", "wav"]});
             //PS.audioLoad(ECHO_LURE_SOUND);
-            PS.audioLoad(ECHO_FAIL_SOUND);
-            PS.audioLoad(LADY_SOUND);
+            PS.audioLoad(ECHO_FAIL_SOUND, {path : AUDIO_PATH, fileTypes : ["mp3", "ogg", "wav"]});
+            PS.audioLoad(LADY_SOUND, {path : AUDIO_PATH, fileTypes : ["mp3", "ogg", "wav"]});
             ladiesActive = false;
             G.initEcho();
             activateBeads(30,30);
@@ -870,6 +870,7 @@ var G;
 
         restart : function() {
             deleteAllLadies();
+			zeusTarget = "";
             girlsEaten = 0;
             PS.spriteMove(zeusSprite, 2, 2);
             zeusX = 2;
