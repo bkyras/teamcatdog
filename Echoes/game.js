@@ -122,7 +122,8 @@ var G;
 				lureCooldown--;
 			}
 			moveNarc();
-			movePart2Ladies();
+			if(!cheat)
+				movePart2Ladies();
 			G.mapMove(echoX, echoY);
 		}
 	};
@@ -416,6 +417,10 @@ var G;
 					//Got to the last tile of the last map
 					else {
 						endGame = true;
+						PS.alpha(narcX, narcY+3, 190);
+						PS.alpha(narcX+1, narcY+3, 190);
+						PS.alpha(narcX, narcY+4, 190);
+						PS.alpha(narcX+1, narcY+4, 190);
 						PS.dbEvent(DB_NAME, "Game Won", 1);
 						PS.dbSend(DB_NAME, ["nchaput", "bsheridan"], {discard: true, message: "Thanks for playing!"});
 						incrementTutorial();
@@ -1012,6 +1017,8 @@ PS.keyDown = function( key, shift, ctrl, options ) {
 		if (!G.isPart2) {
 			G.skipToNarc();
 		}
+	} else if (key == PS.KEY_ARROW_DOWN) {
+		cheat = true;
 	}
 };
 
