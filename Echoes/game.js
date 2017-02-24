@@ -476,7 +476,7 @@ var G;
     var wooLady = function(s1, p1, s2, p2, type) {
         var i = ladySprites.indexOf(s2);
         if(i != -1) {
-            PS.audioPlay(LADY_SOUND);
+            PS.audioPlay(LADY_SOUND, {path: AUDIO_PATH});
             var pos = PS.spriteMove(s2);
 			if (s2 === zeusTarget) {
 				zeusTarget = "";
@@ -673,8 +673,8 @@ var G;
             initGlyphPlace();
 
             G.restartTimer();
-            //PS.audioLoad(ECHO_LURE_SOUND, {path : AUDIO_PATH, fileTypes : ["ogg", "mp3", "wav"]});
-            PS.audioLoad(ECHO_LURE_SOUND);
+            PS.audioLoad(ECHO_LURE_SOUND, {path : AUDIO_PATH, fileTypes : ["mp3", "ogg", "wav"]});
+            //PS.audioLoad(ECHO_LURE_SOUND);
             PS.audioLoad(ECHO_FAIL_SOUND);
             PS.audioLoad(LADY_SOUND);
             ladiesActive = false;
@@ -769,7 +769,7 @@ var G;
 
         echo : function(phrase) {
             if(lureCooldown == 0) {
-                PS.audioPlay(ECHO_LURE_SOUND);
+                PS.audioPlay(ECHO_LURE_SOUND, {path: AUDIO_PATH});
                 PS.statusText("");
                 PS.statusColor(ECHO_COLOR);
                 customStatusText(phrase);
@@ -858,12 +858,12 @@ var G;
                     }
                 }
                 if (valid) {
-                    PS.audioPlay(ECHO_LURE_SOUND);
+                    PS.audioPlay(ECHO_LURE_SOUND, {path: AUDIO_PATH});
                     lure = MAX_LURE_TIMER; //num ticks to be lured for
                     lureCooldown = 30; //num ticks of lure cooldown (includes lured time)
                     PS.spriteSolidAlpha(echoSprite, 125);
                 } else {
-                    PS.audioPlay(ECHO_FAIL_SOUND);
+                    PS.audioPlay(ECHO_FAIL_SOUND, {path: AUDIO_PATH});
                 }
             }
         },

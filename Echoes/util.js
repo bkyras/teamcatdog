@@ -30,10 +30,10 @@ var DB_NAME = "ECHOES_V2_db";
 
 var LURE_PLANE = 1, GLYPH_PLANE = 2, LADY_PLANE = 3, ZEUS_PLANE = 4, HERA_PLANE = 5, ECHO_PLANE = 6, NARC_PLANE = 7;
 
-var AUDIO_PATH = "/"; //uncomment for placeholder audio
-//var AUDIO PATH = "audio/"; //uncomment for custom audio
-var ECHO_LURE_SOUND = "fx_squawk";
-//var ECHO_LURE_SOUND = "echomumble";
+//var AUDIO_PATH = "/"; //uncomment for placeholder audio
+var AUDIO_PATH = "audio/"; //uncomment for custom audio
+//var ECHO_LURE_SOUND = "fx_squawk";
+var ECHO_LURE_SOUND = "echomumble";
 var ECHO_FAIL_SOUND = "fx_silencer";
 var LADY_SOUND = "fx_hoot";
 
