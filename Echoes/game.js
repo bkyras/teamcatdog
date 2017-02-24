@@ -1017,8 +1017,6 @@ PS.keyDown = function( key, shift, ctrl, options ) {
 		if (!G.isPart2) {
 			G.skipToNarc();
 		}
-	} else if (key == PS.KEY_ARROW_DOWN) {
-		cheat = true;
 	}
 };
 
