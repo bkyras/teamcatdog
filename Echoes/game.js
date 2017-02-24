@@ -779,7 +779,7 @@ var G;
 				if (phrase !== "") {
 					playEchoLure();
 					PS.statusText("");
-					PS.statusColor(ECHO_COLOR);
+					PS.statusColor(ECHO_TEXT_COLOR);
 					customStatusText(phrase);
 					setPhraseAbility(phrase);
 				} else {
