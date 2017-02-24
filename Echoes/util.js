@@ -33,9 +33,11 @@ var LURE_PLANE = 1, GLYPH_PLANE = 2, LADY_PLANE = 3, ZEUS_PLANE = 4, HERA_PLANE 
 //var AUDIO_PATH = "/"; //uncomment for placeholder audio
 var AUDIO_PATH = "audio/"; //uncomment for custom audio
 //var ECHO_LURE_SOUND = "fx_squawk";
-var ECHO_LURE_SOUND = "echomumble";
+var ECHO_LURE_SOUND1 = "chatter1";
+var ECHO_LURE_SOUND2 = "chatter2";
 var ECHO_FAIL_SOUND = "quack";
 var LADY_SOUND = "zeuskiss";
+var CURSE_MUSIC = "curse";
 
 var MAX_LURE_TIMER = 18;
 var LURE_RADIUS = 7;
@@ -86,6 +88,8 @@ var isPart2 = false, isPart3 = false;
 var firstEnc = false;
 var firstTalk = false;
 var endGame = false;
+
+var narc_cut_can_talk = false;
 
 /**LEVELDATA AND RELATED FUNCTIONS*****************************************/
 
@@ -528,4 +532,13 @@ var deleteEcho = function() {
 		PS.spriteDelete(echoSprite);
 	}
 	echoActive = false;
+};
+
+var playEchoLure = function() {
+	var rand = PS.random(2);
+	if (rand == 1) {
+		PS.audioPlay(ECHO_LURE_SOUND1, {path: AUDIO_PATH});
+	} else {
+		PS.audioPlay(ECHO_LURE_SOUND2, {path: AUDIO_PATH});
+	}
 };

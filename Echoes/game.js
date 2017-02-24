@@ -673,7 +673,8 @@ var G;
 			initGlyphPlace();
 
 			G.restartTimer();
-			PS.audioLoad(ECHO_LURE_SOUND, {path : AUDIO_PATH, fileTypes : ["mp3", "ogg", "wav"]});
+			PS.audioLoad(ECHO_LURE_SOUND1, {path : AUDIO_PATH, fileTypes : ["mp3", "ogg", "wav"]});
+			PS.audioLoad(ECHO_LURE_SOUND2, {path : AUDIO_PATH, fileTypes : ["mp3", "ogg", "wav"]});
 			//PS.audioLoad(ECHO_LURE_SOUND);
 			PS.audioLoad(ECHO_FAIL_SOUND, {path : AUDIO_PATH, fileTypes : ["mp3", "ogg", "wav"]});
 			PS.audioLoad(LADY_SOUND, {path : AUDIO_PATH, fileTypes : ["mp3", "ogg", "wav"]});
@@ -769,11 +770,18 @@ var G;
 
 		echo : function(phrase) {
 			if(lureCooldown == 0) {
-				PS.audioPlay(ECHO_LURE_SOUND, {path: AUDIO_PATH});
-				PS.statusText("");
-				PS.statusColor(ECHO_COLOR);
-				customStatusText(phrase);
-				setPhraseAbility(phrase);
+				if (phrase !== "") {
+					playEchoLure();
+					PS.statusText("");
+					PS.statusColor(ECHO_COLOR);
+					customStatusText(phrase);
+					setPhraseAbility(phrase);
+				} else {
+					PS.audioPlay(ECHO_FAIL_SOUND, {path: AUDIO_PATH});
+					PS.statusText("");
+					PS.statusColor(TUTORAL_TEXT_COLOR);
+					customStatusText("Find someone to listen to.");
+				}
 			}
 		},
 
@@ -842,23 +850,27 @@ var G;
 		lure : function() {
 			var valid = true;
 			if(lureCooldown == 0) {
-				if (isPart2 && !firstTalk) {
-					if (firstEnc) {
-						clearTutorial();
-						PS.statusText("");
-						PS.statusColor(ECHO_TEXT_COLOR);
-						customStatusText("'Who are you?'");
-						firstTalk = true;
-						T.index = 25;
-						setTimeout(function(){
-							incrementTutorial();
-						}, 3000);
-					} else {
+				if (isPart2) {
+					if (!firstTalk) {
+						if (firstEnc) {
+							clearTutorial();
+							PS.statusText("");
+							PS.statusColor(ECHO_TEXT_COLOR);
+							customStatusText("'Who are you?'");
+							firstTalk = true;
+							T.index = 25;
+							setTimeout(function(){
+								incrementTutorial();
+							}, 3000);
+						} else {
+							valid = false;
+						}
+					} else if (!narc_cut_can_talk) {
 						valid = false;
 					}
 				}
 				if (valid) {
-					PS.audioPlay(ECHO_LURE_SOUND, {path: AUDIO_PATH});
+					playEchoLure();
 					lure = MAX_LURE_TIMER; //num ticks to be lured for
 					lureCooldown = 30; //num ticks of lure cooldown (includes lured time)
 					PS.spriteSolidAlpha(echoSprite, 125);

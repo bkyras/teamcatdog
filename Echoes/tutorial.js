@@ -148,6 +148,7 @@ var incrementTutorial = function() {
 		case 14:
 			customStatusText("But Hera caught on.");
 			PS.spriteMove(heraSprite, 15, 7);
+			PS.audioPlay(CURSE_MUSIC, {path: AUDIO_PATH});
 
 			T.timer = setTimeout(function(){
 				incrementTutorial();
@@ -242,6 +243,7 @@ var incrementTutorial = function() {
 
 			G.initNarcissus();
 			G.restartTimer();
+			narc_cut_can_talk = true;
 
 			T.timer = setTimeout(function(){
 				incrementTutorial();
@@ -266,6 +268,7 @@ var incrementTutorial = function() {
 			PS.statusText("");
 			PS.statusColor(NARC_COLOR);
 			customStatusText("'You're weird. Leave me alone.'");
+			narc_cut_can_talk = false;
 			timeRemaining = 12;
 			T.timer = setInterval(function(){
 				timeRemaining -= 1;
