@@ -421,6 +421,7 @@ var G;
 						PS.alpha(narcX+1, narcY+3, 190);
 						PS.alpha(narcX, narcY+4, 190);
 						PS.alpha(narcX+1, narcY+4, 190);
+						PS.gridRefresh();
 						PS.dbEvent(DB_NAME, "Game Won", 1);
 						PS.dbSend(DB_NAME, ["nchaput", "bsheridan"], {discard: true, message: "Thanks for playing!"});
 						incrementTutorial();
